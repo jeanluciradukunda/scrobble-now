@@ -1,0 +1,22 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen || true
+          xcodegen generate
+      - name: Create dummy Secrets.plist
+        run: cp ScrobbleNow/Resources/Secrets.example.plist ScrobbleNow/Resources/Secrets.plist
+      - name: Build
+        run: |
+          xcodebuild -scheme ScrobbleNow -configuration Debug -destination 'platform=macOS' CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO build

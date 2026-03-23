@@ -1,0 +1,453 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		017C8A218A693DE4F03BEE9B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E00961C407B21D13CF45EB9E /* Assets.xcassets */; };
+		0411D4BD98B0A692B918C738 /* MusicBrainzService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7414E9B734282F6B342C5A /* MusicBrainzService.swift */; };
+		05BA47968FBBFEC344CF9800 /* AlbumDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC0CBEE725DC8AF8080E89A /* AlbumDetailView.swift */; };
+		06B92F41D3E2566A2F416070 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FE681000BC36994A602D83 /* KeychainService.swift */; };
+		0BA3EE29324374EE09B50D41 /* LibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB2BB2F20879D5AA4800774 /* LibraryViewModel.swift */; };
+		11BE473C0BFB47723DEDF381 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56AD0226D56AC9B449D3CBE4 /* HistoryView.swift */; };
+		19E221D7BD55284070245C6E /* NowPlayingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */; };
+		1E021E9EEABAEAE687AC87A6 /* iTunesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB67D6E70719959ED127C567 /* iTunesService.swift */; };
+		292661EC3FD2C9201A251D7C /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA730E7257F76B5CCDFE472 /* Album.swift */; };
+		42B1D520A0213B02A7650386 /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE4230F732B9F8257B84158 /* NowPlayingView.swift */; };
+		59BC7D098303753E227F2E99 /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */; };
+		6A4C549A6B7F29C31553C055 /* DiscogsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */; };
+		6CFF6CD9103720A4B84760BA /* WikidataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */; };
+		77A86A4F46081352DA4AA51F /* CacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB479C6E709FA48840511EBB /* CacheService.swift */; };
+		77B76EF1DE6497F42AB7A1AA /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C98113A7ABDD5E7BDF1F23 /* SettingsManager.swift */; };
+		78C6A2A7C4454084919B997E /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AAB98902C5909700E29F6F7 /* StatisticsView.swift */; };
+		89DA4AA470CC0A995FFF4E02 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = FE197619BE346D8CE2D36B96 /* Secrets.plist */; };
+		8FAECCD67931F57234F4F61D /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */; };
+		946BD53FD4FFDE08673F91A2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475214BADE0D94B22F53D601 /* SettingsView.swift */; };
+		9AAB082D4C52B0BB2986EC91 /* StatisticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A3650658D9721D4060B6A6 /* StatisticsViewModel.swift */; };
+		A3BCFFCFA5E125BF09C74B4E /* AlbumDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */; };
+		A78C2813884ABDE0883B8163 /* LastFMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB4C530B436DAC304D43681 /* LastFMService.swift */; };
+		ACB62FE43B215150A9B93041 /* CollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A424FB0DA92E827E33FDB9 /* CollageView.swift */; };
+		C310ACE2A49021CB3CA8EFDF /* Secrets.example.plist in Resources */ = {isa = PBXBuildFile; fileRef = 599193E3C13DA0BF15B628B4 /* Secrets.example.plist */; };
+		C485A5E90C35443F32988330 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5A2E4F83C3B47FFC9939C469 /* Info.plist */; };
+		CF56914916AA5B8CC433D86F /* CollageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B7933EA834B896C87C1F7BA /* CollageViewModel.swift */; };
+		D9643C658E5F4D823638ED9A /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD12B4CB16C74BEFCD7E7473 /* Track.swift */; };
+		DF35F5B9EE37C276DC9F5710 /* ScrobbleNowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36C5EFF085D5F70BD16C3644 /* ScrobbleNowApp.swift */; };
+		F308F446FD29717A2B7D0B2C /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCD2BD832C94BD88F4F7299 /* HistoryViewModel.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0DCD2BD832C94BD88F4F7299 /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
+		0EA730E7257F76B5CCDFE472 /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
+		2BE4230F732B9F8257B84158 /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
+		2D9FC698960908EA651FD429 /* ScrobbleNow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScrobbleNow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		36C5EFF085D5F70BD16C3644 /* ScrobbleNowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleNowApp.swift; sourceTree = "<group>"; };
+		3EB4C530B436DAC304D43681 /* LastFMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastFMService.swift; sourceTree = "<group>"; };
+		402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDiscoveryService.swift; sourceTree = "<group>"; };
+		475214BADE0D94B22F53D601 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		4F96D950C7C4D1627BA1BDE8 /* ScrobbleNow.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScrobbleNow.entitlements; sourceTree = "<group>"; };
+		56AD0226D56AC9B449D3CBE4 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		599193E3C13DA0BF15B628B4 /* Secrets.example.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Secrets.example.plist; sourceTree = "<group>"; };
+		5A2E4F83C3B47FFC9939C469 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscogsService.swift; sourceTree = "<group>"; };
+		6AAB98902C5909700E29F6F7 /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; sourceTree = "<group>"; };
+		6B7933EA834B896C87C1F7BA /* CollageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageViewModel.swift; sourceTree = "<group>"; };
+		81A3650658D9721D4060B6A6 /* StatisticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewModel.swift; sourceTree = "<group>"; };
+		8CC0CBEE725DC8AF8080E89A /* AlbumDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDetailView.swift; sourceTree = "<group>"; };
+		922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingViewModel.swift; sourceTree = "<group>"; };
+		AB479C6E709FA48840511EBB /* CacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheService.swift; sourceTree = "<group>"; };
+		BCB2BB2F20879D5AA4800774 /* LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewModel.swift; sourceTree = "<group>"; };
+		D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		D8C98113A7ABDD5E7BDF1F23 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
+		DB67D6E70719959ED127C567 /* iTunesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iTunesService.swift; sourceTree = "<group>"; };
+		DB7414E9B734282F6B342C5A /* MusicBrainzService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicBrainzService.swift; sourceTree = "<group>"; };
+		E00961C407B21D13CF45EB9E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F3A424FB0DA92E827E33FDB9 /* CollageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageView.swift; sourceTree = "<group>"; };
+		F4FE681000BC36994A602D83 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WikidataService.swift; sourceTree = "<group>"; };
+		FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentColor.swift; sourceTree = "<group>"; };
+		FD12B4CB16C74BEFCD7E7473 /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
+		FE197619BE346D8CE2D36B96 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Secrets.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1F1B0658793DE120569C0A07 /* ScrobbleNow */ = {
+			isa = PBXGroup;
+			children = (
+				D5A555361533A62579FB87DD /* App */,
+				536664214AD2BBA5A9CCA5C6 /* Models */,
+				61E4B43FB6CEDC51079FF09C /* Resources */,
+				F1141E265F02D77F30DBE1BB /* Services */,
+				2B6312A219BE34E5C8EDE217 /* Views */,
+			);
+			path = ScrobbleNow;
+			sourceTree = "<group>";
+		};
+		2B6312A219BE34E5C8EDE217 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */,
+				8CC0CBEE725DC8AF8080E89A /* AlbumDetailView.swift */,
+				F3A424FB0DA92E827E33FDB9 /* CollageView.swift */,
+				56AD0226D56AC9B449D3CBE4 /* HistoryView.swift */,
+				D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */,
+				2BE4230F732B9F8257B84158 /* NowPlayingView.swift */,
+				475214BADE0D94B22F53D601 /* SettingsView.swift */,
+				6AAB98902C5909700E29F6F7 /* StatisticsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		536664214AD2BBA5A9CCA5C6 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				0EA730E7257F76B5CCDFE472 /* Album.swift */,
+				6B7933EA834B896C87C1F7BA /* CollageViewModel.swift */,
+				0DCD2BD832C94BD88F4F7299 /* HistoryViewModel.swift */,
+				BCB2BB2F20879D5AA4800774 /* LibraryViewModel.swift */,
+				922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */,
+				D8C98113A7ABDD5E7BDF1F23 /* SettingsManager.swift */,
+				81A3650658D9721D4060B6A6 /* StatisticsViewModel.swift */,
+				FD12B4CB16C74BEFCD7E7473 /* Track.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		61E4B43FB6CEDC51079FF09C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E00961C407B21D13CF45EB9E /* Assets.xcassets */,
+				5A2E4F83C3B47FFC9939C469 /* Info.plist */,
+				4F96D950C7C4D1627BA1BDE8 /* ScrobbleNow.entitlements */,
+				599193E3C13DA0BF15B628B4 /* Secrets.example.plist */,
+				FE197619BE346D8CE2D36B96 /* Secrets.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		A6619675D0217DC5EF5B66B1 = {
+			isa = PBXGroup;
+			children = (
+				1F1B0658793DE120569C0A07 /* ScrobbleNow */,
+				BB00A2E5D0BEC7BD2220E4D7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BB00A2E5D0BEC7BD2220E4D7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2D9FC698960908EA651FD429 /* ScrobbleNow.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D5A555361533A62579FB87DD /* App */ = {
+			isa = PBXGroup;
+			children = (
+				36C5EFF085D5F70BD16C3644 /* ScrobbleNowApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		F1141E265F02D77F30DBE1BB /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */,
+				AB479C6E709FA48840511EBB /* CacheService.swift */,
+				5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */,
+				DB67D6E70719959ED127C567 /* iTunesService.swift */,
+				F4FE681000BC36994A602D83 /* KeychainService.swift */,
+				3EB4C530B436DAC304D43681 /* LastFMService.swift */,
+				DB7414E9B734282F6B342C5A /* MusicBrainzService.swift */,
+				F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BAF763319D7C797101653D7A /* ScrobbleNow */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B53B2EC4211339EE97893AC8 /* Build configuration list for PBXNativeTarget "ScrobbleNow" */;
+			buildPhases = (
+				605740C98EEDA1C50C1330AC /* Sources */,
+				1F95BCBDEEA05A7CFCACB166 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ScrobbleNow;
+			packageProductDependencies = (
+			);
+			productName = ScrobbleNow;
+			productReference = 2D9FC698960908EA651FD429 /* ScrobbleNow.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		07D6FE1B4C2977F693A8D456 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 89A634862E8211D914149555 /* Build configuration list for PBXProject "ScrobbleNow" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = A6619675D0217DC5EF5B66B1;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = BB00A2E5D0BEC7BD2220E4D7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BAF763319D7C797101653D7A /* ScrobbleNow */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1F95BCBDEEA05A7CFCACB166 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				017C8A218A693DE4F03BEE9B /* Assets.xcassets in Resources */,
+				C485A5E90C35443F32988330 /* Info.plist in Resources */,
+				C310ACE2A49021CB3CA8EFDF /* Secrets.example.plist in Resources */,
+				89DA4AA470CC0A995FFF4E02 /* Secrets.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		605740C98EEDA1C50C1330AC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				59BC7D098303753E227F2E99 /* AccentColor.swift in Sources */,
+				292661EC3FD2C9201A251D7C /* Album.swift in Sources */,
+				05BA47968FBBFEC344CF9800 /* AlbumDetailView.swift in Sources */,
+				A3BCFFCFA5E125BF09C74B4E /* AlbumDiscoveryService.swift in Sources */,
+				77A86A4F46081352DA4AA51F /* CacheService.swift in Sources */,
+				ACB62FE43B215150A9B93041 /* CollageView.swift in Sources */,
+				CF56914916AA5B8CC433D86F /* CollageViewModel.swift in Sources */,
+				6A4C549A6B7F29C31553C055 /* DiscogsService.swift in Sources */,
+				11BE473C0BFB47723DEDF381 /* HistoryView.swift in Sources */,
+				F308F446FD29717A2B7D0B2C /* HistoryViewModel.swift in Sources */,
+				06B92F41D3E2566A2F416070 /* KeychainService.swift in Sources */,
+				A78C2813884ABDE0883B8163 /* LastFMService.swift in Sources */,
+				8FAECCD67931F57234F4F61D /* LibraryView.swift in Sources */,
+				0BA3EE29324374EE09B50D41 /* LibraryViewModel.swift in Sources */,
+				0411D4BD98B0A692B918C738 /* MusicBrainzService.swift in Sources */,
+				42B1D520A0213B02A7650386 /* NowPlayingView.swift in Sources */,
+				19E221D7BD55284070245C6E /* NowPlayingViewModel.swift in Sources */,
+				DF35F5B9EE37C276DC9F5710 /* ScrobbleNowApp.swift in Sources */,
+				77B76EF1DE6497F42AB7A1AA /* SettingsManager.swift in Sources */,
+				946BD53FD4FFDE08673F91A2 /* SettingsView.swift in Sources */,
+				78C6A2A7C4454084919B997E /* StatisticsView.swift in Sources */,
+				9AAB082D4C52B0BB2986EC91 /* StatisticsViewModel.swift in Sources */,
+				D9643C658E5F4D823638ED9A /* Track.swift in Sources */,
+				6CFF6CD9103720A4B84760BA /* WikidataService.swift in Sources */,
+				1E021E9EEABAEAE687AC87A6 /* iTunesService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		240A32301432D0893E2754AD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ScrobbleNow/Resources/ScrobbleNow.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.personal.ScrobbleNow;
+				PRODUCT_NAME = "Scrobble Now";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		2ED89BFAB1448FF8044752A3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		609358EBCE6A5550959F5D8A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		7A18FCA664B7FCFD9413D315 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ScrobbleNow/Resources/ScrobbleNow.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.personal.ScrobbleNow;
+				PRODUCT_NAME = "Scrobble Now";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		89A634862E8211D914149555 /* Build configuration list for PBXProject "ScrobbleNow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				609358EBCE6A5550959F5D8A /* Debug */,
+				2ED89BFAB1448FF8044752A3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B53B2EC4211339EE97893AC8 /* Build configuration list for PBXNativeTarget "ScrobbleNow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				240A32301432D0893E2754AD /* Debug */,
+				7A18FCA664B7FCFD9413D315 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 07D6FE1B4C2977F693A8D456 /* Project object */;
+}

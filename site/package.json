@@ -1,0 +1,21 @@
+{
+  "name": "scrobble-now-site",
+  "private": true,
+  "version": "0.1.0",
+  "homepage": "https://jeanluciradukunda.github.io/scrobble-now/",
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "build": "pnpm typecheck && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.9"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vite": "^7.1.5",
+    "vite-plugin-solid": "^2.11.8"
+  }
+}

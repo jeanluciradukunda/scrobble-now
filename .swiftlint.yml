@@ -1,0 +1,38 @@
+included:
+  - ScrobbleNow
+excluded:
+  - build
+  - DerivedData
+  - ScrobbleNow.xcodeproj
+opt_in_rules:
+  - empty_count
+  - explicit_init
+  - closure_spacing
+  - overridden_super_call
+  - redundant_nil_coalescing
+  - operator_usage_whitespace
+  - first_where
+  - fatal_error_message
+  - vertical_parameter_alignment_on_call
+  - let_var_whitespace
+  - unneeded_parentheses_in_closure_argument
+  - joined_default_parameter
+  - contains_over_first_not_nil
+  - yoda_condition
+disabled_rules:
+  - todo
+  - cyclomatic_complexity
+  - force_try
+  - trailing_comma
+  - type_body_length
+identifier_name:
+  excluded: [i, x, y, r, id, vm, el, wv]
+line_length:
+  warning: 300
+  error: 400
+file_length:
+  warning: 2000
+  error: 3000
+function_body_length:
+  warning: 150
+  error: 250

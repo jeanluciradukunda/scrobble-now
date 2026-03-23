@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+xcuserdata/
+
+# Secrets — NEVER commit
+ScrobbleNow/Resources/Secrets.plist
+*.secrets
+.env
+.env.*
+
+# Swift Package Manager
+.build/
+Packages/
+
+# Site
+site/node_modules/
+site/dist/
+site/.vite/
+site/tsconfig.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Claude Code
+.claude/
