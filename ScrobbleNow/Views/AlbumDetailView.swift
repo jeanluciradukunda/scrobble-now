@@ -312,7 +312,11 @@ struct AlbumDetailView: View {
     // MARK: - External Links
 
     private func externalLinks(album: AlbumDetail) -> some View {
-        HStack(spacing: 4) {
+        let bandcampQuery = "\(album.artistName) \(album.albumName)"
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let bandcampURL = URL(string: "https://bandcamp.com/search?q=\(bandcampQuery)")
+
+        return HStack(spacing: 4) {
             if let url = album.lastfmURL {
                 linkButton(label: "Last.fm", color: Color(red: 0.84, green: 0.06, blue: 0.03), url: url)
             }
@@ -324,6 +328,9 @@ struct AlbumDetailView: View {
             }
             if let url = album.appleMusicURL {
                 linkButton(label: "Apple Music", color: .pink, url: url)
+            }
+            if let url = bandcampURL {
+                linkButton(label: "Bandcamp", color: Color(red: 0.38, green: 0.73, blue: 0.73), url: url)
             }
         }
     }
