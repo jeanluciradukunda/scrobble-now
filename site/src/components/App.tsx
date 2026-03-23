@@ -64,19 +64,29 @@ export function App() {
       {/* ═══════ COVER PAGE ═══════ */}
       <section class="cover">
         <div class="cover-illustration">
-          <img src={img("hero-bg.jpg")} alt="" class="cover-layer" data-parallax="-0.15" />
-          <img src={img("hero-mid.png")} alt="" class="cover-layer" data-parallax="-0.35" />
-          <img src={img("hero-fg.png")} alt="" class="cover-layer" data-parallax="-0.55" />
+          <img src={img("hero-bg.jpg")} alt="" class="cover-layer" data-parallax="-0.08" />
+          <img src={img("hero-mid.png")} alt="" class="cover-layer" data-parallax="-0.2" />
+          <img src={img("hero-fg.png")} alt="" class="cover-layer" data-parallax="-0.38" />
         </div>
         <div class="cover-text">
+          <p class="kicker-top">macOS Menu Bar Companion for Last.fm</p>
           <img src={`${base}assets/title-scrobble-now.png`} alt="Scrobble Now" class="cover-title" />
           <div class="condec-stripe-h">
             <For each={STRIPE_COLORS}>{(c) => <span style={`background:${c}`} />}</For>
           </div>
-          <p class="cover-sub">
-            Annual Product Report<br />
-            For the Year Ended {year}
+          <p class="cover-desc">
+            See what you're listening to, discover albums across five sources,
+            generate shareable collages, and visualize your listening habits.
+            All from your menu bar.
           </p>
+          <menu class="cover-menu">
+            <a href="https://github.com/jeanluciradukunda/scrobble-now/releases/latest">
+              <span>DOWNLOAD</span><small>macOS 14+ · DMG</small>
+            </a>
+            <a href="https://github.com/jeanluciradukunda/scrobble-now">
+              <span>SOURCE</span><small>Swift · SwiftUI</small>
+            </a>
+          </menu>
         </div>
         <span class="page-num" style="bottom:1.5rem;right:2.5rem;color:var(--muted)">1</span>
       </section>
