@@ -40,6 +40,7 @@ class SystemScrobbleService: ObservableObject {
         loadConnectors()
         setupBridge()
         startProgressTimer()
+        startRetryTimer()
     }
 
     // MARK: - Bridge Setup
@@ -140,6 +141,22 @@ class SystemScrobbleService: ObservableObject {
 
         // Also refresh the bridge data periodically for elapsed time updates
         bridge.pollMediaRemote()
+    }
+
+    // MARK: - Retry Timer
+
+    private func startRetryTimer() {
+        // Retry failed scrobbles every 5 minutes
+        Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            Task {
+                let result = await ScrobbleCache.shared.retryPending(using: self.lastfm)
+                if result.succeeded > 0 {
+                    print("[Scrobble] Retry: \(result.succeeded) succeeded, \(result.failed) still pending")
+                    await MainActor.run { self.totalScrobbled += result.succeeded }
+                }
+            }
+        }
     }
 
     // MARK: - Scrobble Rules
@@ -308,6 +325,7 @@ class SystemScrobbleService: ObservableObject {
 
         let timestamp = Int(Date().timeIntervalSince1970)
         Task {
+            let entry = ScrobbleCacheEntry(artist: track.artist, track: track.title, album: track.album, timestamp: timestamp)
             do {
                 try await lastfm.scrobble(
                     artist: track.artist,
@@ -316,9 +334,10 @@ class SystemScrobbleService: ObservableObject {
                     timestamp: timestamp
                 )
                 print("[Scrobble] ✓ \(track.artist) — \(track.title) (via \(track.sourceAppName))")
+                await ScrobbleCache.shared.logSuccess(artist: track.artist, track: track.title, album: track.album, timestamp: timestamp)
             } catch {
-                print("[Scrobble] ✗ Failed: \(error.localizedDescription)")
-                // TODO: Queue for retry (Task 15)
+                print("[Scrobble] ✗ Failed, queued for retry: \(error.localizedDescription)")
+                await ScrobbleCache.shared.queueForRetry(entry)
             }
         }
     }

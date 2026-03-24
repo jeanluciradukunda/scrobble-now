@@ -21,6 +21,7 @@
 		59BC7D098303753E227F2E99 /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */; };
 		6A4C549A6B7F29C31553C055 /* DiscogsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */; };
 		6CFF6CD9103720A4B84760BA /* WikidataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */; };
+		76E9B67AC9C98FFCB28AAB01 /* ScrobbleCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF9BDB1C50EA86588165F202 /* ScrobbleCache.swift */; };
 		77A86A4F46081352DA4AA51F /* CacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB479C6E709FA48840511EBB /* CacheService.swift */; };
 		77B76EF1DE6497F42AB7A1AA /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C98113A7ABDD5E7BDF1F23 /* SettingsManager.swift */; };
 		78C6A2A7C4454084919B997E /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AAB98902C5909700E29F6F7 /* StatisticsView.swift */; };
@@ -65,6 +66,7 @@
 		922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingViewModel.swift; sourceTree = "<group>"; };
 		AB479C6E709FA48840511EBB /* CacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheService.swift; sourceTree = "<group>"; };
 		BCB2BB2F20879D5AA4800774 /* LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewModel.swift; sourceTree = "<group>"; };
+		BF9BDB1C50EA86588165F202 /* ScrobbleCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleCache.swift; sourceTree = "<group>"; };
 		D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		D8C98113A7ABDD5E7BDF1F23 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		DB67D6E70719959ED127C567 /* iTunesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iTunesService.swift; sourceTree = "<group>"; };
@@ -168,6 +170,7 @@
 				3EB4C530B436DAC304D43681 /* LastFMService.swift */,
 				73E507B8BC0D0152B1CB879A /* MediaRemoteBridge.swift */,
 				DB7414E9B734282F6B342C5A /* MusicBrainzService.swift */,
+				BF9BDB1C50EA86588165F202 /* ScrobbleCache.swift */,
 				254BEDF3534B4D7781A96A81 /* SystemScrobbleService.swift */,
 				F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */,
 				54BF1538A622E83C2C86506E /* YouTubeMusicFilter.swift */,
@@ -263,6 +266,7 @@
 				0411D4BD98B0A692B918C738 /* MusicBrainzService.swift in Sources */,
 				42B1D520A0213B02A7650386 /* NowPlayingView.swift in Sources */,
 				19E221D7BD55284070245C6E /* NowPlayingViewModel.swift in Sources */,
+				76E9B67AC9C98FFCB28AAB01 /* ScrobbleCache.swift in Sources */,
 				DF35F5B9EE37C276DC9F5710 /* ScrobbleNowApp.swift in Sources */,
 				77B76EF1DE6497F42AB7A1AA /* SettingsManager.swift in Sources */,
 				946BD53FD4FFDE08673F91A2 /* SettingsView.swift in Sources */,
