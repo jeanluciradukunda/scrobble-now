@@ -27,6 +27,8 @@ targets:
         PRODUCT_NAME: "Scrobble Now"
         CODE_SIGN_ENTITLEMENTS: ScrobbleNow/Resources/ScrobbleNow.entitlements
         COMBINE_HIDPI_IMAGES: YES
+        DEVELOPMENT_TEAM: YNB3ADRMFC
+        CODE_SIGN_STYLE: Automatic
     info:
       path: ScrobbleNow/Resources/Info.plist
       properties:

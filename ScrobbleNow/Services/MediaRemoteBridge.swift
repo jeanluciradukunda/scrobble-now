@@ -491,26 +491,58 @@ class MediaRemoteBridge: ObservableObject {
     private var hasLoggedKeys = false
 
     private func processMediaRemoteInfo(_ info: [String: Any]) {
-        if !hasLoggedKeys && !info.isEmpty {
+        guard !info.isEmpty else { return }
+
+        if !hasLoggedKeys {
             hasLoggedKeys = true
-            print("[NowPlaying] MediaRemote keys: \(info.keys.sorted().joined(separator: ", "))")
+            print("[MediaRemote] ✓ Got data! Keys: \(info.keys.sorted().joined(separator: ", "))")
+            for (k, v) in info.sorted(by: { $0.key < $1.key }) {
+                if v is Data {
+                    print("[MediaRemote]   \(k) = <Data \((v as! Data).count) bytes>")
+                } else {
+                    print("[MediaRemote]   \(k) = \(String(describing: v).prefix(80))")
+                }
+            }
         }
 
-        let title = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String ?? ""
-        guard !title.isEmpty else { return }
+        let rawTitle = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String ?? ""
+        guard !rawTitle.isEmpty else { return }
 
-        let artist = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? ""
+        var artist = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? ""
+        var title = rawTitle
         let album = info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String ?? ""
         let duration = info["kMRMediaRemoteNowPlayingInfoDuration"] as? Double ?? 0
         let elapsed = info["kMRMediaRemoteNowPlayingInfoElapsedTime"] as? Double ?? 0
         let rate = info["kMRMediaRemoteNowPlayingInfoPlaybackRate"] as? Double ?? 0
-        let bundleId = info["kMRMediaRemoteNowPlayingInfoQueueItemBundleIdentifier"] as? String ?? ""
+        let bundleId = info["kMRMediaRemoteNowPlayingInfoQueueItemBundleIdentifier"] as? String ?? "system.mediaremote"
 
-        // Don't override Spotify/Music with stale MediaRemote data
-        if let existing = activeSources[bundleId],
-           Date().timeIntervalSince(existing.timestamp) < 5,
-           (bundleId == "com.spotify.client" || bundleId == "com.apple.Music") {
+        // Don't override Spotify/Music with MediaRemote data (they have better DistributedNotification data)
+        if (bundleId == "com.spotify.client" || bundleId == "com.apple.Music"),
+           let existing = activeSources[bundleId],
+           Date().timeIntervalSince(existing.timestamp) < 10 {
             return
+        }
+
+        // If title looks like "Artist - Track (official video)" and we have a separate artist field,
+        // the title might contain redundant artist info — clean it up
+        if !artist.isEmpty && title.lowercased().hasPrefix(artist.lowercased()) {
+            // Title is "Artist - Actual Track Name..." — extract just the track
+            let afterArtist = title.dropFirst(artist.count)
+            let separators = [" - ", " – ", " — "]
+            for sep in separators {
+                if afterArtist.hasPrefix(sep) {
+                    title = String(afterArtist.dropFirst(sep.count))
+                    break
+                }
+            }
+        }
+
+        // Strip common YouTube suffixes
+        for suffix in [" (official video)", " (official audio)", " (official music video)",
+                       " (lyric video)", " (lyrics)", " (audio)", " (visualizer)", " (mv)"] {
+            if title.lowercased().hasSuffix(suffix) {
+                title = String(title.dropLast(suffix.count))
+            }
         }
 
         var artwork: NSImage?
