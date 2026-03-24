@@ -19,7 +19,7 @@ actor WikidataService {
         var request = URLRequest(url: url)
         request.setValue("ScrobbleNow/1.0", forHTTPHeaderField: "User-Agent")
 
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, _) = try await URLSession.shared.trackedData(for: request, service: "Wikidata")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
         guard let results = (json?["results"] as? [String: Any])?["bindings"] as? [[String: Any]] else { return [] }

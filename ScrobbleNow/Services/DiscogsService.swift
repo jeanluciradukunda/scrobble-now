@@ -32,7 +32,7 @@ actor DiscogsService {
         var request = URLRequest(url: url)
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
 
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, _) = try await URLSession.shared.trackedData(for: request, service: "Discogs")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
         guard let results = json?["results"] as? [[String: Any]] else { return [] }
@@ -58,7 +58,7 @@ actor DiscogsService {
         // Rate limit — Discogs allows 60/min
         try? await Task.sleep(for: .milliseconds(200))
 
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, _) = try await URLSession.shared.trackedData(for: request, service: "Discogs")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         guard let json = json else { return nil }
 

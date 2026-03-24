@@ -9,9 +9,10 @@ actor YouTubeMusicFilter {
 
     struct MusicCheckResult {
         let isMusic: Bool
-        let artist: String?  // nil = use tab title parsing
+        let artist: String?
         let track: String?
         let album: String?
+        let durationSeconds: Double?
     }
 
     // Cache results to avoid repeated API calls
@@ -80,18 +81,16 @@ actor YouTubeMusicFilter {
         request.timeoutInterval = 5
 
         do {
-            let (data, _) = try await URLSession.shared.data(for: request)
+            let (data, _) = try await URLSession.shared.trackedData(for: request, service: "YouTube Music")
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let videoDetails = json["videoDetails"] as? [String: Any] else { return nil }
 
             let musicVideoType = videoDetails["musicVideoType"] as? String ?? ""
             let isMusic = musicVideoType.hasPrefix("MUSIC_VIDEO_")
 
+            let duration = (videoDetails["lengthSeconds"] as? String).flatMap { Double($0) }
+
             if isMusic {
-                // All MUSIC_VIDEO_ types have reliable author/title
-                // OMV = Official Music Video
-                // UGC = User Generated Content (uploaded by artist)
-                // ATV = Art Track Video (auto-generated)
                 let artist = videoDetails["author"] as? String
                 let track = videoDetails["title"] as? String
 
@@ -99,11 +98,12 @@ actor YouTubeMusicFilter {
                     isMusic: true,
                     artist: artist,
                     track: track,
-                    album: nil
+                    album: nil,
+                    durationSeconds: duration
                 )
             }
 
-            return MusicCheckResult(isMusic: false, artist: nil, track: nil, album: nil)
+            return MusicCheckResult(isMusic: false, artist: nil, track: nil, album: nil, durationSeconds: nil)
         } catch {
             return nil
         }
@@ -117,9 +117,9 @@ actor YouTubeMusicFilter {
         request.timeoutInterval = 5
 
         do {
-            let (data, _) = try await URLSession.shared.data(for: request)
+            let (data, _) = try await URLSession.shared.trackedData(for: request, service: "YouTube Music")
             guard let html = String(data: data, encoding: .utf8) else {
-                return MusicCheckResult(isMusic: false, artist: nil, track: nil, album: nil)
+                return MusicCheckResult(isMusic: false, artist: nil, track: nil, album: nil, durationSeconds: nil)
             }
 
             // Look for "category":"Music" in the page source
@@ -129,13 +129,13 @@ actor YouTubeMusicFilter {
                     .replacingOccurrences(of: "\"", with: "")
 
                 let isMusic = category == "Music" || category == "Entertainment"
-                return MusicCheckResult(isMusic: isMusic, artist: nil, track: nil, album: nil)
+                return MusicCheckResult(isMusic: isMusic, artist: nil, track: nil, album: nil, durationSeconds: nil)
             }
         } catch {
             // Network error — be permissive, allow scrobble
         }
 
-        return MusicCheckResult(isMusic: false, artist: nil, track: nil, album: nil)
+        return MusicCheckResult(isMusic: false, artist: nil, track: nil, album: nil, durationSeconds: nil)
     }
 
     /// Clear old cache entries (call periodically)

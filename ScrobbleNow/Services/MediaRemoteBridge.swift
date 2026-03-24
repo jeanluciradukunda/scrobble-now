@@ -289,7 +289,7 @@ class MediaRemoteBridge: ObservableObject {
                 if let ytArtist = result.artist, let ytTrack = result.track {
                     let track = SystemNowPlaying(
                         title: ytTrack, artist: ytArtist, album: result.album ?? "",
-                        duration: 0, elapsed: 0, playbackRate: 1.0,
+                        duration: result.durationSeconds ?? 0, elapsed: 0, playbackRate: 1.0,
                         artwork: artwork, sourceBundleId: bundleId,
                         sourceAppName: "\(appName) · YouTube", timestamp: Date()
                     )

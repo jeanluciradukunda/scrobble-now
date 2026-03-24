@@ -22,6 +22,9 @@ class SystemScrobbleService: ObservableObject {
     private let lastfm = LastFMService()
     private var settings: SettingsManager { SettingsManager.shared }
 
+    /// Called after a successful scrobble — use to refresh history
+    var onScrobbleSuccess: (() -> Void)?
+
     // MARK: - Tracking State
 
     private var trackStartTime: Date?
@@ -63,9 +66,10 @@ class SystemScrobbleService: ObservableObject {
     private func handleTrackChange(_ newTrack: SystemNowPlaying?) {
         let oldTrack = currentTrack
 
-        // If there was a previous track and we hadn't scrobbled it yet, check if we should
-        if let old = oldTrack, !didScrobbleCurrent {
-            checkAndScrobble(track: old, force: false)
+        // If there was a previous track and we hadn't scrobbled it yet,
+        // force scrobble if we've listened for at least 30 seconds
+        if let old = oldTrack, !didScrobbleCurrent, accumulatedPlayTime >= 30 {
+            checkAndScrobble(track: old, force: true)
         }
 
         currentTrack = newTrack
@@ -134,6 +138,22 @@ class SystemScrobbleService: ObservableObject {
             scrobbleProgress = min(1, accumulatedPlayTime / threshold)
         }
 
+        // Update the track's elapsed time for the UI progress bar
+        if track.duration > 0 {
+            let updatedTrack = SystemNowPlaying(
+                title: track.title, artist: track.artist, album: track.album,
+                duration: track.duration, elapsed: min(accumulatedPlayTime, track.duration),
+                playbackRate: track.playbackRate, artwork: track.artwork,
+                sourceBundleId: track.sourceBundleId, sourceAppName: track.sourceAppName,
+                timestamp: track.timestamp
+            )
+            currentTrack = updatedTrack
+            bridge.activeSources[track.sourceBundleId] = updatedTrack
+            if bridge.currentTrack?.sourceBundleId == track.sourceBundleId {
+                bridge.currentTrack = updatedTrack
+            }
+        }
+
         // Check if we should scrobble
         if accumulatedPlayTime >= threshold && !didScrobbleCurrent {
             checkAndScrobble(track: track, force: true)
@@ -161,18 +181,24 @@ class SystemScrobbleService: ObservableObject {
 
     // MARK: - Scrobble Rules
 
-    /// Returns the number of seconds of play time required before scrobbling
+    /// Returns the number of seconds of play time required before scrobbling.
+    ///
+    /// Rules (matching Last.fm/Web Scrobbler):
+    /// - Known duration: scrobble at `scrobbleThresholdPercent`% of duration, capped at 4 min
+    /// - Unknown duration (YouTube etc): scrobble at 60 seconds
+    /// - Either way, never scrobble before `minTrackDuration` seconds (default 30s)
     private func scrobbleThreshold(for track: SystemNowPlaying) -> TimeInterval {
         let pct = settings.scrobbleThresholdPercent / 100.0 // default 50%
-        let minSeconds: TimeInterval = 240 // 4 minutes
+        let maxSeconds: TimeInterval = 240 // 4 minutes cap
+        let minSeconds = TimeInterval(settings.minTrackDuration) // default 30s
 
         if track.duration > 0 {
             let pctThreshold = track.duration * pct
-            return min(pctThreshold, minSeconds)
+            return max(minSeconds, min(pctThreshold, maxSeconds))
         }
 
-        // Unknown duration — use 4 minutes
-        return minSeconds
+        // Unknown duration — use 60 seconds (reasonable middle ground)
+        return max(minSeconds, 60)
     }
 
     // MARK: - Artwork Fetching
@@ -335,6 +361,7 @@ class SystemScrobbleService: ObservableObject {
                 )
                 print("[Scrobble] ✓ \(track.artist) — \(track.title) (via \(track.sourceAppName))")
                 await ScrobbleCache.shared.logSuccess(artist: track.artist, track: track.title, album: track.album, timestamp: timestamp)
+                await MainActor.run { onScrobbleSuccess?() }
             } catch {
                 print("[Scrobble] ✗ Failed, queued for retry: \(error.localizedDescription)")
                 await ScrobbleCache.shared.queueForRetry(entry)

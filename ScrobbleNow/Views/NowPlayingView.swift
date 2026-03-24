@@ -160,13 +160,13 @@ struct NowPlayingView: View {
                     .filter { $0.isPlaying }
                     .sorted { $0.timestamp > $1.timestamp }
 
-                if isExpanded, let primary = playingSources.first {
-                    // ═══════ EXPANDED: iOS Music-style large artwork ═══════
-                    expandedNowPlaying(track: primary, allSources: Array(playingSources))
-                } else {
-                    // ═══════ COMPACT: card per source ═══════
-                    ForEach(Array(playingSources.enumerated()), id: \.element.sourceBundleId) { _, sysTrack in
-                        systemNowPlayingCard(track: sysTrack)
+                if let primary = playingSources.first {
+                    if isExpanded {
+                        // ═══════ EXPANDED: one source in focus ═══════
+                        expandedNowPlaying(track: primary, allSources: Array(playingSources))
+                    } else {
+                        // ═══════ COMPACT: primary card ═══════
+                        systemNowPlayingCard(track: primary)
                             .padding(.horizontal, 16)
                             .padding(.bottom, 4)
                             .onTapGesture {
@@ -174,6 +174,20 @@ struct NowPlayingView: View {
                                     isExpanded = true
                                 }
                             }
+                    }
+
+                    // ═══════ OTHER SOURCES: horizontal ticker strip ═══════
+                    if playingSources.count > 1 {
+                        otherSourcesStrip(
+                            sources: Array(playingSources.dropFirst()),
+                            onSelect: { selected in
+                                // Swap: make this the primary
+                                MediaRemoteBridge.shared.currentTrack = selected
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    isExpanded = true
+                                }
+                            }
+                        )
                     }
                 }
 
@@ -226,6 +240,82 @@ struct NowPlayingView: View {
 
                 } // end else (not settings mode)
             }
+        }
+    }
+
+    // MARK: - Other Sources Horizontal Strip
+
+    private func otherSourcesStrip(sources: [SystemNowPlaying], onSelect: @escaping (SystemNowPlaying) -> Void) -> some View {
+        VStack(spacing: 2) {
+            HStack {
+                Text("ALSO PLAYING")
+                    .font(.system(size: 7, weight: .bold))
+                    .tracking(1)
+                    .foregroundStyle(.quaternary)
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(Array(sources.enumerated()), id: \.element.sourceBundleId) { _, source in
+                        miniSourceCard(source: source)
+                            .onTapGesture { onSelect(source) }
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+        }
+        .padding(.bottom, 6)
+    }
+
+    private func miniSourceCard(source: SystemNowPlaying) -> some View {
+        HStack(spacing: 6) {
+            // Small artwork
+            if let artwork = source.artwork {
+                Image(nsImage: artwork)
+                    .resizable()
+                    .aspectRatio(1, contentMode: .fill)
+                    .frame(width: 28, height: 28)
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
+            } else {
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(.ultraThinMaterial)
+                    .frame(width: 28, height: 28)
+                    .overlay {
+                        Image(systemName: "music.note")
+                            .font(.system(size: 8))
+                            .foregroundStyle(.tertiary)
+                    }
+            }
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(source.title)
+                    .font(.system(size: 8, weight: .medium))
+                    .lineLimit(1)
+                HStack(spacing: 3) {
+                    if let icon = MediaRemoteBridge.shared.appIcon(for: source.sourceBundleId) {
+                        Image(nsImage: icon)
+                            .resizable()
+                            .frame(width: 8, height: 8)
+                            .clipShape(RoundedRectangle(cornerRadius: 1))
+                    }
+                    Text(source.artist)
+                        .font(.system(size: 7))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.white.opacity(0.04))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(Color.white.opacity(0.06), lineWidth: 0.5)
+                }
         }
     }
 
@@ -389,44 +479,6 @@ struct NowPlayingView: View {
             }
             .padding(.top, 12)
             .padding(.horizontal, 20)
-
-            // Other sources (if multiple playing)
-            if allSources.count > 1 {
-                VStack(spacing: 0) {
-                    Text("OTHER SOURCES")
-                        .font(.system(size: 7, weight: .bold))
-                        .tracking(1)
-                        .foregroundStyle(.quaternary)
-                        .padding(.top, 12)
-                        .padding(.bottom, 4)
-
-                    ForEach(Array(allSources.dropFirst().enumerated()), id: \.element.sourceBundleId) { _, other in
-                        HStack(spacing: 6) {
-                            if let icon = MediaRemoteBridge.shared.appIcon(for: other.sourceBundleId) {
-                                Image(nsImage: icon)
-                                    .resizable()
-                                    .frame(width: 10, height: 10)
-                                    .clipShape(RoundedRectangle(cornerRadius: 2))
-                            }
-                            Text("\(other.artist) — \(other.title)")
-                                .font(.system(size: 9))
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                            Spacer()
-                            Text(other.sourceAppName)
-                                .font(.system(size: 7))
-                                .foregroundStyle(.quaternary)
-                        }
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 3)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            // Switch primary to this source
-                            MediaRemoteBridge.shared.currentTrack = other
-                        }
-                    }
-                }
-            }
 
             Spacer(minLength: 6)
         }

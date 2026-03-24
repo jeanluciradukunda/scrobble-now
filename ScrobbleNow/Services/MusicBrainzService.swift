@@ -15,7 +15,7 @@ actor MusicBrainzService {
         // Rate limit — MB allows 1 req/sec
         try? await Task.sleep(for: .milliseconds(300))
 
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, _) = try await URLSession.shared.trackedData(for: request, service: "MusicBrainz")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
         guard let groups = json?["release-groups"] as? [[String: Any]] else { return [] }
@@ -42,7 +42,7 @@ actor MusicBrainzService {
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
 
         try? await Task.sleep(for: .milliseconds(300))
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, _) = try await URLSession.shared.trackedData(for: request, service: "MusicBrainz")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
         guard let releases = json?["releases"] as? [[String: Any]],

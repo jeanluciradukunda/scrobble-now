@@ -11,7 +11,7 @@ actor iTunesService {
         for query in queries {
             let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
             let url = URL(string: "https://itunes.apple.com/search?term=\(encoded)&entity=album&limit=5")!
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await URLSession.shared.trackedData(from: url, service: "iTunes")
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
             guard let results = json?["results"] as? [[String: Any]], !results.isEmpty else { continue }
@@ -39,7 +39,7 @@ actor iTunesService {
 
     func getAlbumTracks(collectionId: Int) async throws -> [AlbumTrack] {
         let url = URL(string: "https://itunes.apple.com/lookup?id=\(collectionId)&entity=song")!
-        let (data, _) = try await URLSession.shared.data(from: url)
+        let (data, _) = try await URLSession.shared.trackedData(from: url, service: "iTunes")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
         guard let results = json?["results"] as? [[String: Any]] else { return [] }
