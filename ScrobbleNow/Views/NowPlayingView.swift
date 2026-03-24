@@ -7,6 +7,7 @@ enum AppMode: String {
 struct NowPlayingView: View {
     @ObservedObject var viewModel: NowPlayingViewModel
     @ObservedObject var settings: SettingsManager
+    @ObservedObject var scrobbler: SystemScrobbleService
     @State private var mode: AppMode = .feed
     @State private var albumToView: (name: String, artist: String)?
 
@@ -141,7 +142,7 @@ struct NowPlayingView: View {
 
                 // Header
                 VStack(spacing: 2) {
-                    Text(viewModel.nowPlaying != nil ? "LISTENING NOW" : "RECENT")
+                    Text(scrobbler.currentTrack != nil ? "LISTENING NOW" : "RECENT")
                         .font(.system(size: 10, weight: .semibold))
                         .tracking(2)
                         .foregroundStyle(.secondary)
@@ -153,7 +154,24 @@ struct NowPlayingView: View {
                 .padding(.top, 4)
                 .padding(.bottom, 8)
 
-                if viewModel.isLoading && viewModel.recentTracks.isEmpty {
+                // ALL active playing sources
+                let playingSources = MediaRemoteBridge.shared.activeSources.values
+                    .filter { $0.isPlaying }
+                    .sorted { $0.timestamp > $1.timestamp }
+
+                ForEach(Array(playingSources.enumerated()), id: \.element.sourceBundleId) { _, sysTrack in
+                    systemNowPlayingCard(track: sysTrack)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 4)
+                        .onTapGesture {
+                            guard !sysTrack.album.isEmpty else { return }
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                albumToView = (sysTrack.album, sysTrack.artist)
+                            }
+                        }
+                }
+
+                if viewModel.isLoading && viewModel.recentTracks.isEmpty && scrobbler.currentTrack == nil {
                     Spacer()
                     ProgressView()
                         .scaleEffect(0.8)
@@ -162,30 +180,7 @@ struct NowPlayingView: View {
                         .foregroundStyle(.secondary)
                         .padding(.top, 6)
                     Spacer()
-                } else if let error = viewModel.errorMessage, viewModel.recentTracks.isEmpty {
-                    Spacer()
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 24))
-                        .foregroundStyle(.tertiary)
-                    Text(error)
-                        .font(.system(size: 10))
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                        .padding(.top, 4)
-                    Spacer()
                 } else {
-                    // Now playing card
-                    if let np = viewModel.nowPlaying {
-                        nowPlayingCard(track: np)
-                            .padding(.horizontal, 16)
-                            .onTapGesture {
-                                guard !np.albumName.isEmpty else { return }
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    albumToView = (np.albumName, np.artistName)
-                                }
-                            }
-                    }
 
                     // Recent tracks
                     ScrollView(.vertical, showsIndicators: false) {
@@ -228,7 +223,122 @@ struct NowPlayingView: View {
         }
     }
 
-    // MARK: - Now Playing Card
+    // MARK: - System Now Playing Card (from MediaRemote)
+
+    private func systemNowPlayingCard(track: SystemNowPlaying) -> some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 10) {
+                // System artwork
+                if let artwork = track.artwork {
+                    Image(nsImage: artwork)
+                        .resizable()
+                        .aspectRatio(1, contentMode: .fill)
+                        .frame(width: 56, height: 56)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 56, height: 56)
+                        .overlay {
+                            Image(systemName: "music.note")
+                                .foregroundStyle(.tertiary)
+                        }
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    // Source app badge
+                    HStack(spacing: 4) {
+                        if let icon = MediaRemoteBridge.shared.appIcon(for: track.sourceBundleId) {
+                            Image(nsImage: icon)
+                                .resizable()
+                                .frame(width: 10, height: 10)
+                                .clipShape(RoundedRectangle(cornerRadius: 2))
+                        }
+                        Text(track.sourceAppName.uppercased())
+                            .font(.system(size: 7, weight: .bold, design: .monospaced))
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Text(track.title)
+                        .font(.system(size: 12, weight: .bold))
+                        .lineLimit(1)
+
+                    Text(track.artist)
+                        .font(.system(size: 10))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+
+                    if !track.album.isEmpty {
+                        Text(track.album)
+                            .font(.system(size: 9))
+                            .foregroundStyle(.tertiary)
+                            .lineLimit(1)
+                    }
+                }
+
+                Spacer(minLength: 0)
+
+                // Scrobble indicator
+                VStack(spacing: 2) {
+                    if scrobbler.didScrobbleCurrent {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.green)
+                    } else {
+                        // Circular progress toward scrobble
+                        ZStack {
+                            Circle()
+                                .stroke(Color.white.opacity(0.08), lineWidth: 2)
+                            Circle()
+                                .trim(from: 0, to: scrobbler.scrobbleProgress)
+                                .stroke(AppAccent.current, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                                .rotationEffect(.degrees(-90))
+                        }
+                        .frame(width: 18, height: 18)
+                    }
+                    Text(scrobbler.didScrobbleCurrent ? "✓" : "\(Int(scrobbler.scrobbleProgress * 100))%")
+                        .font(.system(size: 6, weight: .bold, design: .monospaced))
+                        .foregroundStyle(.tertiary)
+                }
+            }
+
+            // Progress bar
+            if track.duration > 0 {
+                VStack(spacing: 2) {
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 1.5)
+                                .fill(Color.white.opacity(0.08))
+                            RoundedRectangle(cornerRadius: 1.5)
+                                .fill(AppAccent.current.opacity(0.6))
+                                .frame(width: geo.size.width * track.progress)
+                        }
+                    }
+                    .frame(height: 3)
+
+                    HStack {
+                        Text(track.elapsedFormatted)
+                        Spacer()
+                        Text("-\(track.remainingFormatted)")
+                    }
+                    .font(.system(size: 7, design: .monospaced))
+                    .foregroundStyle(.quaternary)
+                }
+                .padding(.top, 8)
+            }
+        }
+        .padding(10)
+        .background {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(AppAccent.current.opacity(0.06))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10)
+                        .strokeBorder(AppAccent.current.opacity(0.15), lineWidth: 0.5)
+                }
+        }
+    }
+
+    // MARK: - Last.fm Now Playing Card
 
     private func nowPlayingCard(track: ScrobbledTrack) -> some View {
         HStack(spacing: 10) {

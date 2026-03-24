@@ -4,14 +4,16 @@ import SwiftUI
 struct ScrobbleNowApp: App {
     @StateObject private var viewModel = NowPlayingViewModel()
     @StateObject private var settings = SettingsManager.shared
+    @StateObject private var scrobbler = SystemScrobbleService.shared
 
     init() {
         KeychainService.bootstrapDefaults()
+        MediaRemoteBridge.shared.startListening()
     }
 
     var body: some Scene {
         MenuBarExtra {
-            NowPlayingView(viewModel: viewModel, settings: settings)
+            NowPlayingView(viewModel: viewModel, settings: settings, scrobbler: scrobbler)
                 .frame(width: 320, height: 580)
                 .environment(\.appAccent, AppAccent.color(for: settings.accentColorName))
                 .tint(AppAccent.color(for: settings.accentColorName))

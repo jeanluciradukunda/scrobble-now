@@ -1,0 +1,98 @@
+<svg width="1400" height="760" viewBox="0 0 1400 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="heroPaper" x1="70" y1="70" x2="1330" y2="690" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F7F0E4"/>
+      <stop offset="1" stop-color="#F0E6D4"/>
+    </linearGradient>
+    <linearGradient id="heroGlow" x1="770" y1="140" x2="1280" y2="620" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF6DA"/>
+      <stop offset="1" stop-color="#F2DDAD"/>
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="1400" height="760" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#20120D" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .eyebrow { fill: #7D6D57; font-family: monospace; font-size: 18px; font-weight: 700; letter-spacing: 0.22em; }
+      .headline { fill: #1E1812; font-family: serif; font-size: 64px; font-weight: 700; }
+      .body { fill: #4D4338; font-family: sans-serif; font-size: 26px; font-weight: 400; }
+      .pill { fill: #201812; font-family: monospace; font-size: 18px; font-weight: 700; letter-spacing: 0.08em; }
+      .small { fill: #6F604A; font-family: monospace; font-size: 15px; font-weight: 700; letter-spacing: 0.12em; }
+      .cardTitle { fill: #1E1812; font-family: sans-serif; font-size: 22px; font-weight: 700; }
+      .cardBody { fill: #5B5145; font-family: sans-serif; font-size: 16px; font-weight: 400; }
+    </style>
+  </defs>
+
+  <rect x="42" y="42" width="1316" height="676" rx="34" fill="#F4EDD9" stroke="#E3D7C1" stroke-width="2"/>
+
+  <path d="M54 592L442 392L442 718L54 718V592Z" fill="#D34A24" fill-opacity="0.9"/>
+  <path d="M260 42L670 42L342 324L42 324V258L260 42Z" fill="#2F5FB7" fill-opacity="0.9"/>
+  <path d="M802 84L1292 84L1006 680L772 680L802 84Z" fill="#D5AE41" fill-opacity="0.32"/>
+  <path d="M1096 96L1350 210L1350 708L1188 708L1010 520L1096 96Z" fill="#4A6D42" fill-opacity="0.2"/>
+  <path d="M660 468L904 352L1088 708L780 708L660 468Z" fill="#5A2A64" fill-opacity="0.18"/>
+
+  <circle cx="1044" cy="358" r="232" fill="url(#heroGlow)"/>
+  <circle cx="1044" cy="358" r="206" fill="#1B1B1D"/>
+  <circle cx="1044" cy="358" r="193" fill="#242427"/>
+  <circle cx="1044" cy="358" r="179" stroke="#62564A" stroke-opacity="0.6" stroke-width="1.5"/>
+  <circle cx="1044" cy="358" r="154" stroke="#62564A" stroke-opacity="0.45" stroke-width="1.5"/>
+  <circle cx="1044" cy="358" r="128" stroke="#62564A" stroke-opacity="0.36" stroke-width="1.5"/>
+  <circle cx="1044" cy="358" r="104" stroke="#62564A" stroke-opacity="0.32" stroke-width="1.5"/>
+  <circle cx="1044" cy="358" r="78" fill="#F5EFD7"/>
+  <circle cx="1044" cy="358" r="26" fill="#C94F29"/>
+  <circle cx="1044" cy="358" r="12" fill="#F7F0E4"/>
+  <path d="M882 276C930 236 980 216 1044 216C1126 216 1194 254 1232 312" stroke="#F7F0E4" stroke-opacity="0.28" stroke-width="5" stroke-linecap="round"/>
+  <path d="M1210 230C1240 226 1270 236 1292 260C1316 286 1322 320 1314 352" stroke="#C9B693" stroke-width="10" stroke-linecap="round"/>
+  <path d="M1212 230L1128 352" stroke="#C9B693" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="1128" cy="352" r="16" fill="#E9D8AF" stroke="#6A5D4D" stroke-width="4"/>
+
+  <rect x="96" y="110" width="428" height="38" rx="19" fill="#F6E6BE"/>
+  <text x="120" y="136" class="eyebrow">MACOS MENU BAR COMPANION FOR LAST.FM</text>
+
+  <text x="104" y="242" class="headline">Listen live.</text>
+  <text x="104" y="324" class="headline">Discover deeply.</text>
+  <text x="104" y="406" class="headline">Share beautifully.</text>
+
+  <text x="108" y="484" class="body">
+    <tspan x="108" dy="0">Track your now playing state, browse your history,</tspan>
+    <tspan x="108" dy="38">merge album details from five music sources,</tspan>
+    <tspan x="108" dy="38">and export collage-ready grids from the menu bar.</tspan>
+  </text>
+
+  <rect x="106" y="594" width="176" height="58" rx="29" fill="#F6E6BE"/>
+  <rect x="298" y="594" width="222" height="58" rx="29" fill="#D4E0FF"/>
+  <rect x="536" y="594" width="186" height="58" rx="29" fill="#DBE6C6"/>
+  <text x="137" y="631" class="pill">LIVE FEED</text>
+  <text x="331" y="631" class="pill">5 SOURCE DISCOVERY</text>
+  <text x="573" y="631" class="pill">PNG COLLAGES</text>
+
+  <g>
+    <rect x="778" y="118" width="214" height="116" rx="22" fill="#FFF9EC" stroke="#D7C7A7"/>
+    <text x="806" y="156" class="small">MENU BAR</text>
+    <text x="806" y="190" class="cardTitle">Live feed</text>
+    <text x="806" y="216" class="cardBody">Recent scrobbles, loved tracks,</text>
+    <text x="806" y="236" class="cardBody">and now playing state.</text>
+  </g>
+
+  <g>
+    <rect x="1144" y="496" width="188" height="118" rx="22" fill="#FFF9EC" stroke="#D7C7A7"/>
+    <text x="1170" y="534" class="small">EXPORT</text>
+    <text x="1170" y="568" class="cardTitle">Collages</text>
+    <text x="1170" y="594" class="cardBody">3x3 to 10x10 grids,</text>
+    <text x="1170" y="614" class="cardBody">PNG or clipboard.</text>
+  </g>
+
+  <g>
+    <rect x="824" y="502" width="228" height="122" rx="22" fill="#FFF9EC" stroke="#D7C7A7"/>
+    <text x="852" y="540" class="small">DASHBOARD</text>
+    <text x="852" y="574" class="cardTitle">Stats + history</text>
+    <text x="852" y="600" class="cardBody">Top artists, genre splits,</text>
+    <text x="852" y="620" class="cardBody">and listening timelines.</text>
+  </g>
+
+  <g>
+    <rect x="728" y="688" width="140" height="16" rx="8" fill="#CC4B2D"/>
+    <rect x="874" y="688" width="140" height="16" rx="8" fill="#D48F32"/>
+    <rect x="1020" y="688" width="140" height="16" rx="8" fill="#D3B84E"/>
+    <rect x="1166" y="688" width="140" height="16" rx="8" fill="#4F8545"/>
+  </g>
+</svg>

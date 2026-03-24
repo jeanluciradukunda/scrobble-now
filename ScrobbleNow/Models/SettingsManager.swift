@@ -30,6 +30,15 @@ class SettingsManager: ObservableObject {
     @AppStorage("scoreWeightContent") var scoreWeightContent: Double = 5
     @AppStorage("scoreMinThreshold") var scoreMinThreshold: Double = 40
 
+    // MARK: - Scrobble Behavior
+    @AppStorage("scrobbleEnabled") var scrobbleEnabled: Bool = true
+    @AppStorage("scrobbleThresholdPercent") var scrobbleThresholdPercent: Double = 50
+    @AppStorage("minTrackDuration") var minTrackDuration: Int = 30
+    @AppStorage("forceRecognition") var forceRecognition: Bool = false
+    @AppStorage("filterPodcasts") var filterPodcasts: Bool = true
+    @AppStorage("albumGuessing") var albumGuessing: Bool = true
+    @AppStorage("scrobbleNotifications") var scrobbleNotifications: Bool = false
+
     // MARK: - System
     @AppStorage("launchAtLogin") var launchAtLogin: Bool = false {
         didSet { updateLaunchAtLogin() }
