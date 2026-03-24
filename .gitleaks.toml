@@ -1,0 +1,10 @@
+title = "scrobble-now gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Committed example secrets template with placeholder values"
+paths = [
+  '''(^|/)ScrobbleNow/Resources/Secrets\.example\.plist$''',
+]
