@@ -55,14 +55,44 @@ jobs:
           sed -i '' "s/MARKETING_VERSION: .*/MARKETING_VERSION: \"${{ steps.version.outputs.VERSION }}\"/" project.yml
           xcodegen generate
 
+      # ---------- Code Signing Setup ----------
+      - name: Import signing certificate
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.DEVELOPER_ID_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_CERTIFICATE_PASSWORD }}
+        run: |
+          CERTIFICATE_PATH=${{ runner.temp }}/certificate.p12
+          printf '%s' "$CERTIFICATE_BASE64" | base64 -D > "$CERTIFICATE_PATH"
+
+          KEYCHAIN_PATH=${{ runner.temp }}/signing.keychain-db
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 16)
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          security import "$CERTIFICATE_PATH" \
+            -P "$CERTIFICATE_PASSWORD" \
+            -A \
+            -t agg \
+            -f pkcs12 \
+            -k "$KEYCHAIN_PATH"
+
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain-db
+
+      # ---------- Build & Sign ----------
       - name: Archive
         run: |
           xcodebuild \
             -scheme ScrobbleNow \
             -configuration Release \
             -archivePath ${{ runner.temp }}/ScrobbleNow.xcarchive \
-            CODE_SIGN_IDENTITY="-" \
-            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="Developer ID Application" \
+            DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }} \
+            CODE_SIGN_STYLE=Manual \
+            OTHER_CODE_SIGN_FLAGS="--options runtime" \
             archive
 
       - name: Export app
@@ -71,6 +101,52 @@ jobs:
           cp -R "${{ runner.temp }}/ScrobbleNow.xcarchive/Products/Applications/Scrobble Now.app" \
             "${{ runner.temp }}/export/Scrobble Now.app"
 
+      - name: Re-sign all embedded binaries
+        run: |
+          APP_PATH="${{ runner.temp }}/export/Scrobble Now.app"
+          SIGN_ID="Developer ID Application"
+
+          cat > "${{ runner.temp }}/release.entitlements" << 'ENTITLEMENTS'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>com.apple.security.app-sandbox</key><false/>
+          </dict></plist>
+          ENTITLEMENTS
+
+          find "$APP_PATH" -type f -print0 | while IFS= read -r -d '' f; do
+            if file "$f" | grep -q "Mach-O"; then
+              codesign --force --options runtime --timestamp \
+                --entitlements "${{ runner.temp }}/release.entitlements" \
+                --sign "$SIGN_ID" "$f"
+            fi
+          done
+
+          find "$APP_PATH/Contents/Frameworks" -name "*.app" -type d -print0 2>/dev/null | while IFS= read -r -d '' app; do
+            codesign --force --deep --options runtime --timestamp \
+              --entitlements "${{ runner.temp }}/release.entitlements" \
+              --sign "$SIGN_ID" "$app"
+          done
+
+          find "$APP_PATH/Contents/Frameworks" -name "*.framework" -type d -print0 2>/dev/null | while IFS= read -r -d '' fw; do
+            codesign --force --deep --options runtime --timestamp \
+              --sign "$SIGN_ID" "$fw"
+          done
+
+          find "$APP_PATH" -name "*.dylib" -type f -print0 2>/dev/null | while IFS= read -r -d '' lib; do
+            codesign --force --options runtime --timestamp \
+              --sign "$SIGN_ID" "$lib"
+          done
+
+          codesign --force --deep --options runtime --timestamp \
+            --entitlements "${{ runner.temp }}/release.entitlements" \
+            --sign "$SIGN_ID" "$APP_PATH"
+
+      - name: Verify signature
+        run: |
+          codesign --verify --deep --strict --verbose=2 "${{ runner.temp }}/export/Scrobble Now.app"
+
+      # ---------- Notarization ----------
       - name: Create DMG
         run: |
           brew install create-dmg || true
@@ -85,7 +161,6 @@ jobs:
             "${{ runner.temp }}/ScrobbleNow-${{ steps.version.outputs.VERSION }}.dmg" \
             "${{ runner.temp }}/export/" || true
 
-          # Fallback if create-dmg fails
           if [ ! -f "${{ runner.temp }}/ScrobbleNow-${{ steps.version.outputs.VERSION }}.dmg" ]; then
             hdiutil create \
               -volname "Scrobble Now ${{ steps.version.outputs.VERSION }}" \
@@ -93,6 +168,53 @@ jobs:
               -ov -format UDZO \
               "${{ runner.temp }}/ScrobbleNow-${{ steps.version.outputs.VERSION }}.dmg"
           fi
+
+      - name: Sign DMG
+        run: |
+          codesign --force --timestamp --sign "Developer ID Application" \
+            "${{ runner.temp }}/ScrobbleNow-${{ steps.version.outputs.VERSION }}.dmg"
+
+      - name: Notarize DMG
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          DMG_PATH="${{ runner.temp }}/ScrobbleNow-${{ steps.version.outputs.VERSION }}.dmg"
+
+          xcrun notarytool submit "$DMG_PATH" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_ID_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --output-format json \
+            --wait > notarize_result.json 2>&1 || true
+
+          cat notarize_result.json
+
+          SUBMISSION_ID=$(python3 -c "import json; print(json.load(open('notarize_result.json'))['id'])" 2>/dev/null || echo "")
+          STATUS=$(python3 -c "import json; print(json.load(open('notarize_result.json'))['status'])" 2>/dev/null || echo "unknown")
+
+          if [ "$STATUS" = "Accepted" ]; then
+            echo "Notarization accepted"
+          else
+            echo "Notarization failed (status: $STATUS)"
+            if [ -n "$SUBMISSION_ID" ]; then
+              xcrun notarytool log "$SUBMISSION_ID" \
+                --apple-id "$APPLE_ID" \
+                --password "$APPLE_ID_PASSWORD" \
+                --team-id "$APPLE_TEAM_ID" \
+                > developer_log.json 2>&1 || true
+              cat developer_log.json
+            fi
+            exit 1
+          fi
+
+          xcrun stapler staple "$DMG_PATH"
+
+      # ---------- Cleanup & Release ----------
+      - name: Clean up keychain
+        if: always()
+        run: security delete-keychain ${{ runner.temp }}/signing.keychain-db 2>/dev/null || true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -107,12 +229,9 @@ jobs:
             ### Install
             1. Download `ScrobbleNow-${{ steps.version.outputs.VERSION }}.dmg` below
             2. Open the DMG and drag **Scrobble Now** to Applications
-            3. **First launch**: right-click the app → Open → Open (bypasses Gatekeeper)
-            4. Look for the icon in your menu bar
+            3. Launch Scrobble Now and enter your Last.fm username in settings
 
-            > **Note:** The app is unsigned. The macOS security prompt is expected and safe to bypass.
-
-            **Requires macOS 14.0 Sonoma or later.**
+            **Signed and notarized with Apple Developer ID.** Requires macOS 14.0 Sonoma or later.
           files: |
             ${{ runner.temp }}/ScrobbleNow-${{ steps.version.outputs.VERSION }}.dmg
           draft: false

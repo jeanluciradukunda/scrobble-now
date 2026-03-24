@@ -299,7 +299,7 @@ export function App() {
             <ol class="install-list">
               <li>Download the latest DMG from <a href="https://github.com/jeanluciradukunda/scrobble-now/releases/latest">GitHub Releases</a>.</li>
               <li>Drag <strong>Scrobble Now.app</strong> into Applications.</li>
-              <li>Right-click the app → Open → Open (unsigned app bypass).</li>
+              <li>Launch Scrobble Now — it appears in your menu bar.</li>
               <li>Enter your Last.fm username in Settings. Your feed appears in seconds.</li>
             </ol>
 

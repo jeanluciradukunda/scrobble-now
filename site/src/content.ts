@@ -78,5 +78,5 @@ export const FAQ_ITEMS = [
   { q: "Is my data sent anywhere?", a: "No. Everything stays on your Mac. Scrobble data is fetched from Last.fm's public API and cached locally. No analytics, no cloud storage, no telemetry." },
   { q: "How does album discovery work?", a: "When you tap an album, five sources are queried in parallel — Last.fm, Discogs, MusicBrainz, iTunes, and Wikidata. Each result is scored on title match, artist match, track count, source trust, and content completeness. External links and artwork from all sources are merged into the top result." },
   { q: "What API keys do I need?", a: "A Last.fm API key (free at last.fm/api) and optionally a Discogs token (free at discogs.com/settings/developers). iTunes, MusicBrainz, and Wikidata don't require keys." },
-  { q: "Why is the app unsigned?", a: "This is a personal, open-source project. macOS will show a security prompt — right-click the app, choose Open, then click Open again to bypass Gatekeeper." },
+  { q: "Is the app signed?", a: "Yes. Scrobble Now is signed with an Apple Developer ID certificate and notarized by Apple. Download, install, and it just works — no security warnings or Terminal commands." },
 ];

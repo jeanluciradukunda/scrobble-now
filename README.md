@@ -76,8 +76,10 @@ It is built for people who already scrobble everything and want that data to fee
 ### Install a release
 
 1. Download the latest DMG from [Releases](https://github.com/jeanluciradukunda/scrobble-now/releases/latest).
-2. Because the app is unsigned, macOS may block the first launch. Right-click the app, choose `Open`, then confirm.
+2. Open the DMG and drag Scrobble Now to Applications.
 3. Launch Scrobble Now and enter your Last.fm username in settings.
+
+> Signed and notarized with Apple Developer ID — no security warnings or Terminal commands needed.
 
 ### Build from source
 
