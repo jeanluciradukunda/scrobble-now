@@ -75,6 +75,13 @@ class SystemScrobbleService: ObservableObject {
         trackStartTime = Date()
         lastTickTime = Date()
 
+        // Fetch artwork from Last.fm if the track doesn't have any
+        if let track = newTrack, track.artwork == nil, !track.artist.isEmpty {
+            Task {
+                await fetchArtwork(for: track)
+            }
+        }
+
         // Update Now Playing on Last.fm
         if let track = newTrack, isEnabled, isConnectorEnabled(for: track.sourceBundleId) {
             Task {
@@ -149,6 +156,132 @@ class SystemScrobbleService: ObservableObject {
 
         // Unknown duration — use 4 minutes
         return minSeconds
+    }
+
+    // MARK: - Artwork Fetching
+
+    private func fetchArtwork(for track: SystemNowPlaying) async {
+        do {
+            // Try Last.fm album.getInfo first — fast and reliable
+            let albumName = track.album.isEmpty ? track.title : track.album
+            let info = try await lastfm.getAlbumInfo(artist: track.artist, album: albumName)
+
+            if let albumInfo = info["album"] as? [String: Any],
+               let images = albumInfo["image"] as? [[String: Any]] {
+                // Get largest image
+                for size in ["extralarge", "large", "medium"] {
+                    if let img = images.first(where: { ($0["size"] as? String) == size }),
+                       let urlStr = img["#text"] as? String, !urlStr.isEmpty,
+                       let url = URL(string: urlStr) {
+                        let (data, _) = try await URLSession.shared.data(from: url)
+                        if let image = NSImage(data: data) {
+                            // Update the track in the bridge with artwork
+                            let updated = track.withArtwork(image)
+                            bridge.activeSources[track.sourceBundleId] = updated
+                            if bridge.currentTrack?.sourceBundleId == track.sourceBundleId {
+                                bridge.currentTrack = updated
+                            }
+                            currentTrack = updated
+                            return
+                        }
+                    }
+                }
+            }
+
+            // If album search failed, try track.getInfo
+            let trackInfoURL = URL(string: "https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=\(KeychainService.lastfmApiKey)&artist=\(track.artist.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&track=\(track.title.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&format=json")!
+            let (trackData, _) = try await URLSession.shared.data(from: trackInfoURL)
+            if let trackJson = try JSONSerialization.jsonObject(with: trackData) as? [String: Any],
+               let trackInfo = trackJson["track"] as? [String: Any],
+               let albumInfo = trackInfo["album"] as? [String: Any],
+               let images = albumInfo["image"] as? [[String: Any]] {
+                for size in ["extralarge", "large", "medium"] {
+                    if let img = images.first(where: { ($0["size"] as? String) == size }),
+                       let urlStr = img["#text"] as? String, !urlStr.isEmpty,
+                       let url = URL(string: urlStr) {
+                        let (data, _) = try await URLSession.shared.data(from: url)
+                        if let image = NSImage(data: data) {
+                            let updated = track.withArtwork(image)
+                            bridge.activeSources[track.sourceBundleId] = updated
+                            if bridge.currentTrack?.sourceBundleId == track.sourceBundleId {
+                                bridge.currentTrack = updated
+                            }
+                            currentTrack = updated
+                            return
+                        }
+                    }
+                }
+            }
+        } catch {
+            // Last.fm failed
+        }
+
+        // Fallback: YouTube thumbnail if it's a YouTube source
+        if track.sourceBundleId == "com.google.Chrome" || track.sourceAppName.contains("YouTube") {
+            // Extract video ID from the browser's last known URL and use YouTube thumbnail
+            await fetchYouTubeThumbnail(for: track)
+        }
+    }
+
+    private func fetchYouTubeThumbnail(for track: SystemNowPlaying) async {
+        // Use the YouTube Music API to get thumbnail — we need the video ID
+        // Search by title + artist to find it
+        let query = "\(track.artist) \(track.title)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        // Try the high-quality thumbnail via YouTube oEmbed
+        let oembedURL = URL(string: "https://www.youtube.com/oembed?url=https://www.youtube.com/results?search_query=\(query)&format=json")
+
+        // Simpler: use Last.fm artist image as fallback
+        let artistURL = URL(string: "https://ws.audioscrobbler.com/2.0/?method=artist.getInfo&api_key=\(KeychainService.lastfmApiKey)&artist=\(track.artist.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&format=json")!
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: artistURL)
+            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let artist = json["artist"] as? [String: Any],
+               let images = artist["image"] as? [[String: Any]] {
+                for size in ["extralarge", "large", "medium"] {
+                    if let img = images.first(where: { ($0["size"] as? String) == size }),
+                       let urlStr = img["#text"] as? String, !urlStr.isEmpty,
+                       let url = URL(string: urlStr) {
+                        let (imgData, _) = try await URLSession.shared.data(from: url)
+                        if let image = NSImage(data: imgData) {
+                            let updated = track.withArtwork(image)
+                            bridge.activeSources[track.sourceBundleId] = updated
+                            if bridge.currentTrack?.sourceBundleId == track.sourceBundleId {
+                                bridge.currentTrack = updated
+                            }
+                            currentTrack = updated
+                            return
+                        }
+                    }
+                }
+            }
+        } catch {}
+
+        // Last resort: YouTube video thumbnail directly
+        // Most YouTube video IDs are in the sourceAppName from the filter
+        // Use a generic high-quality thumbnail pattern
+        if let videoId = findCurrentYouTubeVideoId() {
+            let thumbURL = URL(string: "https://img.youtube.com/vi/\(videoId)/hqdefault.jpg")!
+            do {
+                let (data, _) = try await URLSession.shared.data(from: thumbURL)
+                if let image = NSImage(data: data) {
+                    let updated = track.withArtwork(image)
+                    bridge.activeSources[track.sourceBundleId] = updated
+                    if bridge.currentTrack?.sourceBundleId == track.sourceBundleId {
+                        bridge.currentTrack = updated
+                    }
+                    currentTrack = updated
+                }
+            } catch {}
+        }
+    }
+
+    private func findCurrentYouTubeVideoId() -> String? {
+        // Check the last browser title key for a YouTube URL
+        let lastTitle = bridge.lastBrowserTitle
+        // The bridge stores "bundleId:title" — we need to find the URL from the last poll
+        // For now, return nil — we'll improve this later
+        return nil
     }
 
     // MARK: - Scrobble Submission

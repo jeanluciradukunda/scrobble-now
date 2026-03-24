@@ -22,8 +22,6 @@
 	<string>1</string>
 	<key>LSUIElement</key>
 	<true/>
-	<key>NSAppleEventsUsageDescription</key>
-	<string>Scrobble Now needs to detect what music is playing in your browser to scrobble it to Last.fm.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

@@ -16,6 +16,7 @@
 		19E221D7BD55284070245C6E /* NowPlayingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */; };
 		1E021E9EEABAEAE687AC87A6 /* iTunesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB67D6E70719959ED127C567 /* iTunesService.swift */; };
 		292661EC3FD2C9201A251D7C /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA730E7257F76B5CCDFE472 /* Album.swift */; };
+		31B182C7ED234C69123A39AB /* YouTubeMusicFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BF1538A622E83C2C86506E /* YouTubeMusicFilter.swift */; };
 		42B1D520A0213B02A7650386 /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE4230F732B9F8257B84158 /* NowPlayingView.swift */; };
 		59BC7D098303753E227F2E99 /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */; };
 		6A4C549A6B7F29C31553C055 /* DiscogsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */; };
@@ -51,6 +52,7 @@
 		402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDiscoveryService.swift; sourceTree = "<group>"; };
 		475214BADE0D94B22F53D601 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		4F96D950C7C4D1627BA1BDE8 /* ScrobbleNow.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScrobbleNow.entitlements; sourceTree = "<group>"; };
+		54BF1538A622E83C2C86506E /* YouTubeMusicFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeMusicFilter.swift; sourceTree = "<group>"; };
 		56AD0226D56AC9B449D3CBE4 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		599193E3C13DA0BF15B628B4 /* Secrets.example.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Secrets.example.plist; sourceTree = "<group>"; };
 		5A2E4F83C3B47FFC9939C469 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -168,6 +170,7 @@
 				DB7414E9B734282F6B342C5A /* MusicBrainzService.swift */,
 				254BEDF3534B4D7781A96A81 /* SystemScrobbleService.swift */,
 				F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */,
+				54BF1538A622E83C2C86506E /* YouTubeMusicFilter.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -268,6 +271,7 @@
 				838D457CB4833F9EA3B31F14 /* SystemScrobbleService.swift in Sources */,
 				D9643C658E5F4D823638ED9A /* Track.swift in Sources */,
 				6CFF6CD9103720A4B84760BA /* WikidataService.swift in Sources */,
+				31B182C7ED234C69123A39AB /* YouTubeMusicFilter.swift in Sources */,
 				1E021E9EEABAEAE687AC87A6 /* iTunesService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

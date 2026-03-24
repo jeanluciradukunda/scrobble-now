@@ -165,7 +165,7 @@ class MediaRemoteBridge: ObservableObject {
 
     // MARK: - Browser Polling (Chrome, Safari, Arc, etc.)
 
-    private var lastBrowserTitle: String = ""
+    var lastBrowserTitle: String = ""
 
     /// Polls Chrome/Safari/Arc for music tab titles
     private func pollBrowsers() {
@@ -269,6 +269,35 @@ class MediaRemoteBridge: ObservableObject {
         let key = "\(bundleId):\(title)"
         guard key != lastBrowserTitle else { return }
         lastBrowserTitle = key
+
+        // YouTube: check if it's actually music before scrobbling
+        if url.contains("youtube.com") {
+            if let videoId = YouTubeMusicFilter.extractVideoId(from: url) {
+                let result = await YouTubeMusicFilter.shared.check(videoId: videoId)
+                guard result.isMusic else {
+                    print("[Browser] ⏭ Skipping non-music YouTube: \(title.prefix(50))")
+                    return
+                }
+                // Fetch YouTube thumbnail
+                var artwork: NSImage?
+                let thumbURL = URL(string: "https://img.youtube.com/vi/\(videoId)/hqdefault.jpg")!
+                if let (imgData, _) = try? await URLSession.shared.data(from: thumbURL) {
+                    artwork = NSImage(data: imgData)
+                }
+
+                // If YouTube Music API gave us better artist/track, use it
+                if let ytArtist = result.artist, let ytTrack = result.track {
+                    let track = SystemNowPlaying(
+                        title: ytTrack, artist: ytArtist, album: result.album ?? "",
+                        duration: 0, elapsed: 0, playbackRate: 1.0,
+                        artwork: artwork, sourceBundleId: bundleId,
+                        sourceAppName: "\(appName) · YouTube", timestamp: Date()
+                    )
+                    await MainActor.run { updateSource(track) }
+                    return
+                }
+            }
+        }
 
         // Parse track info from tab title
         let parsed = parseTabTitle(title, url: url)

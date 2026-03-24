@@ -151,6 +151,115 @@ struct SettingsView: View {
 
                 Divider().opacity(0.2)
 
+                // MARK: - Scrobble Behavior
+                sectionHeader("Scrobble Behavior")
+
+                Toggle("Enable scrobbling", isOn: $settings.scrobbleEnabled)
+                    .font(.system(size: 10))
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
+
+                HStack {
+                    Text("Scrobble at")
+                        .font(.system(size: 10))
+                    Spacer()
+                    Text("\(Int(settings.scrobbleThresholdPercent))%")
+                        .font(.system(size: 9, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                    Slider(value: $settings.scrobbleThresholdPercent, in: 25...90, step: 5)
+                        .frame(maxWidth: 100)
+                        .controlSize(.mini)
+                }
+
+                HStack {
+                    Text("Min track duration")
+                        .font(.system(size: 10))
+                    Spacer()
+                    Text("\(settings.minTrackDuration)s")
+                        .font(.system(size: 9, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                    Slider(value: Binding(
+                        get: { Double(settings.minTrackDuration) },
+                        set: { settings.minTrackDuration = Int($0) }
+                    ), in: 10...120, step: 10)
+                        .frame(maxWidth: 100)
+                        .controlSize(.mini)
+                }
+
+                Toggle("Filter podcasts", isOn: $settings.filterPodcasts)
+                    .font(.system(size: 10))
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
+
+                Toggle("Album guessing (fill from Last.fm)", isOn: $settings.albumGuessing)
+                    .font(.system(size: 10))
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
+
+                Toggle("Scrobble notifications", isOn: $settings.scrobbleNotifications)
+                    .font(.system(size: 10))
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
+
+                // Scrobble stats
+                HStack(spacing: 12) {
+                    VStack(spacing: 1) {
+                        Text("\(SystemScrobbleService.shared.totalScrobbled)")
+                            .font(.system(size: 14, weight: .bold, design: .monospaced))
+                            .foregroundStyle(AppAccent.current)
+                        Text("scrobbled")
+                            .font(.system(size: 7))
+                            .foregroundStyle(.quaternary)
+                    }
+                    Spacer()
+                    VStack(spacing: 1) {
+                        Text("\(SystemScrobbleService.shared.connectors.count)")
+                            .font(.system(size: 14, weight: .bold, design: .monospaced))
+                        Text("sources")
+                            .font(.system(size: 7))
+                            .foregroundStyle(.quaternary)
+                    }
+                }
+                .padding(.vertical, 4)
+
+                Divider().opacity(0.2)
+
+                // MARK: - App Connectors
+                sectionHeader("Sources")
+
+                if SystemScrobbleService.shared.connectors.isEmpty {
+                    Text("Play music from any app to discover sources")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.tertiary)
+                } else {
+                    ForEach(SystemScrobbleService.shared.connectors) { connector in
+                        HStack(spacing: 6) {
+                            if let icon = MediaRemoteBridge.shared.appIcon(for: connector.bundleId) {
+                                Image(nsImage: icon)
+                                    .resizable()
+                                    .frame(width: 14, height: 14)
+                                    .clipShape(RoundedRectangle(cornerRadius: 3))
+                            } else {
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(.quaternary)
+                                    .frame(width: 14, height: 14)
+                            }
+                            Text(connector.displayName)
+                                .font(.system(size: 10))
+                                .lineLimit(1)
+                            Spacer()
+                            Toggle("", isOn: Binding(
+                                get: { connector.enabled },
+                                set: { _ in SystemScrobbleService.shared.toggleConnector(bundleId: connector.bundleId) }
+                            ))
+                            .toggleStyle(.switch)
+                            .controlSize(.mini)
+                        }
+                    }
+                }
+
+                Divider().opacity(0.2)
+
                 // MARK: - Appearance
                 sectionHeader("Appearance")
 
