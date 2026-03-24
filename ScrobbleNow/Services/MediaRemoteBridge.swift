@@ -76,24 +76,25 @@ class MediaRemoteBridge: ObservableObject {
             }
         }
 
-        // Fast poll for MediaRemote (1s) — lightweight
-        pollTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.pollMediaRemote()
-                self?.cleanStaleSources()
-            }
-        }
-
-        // Slower poll for browsers (3s) — heavier osascript calls
-        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.pollBrowsers()
-            }
-        }
-
+        // Try MediaRemote once to see if it works
         pollMediaRemote()
-        pollBrowsers()
-        print("[NowPlaying] ✓ Listening (Spotify + Music + MediaRemote + Browser polling)")
+
+        // Poll based on what's available
+        pollTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self else { return }
+                if self.mediaRemoteIsActive {
+                    // MediaRemote works — use it exclusively
+                    self.pollMediaRemote()
+                } else {
+                    // MediaRemote blocked — use browser scanning
+                    self.pollBrowsers()
+                }
+                self.cleanStaleSources()
+            }
+        }
+
+        print("[NowPlaying] ✓ Listening (Spotify + Music + \(mediaRemoteIsActive ? "MediaRemote" : "Browser scanning"))")
     }
 
     func stopListening() {
@@ -167,6 +168,7 @@ class MediaRemoteBridge: ObservableObject {
 
     var lastBrowserTitle: String = ""
     private var previousBrowserTabs: Set<String> = []
+    private var mediaRemoteIsActive: Bool = false
 
     /// Polls Chrome/Safari/Arc for music tab titles
     private func pollBrowsers() {
@@ -282,25 +284,43 @@ class MediaRemoteBridge: ObservableObject {
             return
         }
 
-        // Build current tab signature set
-        let currentKeys = Set(allTabs.map { $0.title })
+        let currentTitles = Set(allTabs.map { $0.title })
 
-        // Find NEW tabs (titles not seen in previous poll) — these just started playing
-        var newTabs = allTabs.filter { !previousBrowserTabs.contains($0.title) }
+        // STICKY TAB LOGIC: Don't flicker between tabs.
+        // Only switch when: (1) current tab disappeared, or (2) a brand new tab appeared
+        let lockedTitle = lastBrowserTitle.replacingOccurrences(of: "\(bundleId):", with: "")
+        let lockedStillExists = !lockedTitle.isEmpty && allTabs.contains { $0.title == lockedTitle }
+        let newTabs = allTabs.filter { !previousBrowserTabs.contains($0.title) }
 
-        // If no new tabs, check if any existing tab's title changed (track change within same tab)
-        if newTabs.isEmpty {
-            newTabs = allTabs.filter { "\(bundleId):\($0.title)" != lastBrowserTitle }
+        previousBrowserTabs = currentTitles
+
+        let activeTab: (url: String, title: String)
+        if !newTabs.isEmpty {
+            // A new music tab appeared — switch to it
+            activeTab = newTabs[0]
+        } else if lockedStillExists {
+            // Current tab still there, nothing new — keep it alive (re-mark as playing)
+            if var existing = activeSources[bundleId], !existing.isPlaying {
+                existing = SystemNowPlaying(
+                    title: existing.title, artist: existing.artist, album: existing.album,
+                    duration: existing.duration, elapsed: existing.elapsed, playbackRate: 1.0,
+                    artwork: existing.artwork, sourceBundleId: existing.sourceBundleId,
+                    sourceAppName: existing.sourceAppName, timestamp: existing.timestamp
+                )
+                activeSources[bundleId] = existing
+                if currentTrack?.sourceBundleId == bundleId { currentTrack = existing }
+                isPlaying = true
+            }
+            return
+        } else if let first = allTabs.first {
+            // Current tab gone — pick first available
+            activeTab = first
+        } else {
+            return
         }
 
-        previousBrowserTabs = currentKeys
-
-        // Process the newest changed tab (or first tab if nothing changed)
-        let activeTab = newTabs.first ?? allTabs[0]
         let url = activeTab.url
         let title = activeTab.title
-
-        // Skip if same as last processed
         let key = "\(bundleId):\(title)"
         guard key != lastBrowserTitle else { return }
         lastBrowserTitle = key
@@ -491,7 +511,12 @@ class MediaRemoteBridge: ObservableObject {
     private var hasLoggedKeys = false
 
     private func processMediaRemoteInfo(_ info: [String: Any]) {
-        guard !info.isEmpty else { return }
+        guard !info.isEmpty else {
+            mediaRemoteIsActive = false
+            return
+        }
+
+        mediaRemoteIsActive = true
 
         if !hasLoggedKeys {
             hasLoggedKeys = true

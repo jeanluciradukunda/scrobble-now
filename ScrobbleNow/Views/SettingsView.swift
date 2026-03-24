@@ -80,6 +80,40 @@ struct SettingsView: View {
 
             Divider().opacity(0.2)
 
+            // Downloads
+            sectionHeader("Downloads")
+
+            HStack {
+                Text("Save artwork to")
+                    .font(.system(size: 10))
+                Spacer()
+                Button {
+                    let panel = NSOpenPanel()
+                    panel.canChooseDirectories = true
+                    panel.canChooseFiles = false
+                    panel.canCreateDirectories = true
+                    panel.prompt = "Choose Folder"
+                    if panel.runModal() == .OK, let url = panel.url {
+                        settings.artworkDownloadPath = url.path
+                    }
+                } label: {
+                    HStack(spacing: 3) {
+                        Image(systemName: "folder")
+                            .font(.system(size: 8))
+                        Text(settings.artworkDownloadURL.lastPathComponent)
+                            .font(.system(size: 8, design: .monospaced))
+                            .lineLimit(1)
+                    }
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(Color.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 4))
+                }
+                .buttonStyle(.plain)
+            }
+
+            Divider().opacity(0.2)
+
             // Appearance
             sectionHeader("Appearance")
             settingsToggle("Show track in menu bar", isOn: $settings.showTitleInMenuBar)

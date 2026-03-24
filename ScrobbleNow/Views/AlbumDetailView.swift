@@ -240,54 +240,36 @@ struct AlbumDetailView: View {
 
     private func downloadArtwork(url: URL, name: String) {
         Task {
-            guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
-            let panel = NSSavePanel()
-            panel.allowedContentTypes = [.png, .jpeg]
-            panel.nameFieldStringValue = "\(name).jpg"
-            panel.canCreateDirectories = true
-            panel.level = .floating
-            panel.begin { response in
-                guard response == .OK, let saveURL = panel.url else { return }
-                try? data.write(to: saveURL)
-                Task { @MainActor in
-                    downloadMessage = "Saved!"
-                    try? await Task.sleep(for: .seconds(2))
-                    downloadMessage = nil
-                }
+            guard let (data, _) = try? await URLSession.shared.data(from: url) else {
+                downloadMessage = "Failed"
+                return
             }
+            let folder = SettingsManager.shared.artworkDownloadURL
+            let sanitized = name.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")
+            let savePath = folder.appendingPathComponent("\(sanitized).jpg")
+            try? data.write(to: savePath)
+            downloadMessage = "Saved to \(folder.lastPathComponent)/"
+            try? await Task.sleep(for: .seconds(2))
+            downloadMessage = nil
         }
     }
 
     private func downloadAllArtwork(urls: [URL], name: String) {
         Task {
-            let panel = NSOpenPanel()
-            panel.canChooseDirectories = true
-            panel.canChooseFiles = false
-            panel.canCreateDirectories = true
-            panel.prompt = "Save Here"
-            panel.level = .floating
-            panel.begin { response in
-                guard response == .OK, let folder = panel.url else { return }
-                Task {
-                    var saved = 0
-                    for (i, url) in urls.enumerated() {
-                        if let (data, _) = try? await URLSession.shared.data(from: url) {
-                            let ext = url.pathExtension.isEmpty ? "jpg" : url.pathExtension
-                            let filename = "\(name) - \(i + 1).\(ext)"
-                            let savePath = folder.appendingPathComponent(filename)
-                            try? data.write(to: savePath)
-                            saved += 1
-                        }
-                    }
-                    await MainActor.run {
-                        downloadMessage = "Saved \(saved) covers!"
-                        Task {
-                            try? await Task.sleep(for: .seconds(2))
-                            downloadMessage = nil
-                        }
-                    }
+            let folder = SettingsManager.shared.artworkDownloadURL
+            let sanitized = name.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")
+            var saved = 0
+            for (i, url) in urls.enumerated() {
+                if let (data, _) = try? await URLSession.shared.data(from: url) {
+                    let ext = url.pathExtension.isEmpty ? "jpg" : url.pathExtension
+                    let savePath = folder.appendingPathComponent("\(sanitized) - \(i + 1).\(ext)")
+                    try? data.write(to: savePath)
+                    saved += 1
                 }
             }
+            downloadMessage = "Saved \(saved) covers to \(folder.lastPathComponent)/"
+            try? await Task.sleep(for: .seconds(2))
+            downloadMessage = nil
         }
     }
 

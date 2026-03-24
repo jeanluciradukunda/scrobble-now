@@ -30,6 +30,16 @@ class SettingsManager: ObservableObject {
     @AppStorage("scoreWeightContent") var scoreWeightContent: Double = 5
     @AppStorage("scoreMinThreshold") var scoreMinThreshold: Double = 40
 
+    // MARK: - Downloads
+    @AppStorage("artworkDownloadPath") var artworkDownloadPath: String = ""
+
+    var artworkDownloadURL: URL {
+        if !artworkDownloadPath.isEmpty, FileManager.default.fileExists(atPath: artworkDownloadPath) {
+            return URL(fileURLWithPath: artworkDownloadPath)
+        }
+        return FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first!
+    }
+
     // MARK: - Scrobble Behavior
     @AppStorage("scrobbleEnabled") var scrobbleEnabled: Bool = true
     @AppStorage("scrobbleThresholdPercent") var scrobbleThresholdPercent: Double = 50
