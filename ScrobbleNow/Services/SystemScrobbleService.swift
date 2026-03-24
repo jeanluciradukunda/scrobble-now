@@ -75,10 +75,28 @@ class SystemScrobbleService: ObservableObject {
         currentTrack = newTrack
         isPlaying = newTrack?.isPlaying ?? false
         didScrobbleCurrent = false
-        scrobbleProgress = 0
-        accumulatedPlayTime = 0
         trackStartTime = Date()
         lastTickTime = Date()
+
+        // If the track is already mid-playback (app restart, or source reports elapsed time),
+        // seed accumulated time from the track's elapsed position
+        if let track = newTrack, track.elapsed > 0 {
+            accumulatedPlayTime = track.elapsed
+        } else {
+            accumulatedPlayTime = 0
+        }
+
+        // Update progress immediately
+        if let track = newTrack {
+            let threshold = scrobbleThreshold(for: track)
+            scrobbleProgress = threshold > 0 ? min(1, accumulatedPlayTime / threshold) : 0
+            // If we've already passed the threshold (e.g., app restarted late into a song)
+            if accumulatedPlayTime >= threshold {
+                checkAndScrobble(track: track, force: true)
+            }
+        } else {
+            scrobbleProgress = 0
+        }
 
         // Fetch artwork from Last.fm if the track doesn't have any
         if let track = newTrack, track.artwork == nil, !track.artist.isEmpty {

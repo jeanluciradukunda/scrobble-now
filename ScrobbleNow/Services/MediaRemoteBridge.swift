@@ -166,6 +166,7 @@ class MediaRemoteBridge: ObservableObject {
     // MARK: - Browser Polling (Chrome, Safari, Arc, etc.)
 
     var lastBrowserTitle: String = ""
+    private var previousBrowserTabs: Set<String> = []
 
     /// Polls Chrome/Safari/Arc for music tab titles
     private func pollBrowsers() {
@@ -176,43 +177,45 @@ class MediaRemoteBridge: ObservableObject {
     }
 
     private func pollBrowserAsync() async {
-        // Check Chrome — scan ALL windows
+        // Check Chrome — return ALL music tabs, not just the first
         await pollBrowser(
             appName: "Google Chrome",
             bundleId: "com.google.Chrome",
             scriptTemplate: """
             tell application "Google Chrome"
+                set output to ""
                 repeat with w in windows
                     repeat with t in tabs of w
                         set tabURL to URL of t
                         set tabTitle to title of t
                         if tabURL contains "youtube.com" or tabURL contains "soundcloud.com" or tabURL contains "bandcamp.com" or tabURL contains "open.spotify.com" or tabURL contains "tidal.com" or tabURL contains "deezer.com" or tabURL contains "music.apple.com" then
-                            return tabURL & "|||" & tabTitle
+                            set output to output & tabURL & "|||" & tabTitle & "###"
                         end if
                     end repeat
                 end repeat
             end tell
-            return ""
+            return output
             """
         )
 
-        // Check Safari — scan ALL windows
+        // Check Safari
         await pollBrowser(
             appName: "Safari",
             bundleId: "com.apple.Safari",
             scriptTemplate: """
             tell application "Safari"
+                set output to ""
                 repeat with w in windows
                     repeat with t in tabs of w
                         set tabURL to URL of t
                         set tabTitle to name of t
                         if tabURL contains "youtube.com" or tabURL contains "soundcloud.com" or tabURL contains "bandcamp.com" or tabURL contains "open.spotify.com" or tabURL contains "tidal.com" or tabURL contains "deezer.com" or tabURL contains "music.apple.com" then
-                            return tabURL & "|||" & tabTitle
+                            set output to output & tabURL & "|||" & tabTitle & "###"
                         end if
                     end repeat
                 end repeat
             end tell
-            return ""
+            return output
             """
         )
     }
@@ -258,14 +261,46 @@ class MediaRemoteBridge: ObservableObject {
             }
         }
 
-        guard let raw, !raw.isEmpty else { return }
+        guard let raw, !raw.isEmpty else {
+            // No music tabs found — mark browser source as paused
+            markPaused(bundleId)
+            return
+        }
 
-        let parts = raw.components(separatedBy: "|||")
-        guard parts.count == 2 else { return }
-        let url = parts[0]
-        let title = parts[1]
+        // Parse ALL music tabs (separated by ###)
+        let allTabs = raw.components(separatedBy: "###")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .compactMap { entry -> (url: String, title: String)? in
+                let parts = entry.components(separatedBy: "|||")
+                guard parts.count == 2 else { return nil }
+                return (parts[0], parts[1])
+            }
 
-        // Skip if title hasn't changed
+        guard !allTabs.isEmpty else {
+            markPaused(bundleId)
+            return
+        }
+
+        // Build current tab signature set
+        let currentKeys = Set(allTabs.map { $0.title })
+
+        // Find NEW tabs (titles not seen in previous poll) — these just started playing
+        var newTabs = allTabs.filter { !previousBrowserTabs.contains($0.title) }
+
+        // If no new tabs, check if any existing tab's title changed (track change within same tab)
+        if newTabs.isEmpty {
+            newTabs = allTabs.filter { "\(bundleId):\($0.title)" != lastBrowserTitle }
+        }
+
+        previousBrowserTabs = currentKeys
+
+        // Process the newest changed tab (or first tab if nothing changed)
+        let activeTab = newTabs.first ?? allTabs[0]
+        let url = activeTab.url
+        let title = activeTab.title
+
+        // Skip if same as last processed
         let key = "\(bundleId):\(title)"
         guard key != lastBrowserTitle else { return }
         lastBrowserTitle = key
@@ -278,17 +313,54 @@ class MediaRemoteBridge: ObservableObject {
                     print("[Browser] ⏭ Skipping non-music YouTube: \(title.prefix(50))")
                     return
                 }
-                // Fetch YouTube thumbnail
-                var artwork: NSImage?
-                let thumbURL = URL(string: "https://img.youtube.com/vi/\(videoId)/hqdefault.jpg")!
-                if let (imgData, _) = try? await URLSession.shared.data(from: thumbURL) {
-                    artwork = NSImage(data: imgData)
-                }
-
-                // If YouTube Music API gave us better artist/track, use it
+                // If YouTube Music API gave us artist/track, fetch proper album art from Last.fm
                 if let ytArtist = result.artist, let ytTrack = result.track {
+                    var artwork: NSImage?
+                    var albumName = result.album ?? ""
+
+                    // Try Last.fm track.getInfo for album art
+                    let apiKey = KeychainService.lastfmApiKey
+                    if !apiKey.isEmpty {
+                        let artistEnc = ytArtist.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                        let trackEnc = ytTrack.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+
+                        // Try track.getInfo first — gives us album name + artwork
+                        if let trackURL = URL(string: "https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=\(apiKey)&artist=\(artistEnc)&track=\(trackEnc)&format=json"),
+                           let (trackData, _) = try? await URLSession.shared.trackedData(from: trackURL, service: "Last.fm"),
+                           let trackJson = try? JSONSerialization.jsonObject(with: trackData) as? [String: Any],
+                           let trackInfo = trackJson["track"] as? [String: Any] {
+
+                            // Get album name
+                            if let album = trackInfo["album"] as? [String: Any],
+                               let name = album["title"] as? String {
+                                albumName = name
+
+                                // Get album artwork
+                                if let images = album["image"] as? [[String: Any]] {
+                                    for size in ["extralarge", "large", "medium"] {
+                                        if let img = images.first(where: { ($0["size"] as? String) == size }),
+                                           let urlStr = img["#text"] as? String, !urlStr.isEmpty,
+                                           let imgURL = URL(string: urlStr),
+                                           let (imgData, _) = try? await URLSession.shared.data(from: imgURL) {
+                                            artwork = NSImage(data: imgData)
+                                            break
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Fallback: YouTube video thumbnail if no Last.fm art
+                    if artwork == nil {
+                        let thumbURL = URL(string: "https://img.youtube.com/vi/\(videoId)/hqdefault.jpg")!
+                        if let (imgData, _) = try? await URLSession.shared.data(from: thumbURL) {
+                            artwork = NSImage(data: imgData)
+                        }
+                    }
+
                     let track = SystemNowPlaying(
-                        title: ytTrack, artist: ytArtist, album: result.album ?? "",
+                        title: ytTrack, artist: ytArtist, album: albumName,
                         duration: result.durationSeconds ?? 0, elapsed: 0, playbackRate: 1.0,
                         artwork: artwork, sourceBundleId: bundleId,
                         sourceAppName: "\(appName) · YouTube", timestamp: Date()

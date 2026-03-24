@@ -118,9 +118,17 @@ struct AlbumDetailView: View {
 
     // MARK: - Artwork
 
+    @State private var downloadMessage: String?
+
     private func artworkView(album: AlbumDetail) -> some View {
         VStack(spacing: 6) {
-            let urls = album.allArtworkURLs
+            // Filter out tiny images (< 100px URLs often contain "34s" or "64s" size params)
+            let urls = album.allArtworkURLs.filter { url in
+                let str = url.absoluteString
+                // Skip Last.fm tiny placeholders
+                if str.contains("/34s/") || str.contains("/64s/") || str.contains("2a96cbd8b46e442fc41c2b86b821562f") { return false }
+                return true
+            }
             let safeIdx = urls.isEmpty ? 0 : min(artworkIndex, urls.count - 1)
 
             if !urls.isEmpty {
@@ -150,6 +158,7 @@ struct AlbumDetailView: View {
                         }
                 )
 
+                // Dots + count
                 if urls.count > 1 {
                     HStack(spacing: 3) {
                         ForEach(0..<urls.count, id: \.self) { i in
@@ -161,6 +170,49 @@ struct AlbumDetailView: View {
                     Text("\(safeIdx + 1)/\(urls.count) covers")
                         .font(.system(size: 7, design: .monospaced))
                         .foregroundStyle(.quaternary)
+                }
+
+                // Download buttons
+                HStack(spacing: 6) {
+                    Button {
+                        downloadArtwork(url: urls[safeIdx], name: "\(album.artistName) - \(album.albumName)")
+                    } label: {
+                        HStack(spacing: 3) {
+                            Image(systemName: "square.and.arrow.down")
+                                .font(.system(size: 8))
+                            Text("Save")
+                                .font(.system(size: 8, weight: .medium))
+                        }
+                        .foregroundStyle(AppAccent.current)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(AppAccent.current.opacity(0.1), in: RoundedRectangle(cornerRadius: 5))
+                    }
+                    .buttonStyle(.plain)
+
+                    if urls.count > 1 {
+                        Button {
+                            downloadAllArtwork(urls: urls, name: "\(album.artistName) - \(album.albumName)")
+                        } label: {
+                            HStack(spacing: 3) {
+                                Image(systemName: "square.and.arrow.down.on.square")
+                                    .font(.system(size: 8))
+                                Text("Save All (\(urls.count))")
+                                    .font(.system(size: 8, weight: .medium))
+                            }
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 5))
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    if let msg = downloadMessage {
+                        Text(msg)
+                            .font(.system(size: 7, weight: .medium))
+                            .foregroundStyle(.green)
+                    }
                 }
             } else {
                 artworkPlaceholder
@@ -182,6 +234,61 @@ struct AlbumDetailView: View {
                         .foregroundStyle(.quaternary)
                 }
             }
+    }
+
+    // MARK: - Download Artwork
+
+    private func downloadArtwork(url: URL, name: String) {
+        Task {
+            guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [.png, .jpeg]
+            panel.nameFieldStringValue = "\(name).jpg"
+            panel.canCreateDirectories = true
+            panel.level = .floating
+            panel.begin { response in
+                guard response == .OK, let saveURL = panel.url else { return }
+                try? data.write(to: saveURL)
+                Task { @MainActor in
+                    downloadMessage = "Saved!"
+                    try? await Task.sleep(for: .seconds(2))
+                    downloadMessage = nil
+                }
+            }
+        }
+    }
+
+    private func downloadAllArtwork(urls: [URL], name: String) {
+        Task {
+            let panel = NSOpenPanel()
+            panel.canChooseDirectories = true
+            panel.canChooseFiles = false
+            panel.canCreateDirectories = true
+            panel.prompt = "Save Here"
+            panel.level = .floating
+            panel.begin { response in
+                guard response == .OK, let folder = panel.url else { return }
+                Task {
+                    var saved = 0
+                    for (i, url) in urls.enumerated() {
+                        if let (data, _) = try? await URLSession.shared.data(from: url) {
+                            let ext = url.pathExtension.isEmpty ? "jpg" : url.pathExtension
+                            let filename = "\(name) - \(i + 1).\(ext)"
+                            let savePath = folder.appendingPathComponent(filename)
+                            try? data.write(to: savePath)
+                            saved += 1
+                        }
+                    }
+                    await MainActor.run {
+                        downloadMessage = "Saved \(saved) covers!"
+                        Task {
+                            try? await Task.sleep(for: .seconds(2))
+                            downloadMessage = nil
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Album Info
