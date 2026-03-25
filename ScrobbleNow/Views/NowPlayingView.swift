@@ -12,6 +12,9 @@ struct NowPlayingView: View {
     @State private var albumToView: (name: String, artist: String)?
     @State private var isExpanded: Bool = false
     @State private var lastNowPlaying: ScrobbledTrack?
+    @State private var showVisualizer = false
+    @State private var visualizerTheme: VisualizerTheme = .bars
+    @State private var showThemeLabel = false
 
     #if os(macOS)
     private var bridge: MediaRemoteBridge { MediaRemoteBridge.shared }
@@ -317,6 +320,88 @@ struct NowPlayingView: View {
         }
     }
 
+    // MARK: - Art / Visualizer Toggle Area
+
+    @ViewBuilder
+    private func artOrVisualizer<Art: View>(
+        artwork: () -> Art,
+        isPlaying: Bool
+    ) -> some View {
+        #if os(macOS)
+        let frameSize: CGFloat = 240
+        #else
+        let frameSize: CGFloat = 300
+        #endif
+
+        ZStack(alignment: .topTrailing) {
+            if showVisualizer {
+                AudioVisualizerView(theme: visualizerTheme, isPlaying: isPlaying)
+                    .frame(width: frameSize, height: frameSize)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                // Cycle theme on tap, return to art on double-tap
+                Color.clear
+                    .frame(width: frameSize, height: frameSize)
+                    .onTapGesture(count: 2) {
+                        withAnimation(.easeInOut(duration: 0.3)) { showVisualizer = false }
+                    }
+                    .onTapGesture {
+                        visualizerTheme = visualizerTheme.next
+                        withAnimation { showThemeLabel = true }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            withAnimation { showThemeLabel = false }
+                        }
+                    }
+
+                // Theme name label
+                if showThemeLabel {
+                    Text(visualizerTheme.rawValue.uppercased())
+                        .font(.system(size: 8, weight: .bold, design: .monospaced))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(.black.opacity(0.55), in: Capsule())
+                        .padding(10)
+                        .transition(.opacity)
+                }
+
+                // Back-to-art button
+                Button {
+                    withAnimation(.easeInOut(duration: 0.3)) { showVisualizer = false }
+                } label: {
+                    Image(systemName: "photo")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.6))
+                        .padding(6)
+                        .background(.black.opacity(0.45), in: Circle())
+                }
+                .buttonStyle(.plain)
+                .padding(10)
+
+            } else {
+                artwork()
+                    .frame(width: frameSize, height: frameSize)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.3)) { showVisualizer = true }
+                        showThemeLabel = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            withAnimation { showThemeLabel = false }
+                        }
+                    }
+
+                // Visualizer hint badge on art
+                Image(systemName: visualizerTheme.icon)
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.55))
+                    .padding(6)
+                    .background(.black.opacity(0.45), in: Circle())
+                    .padding(10)
+            }
+        }
+        .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
+    }
+
     // MARK: - Expanded Now Playing (iOS Music-style)
 
     private func expandedNowPlaying(track: SystemNowPlaying, allSources: [SystemNowPlaying]) -> some View {
@@ -327,6 +412,7 @@ struct NowPlayingView: View {
                 Button {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
                         isExpanded = false
+                        showVisualizer = false
                     }
                 } label: {
                     Image(systemName: "chevron.compact.down")
@@ -339,29 +425,25 @@ struct NowPlayingView: View {
             }
             .padding(.bottom, 4)
 
-            // Large album artwork
-            Group {
-                if let artwork = track.artwork {
-                    artwork.swiftUIImage
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fill)
-                } else {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(.ultraThinMaterial)
-                        .overlay {
-                            Image(systemName: "music.note")
-                                .font(.system(size: 36))
-                                .foregroundStyle(.tertiary)
-                        }
-                }
-            }
-            #if os(macOS)
-            .frame(width: 240, height: 240)
-            #else
-            .frame(width: 300, height: 300)
-            #endif
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
+            // Album artwork / Visualizer toggle
+            artOrVisualizer(
+                artwork: { Group {
+                    if let artwork = track.artwork {
+                        artwork.swiftUIImage
+                            .resizable()
+                            .aspectRatio(1, contentMode: .fill)
+                    } else {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(.ultraThinMaterial)
+                            .overlay {
+                                Image(systemName: "music.note")
+                                    .font(.system(size: 36))
+                                    .foregroundStyle(.tertiary)
+                            }
+                    }
+                }},
+                isPlaying: track.isPlaying
+            )
             .padding(.bottom, 14)
 
             // Track title
@@ -515,6 +597,7 @@ struct NowPlayingView: View {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
                         isExpanded = false
                         lastNowPlaying = nil
+                        showVisualizer = false
                     }
                 } label: {
                     Image(systemName: "chevron.compact.down")
@@ -527,39 +610,35 @@ struct NowPlayingView: View {
             }
             .padding(.bottom, 4)
 
-            // Large album artwork
-            Group {
-                if let artURL = track.albumArtworkURL {
-                    AsyncImage(url: artURL) { phase in
-                        if case .success(let img) = phase {
-                            img.resizable().aspectRatio(1, contentMode: .fill)
-                        } else {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(.ultraThinMaterial)
-                                .overlay {
-                                    Image(systemName: "music.note")
-                                        .font(.system(size: 36))
-                                        .foregroundStyle(.tertiary)
-                                }
+            // Album artwork / Visualizer toggle
+            artOrVisualizer(
+                artwork: { Group {
+                    if let artURL = track.albumArtworkURL {
+                        AsyncImage(url: artURL) { phase in
+                            if case .success(let img) = phase {
+                                img.resizable().aspectRatio(1, contentMode: .fill)
+                            } else {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(.ultraThinMaterial)
+                                    .overlay {
+                                        Image(systemName: "music.note")
+                                            .font(.system(size: 36))
+                                            .foregroundStyle(.tertiary)
+                                    }
+                            }
                         }
+                    } else {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(.ultraThinMaterial)
+                            .overlay {
+                                Image(systemName: "music.note")
+                                    .font(.system(size: 36))
+                                    .foregroundStyle(.tertiary)
+                            }
                     }
-                } else {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(.ultraThinMaterial)
-                        .overlay {
-                            Image(systemName: "music.note")
-                                .font(.system(size: 36))
-                                .foregroundStyle(.tertiary)
-                        }
-                }
-            }
-            #if os(macOS)
-            .frame(width: 240, height: 240)
-            #else
-            .frame(width: 300, height: 300)
-            #endif
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
+                }},
+                isPlaying: true
+            )
             .padding(.bottom, 14)
 
             Text(track.name)
