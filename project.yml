@@ -68,4 +68,4 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads: YES
         INFOPLIST_KEY_NSAppleMusicUsageDescription: "Scrobble Now reads what is playing in Apple Music to scrobble it to Last.fm."
-        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Scrobble Now saves collages you share to your photo library."
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Scrobble Now saves images you share, such as album artwork and collages, to your photo library."

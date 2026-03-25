@@ -1,4 +1,7 @@
 import SwiftUI
+#if os(iOS)
+import Photos
+#endif
 
 struct AlbumDetailView: View {
     let albumName: String
@@ -244,11 +247,15 @@ struct AlbumDetailView: View {
                 downloadMessage = "Failed"
                 return
             }
+            #if os(iOS)
+            await saveDataToPhotos([data])
+            downloadMessage = "Saved to Photos"
+            #else
             let folder = SettingsManager.shared.artworkDownloadURL
             let sanitized = name.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")
-            let savePath = folder.appendingPathComponent("\(sanitized).jpg")
-            try? data.write(to: savePath)
+            try? data.write(to: folder.appendingPathComponent("\(sanitized).jpg"))
             downloadMessage = "Saved to \(folder.lastPathComponent)/"
+            #endif
             try? await Task.sleep(for: .seconds(2))
             downloadMessage = nil
         }
@@ -256,22 +263,49 @@ struct AlbumDetailView: View {
 
     private func downloadAllArtwork(urls: [URL], name: String) {
         Task {
-            let folder = SettingsManager.shared.artworkDownloadURL
-            let sanitized = name.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")
-            var saved = 0
-            for (i, url) in urls.enumerated() {
+            var dataItems: [Data] = []
+            for url in urls {
                 if let (data, _) = try? await URLSession.shared.data(from: url) {
-                    let ext = url.pathExtension.isEmpty ? "jpg" : url.pathExtension
-                    let savePath = folder.appendingPathComponent("\(sanitized) - \(i + 1).\(ext)")
-                    try? data.write(to: savePath)
-                    saved += 1
+                    dataItems.append(data)
                 }
             }
-            downloadMessage = "Saved \(saved) covers to \(folder.lastPathComponent)/"
+            #if os(iOS)
+            await saveDataToPhotos(dataItems)
+            downloadMessage = "Saved \(dataItems.count) covers to Photos"
+            #else
+            let folder = SettingsManager.shared.artworkDownloadURL
+            let sanitized = name.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")
+            for (i, data) in dataItems.enumerated() {
+                let savePath = folder.appendingPathComponent("\(sanitized) - \(i + 1).jpg")
+                try? data.write(to: savePath)
+            }
+            downloadMessage = "Saved \(dataItems.count) covers to \(folder.lastPathComponent)/"
+            #endif
             try? await Task.sleep(for: .seconds(2))
             downloadMessage = nil
         }
     }
+
+    #if os(iOS)
+    private func saveDataToPhotos(_ items: [Data]) async {
+        let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+        guard status == .authorized || status == .limited else {
+            downloadMessage = "Photos access denied"
+            return
+        }
+        do {
+            try await PHPhotoLibrary.shared().performChanges {
+                for data in items {
+                    if let image = UIImage(data: data) {
+                        PHAssetChangeRequest.creationRequestForAsset(from: image)
+                    }
+                }
+            }
+        } catch {
+            downloadMessage = "Save failed"
+        }
+    }
+    #endif
 
     // MARK: - Album Info
 
