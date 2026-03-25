@@ -140,6 +140,28 @@ p + p { text-indent: 1.5em; }
   margin-bottom: 0.8rem;
 }
 
+.hero-beta {
+  margin: 0.8rem 0;
+  text-align: left;
+}
+.beta-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: var(--deep-red);
+  color: var(--cream);
+  margin-bottom: 6px;
+}
+.hero-beta p {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+}
+
 .cover-desc {
   font-size: 0.88rem;
   line-height: 1.6;
