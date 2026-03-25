@@ -48,7 +48,7 @@ struct NowPlayingView: View {
 
                     // Settings
                     Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        withAnimation(.smooth(duration: 0.2)) {
                             mode = mode == .settings ? .feed : .settings
                             albumToView = nil
                         }
@@ -70,7 +70,7 @@ struct NowPlayingView: View {
                     SettingsView(settings: settings, viewModel: viewModel)
                 } else if mode == .library {
                     LibraryView { albumName, artistName in
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        withAnimation(.smooth(duration: 0.2)) {
                             albumToView = (albumName, artistName)
                             mode = .feed
                         }
@@ -79,7 +79,7 @@ struct NowPlayingView: View {
                     CollageView()
                 } else if mode == .history {
                     HistoryView { albumName, artistName in
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        withAnimation(.smooth(duration: 0.2)) {
                             albumToView = (albumName, artistName)
                             mode = .feed
                         }
@@ -90,7 +90,7 @@ struct NowPlayingView: View {
                     // Album detail view
                     HStack {
                         Button {
-                            withAnimation(.easeInOut(duration: 0.2)) {
+                            withAnimation(.smooth(duration: 0.2)) {
                                 albumToView = nil
                             }
                         } label: {
@@ -139,7 +139,7 @@ struct NowPlayingView: View {
                             .padding(.horizontal, 16)
                             .padding(.bottom, 4)
                             .onTapGesture {
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                                withAnimation(.spring(duration: 0.45, bounce: 0.18)) {
                                     isExpanded = true
                                 }
                             }
@@ -150,7 +150,7 @@ struct NowPlayingView: View {
                             sources: Array(playingSources.dropFirst()),
                             onSelect: { selected in
                                 bridge.currentTrack = selected
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                withAnimation(.spring(duration: 0.38, bounce: 0.12)) {
                                     isExpanded = true
                                 }
                             }
@@ -166,7 +166,7 @@ struct NowPlayingView: View {
                             .padding(.bottom, 4)
                             .onTapGesture {
                                 lastNowPlaying = np
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                                withAnimation(.spring(duration: 0.45, bounce: 0.18)) {
                                     isExpanded = true
                                 }
                             }
@@ -192,13 +192,19 @@ struct NowPlayingView: View {
                                     .contentShape(Rectangle())
                                     .onTapGesture {
                                         guard !track.albumName.isEmpty else { return }
-                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                        withAnimation(.smooth(duration: 0.2)) {
                                             albumToView = (track.albumName, track.artistName)
                                         }
+                                    }
+                                    .scrollTransition(.interactive) { content, phase in
+                                        content
+                                            .opacity(phase.isIdentity ? 1 : 0.5)
+                                            .scaleEffect(phase.isIdentity ? 1 : 0.97)
                                     }
                             }
                         }
                     }
+                    .scrollBounceBehavior(.basedOnSize)
                     .padding(.top, 8)
                 }
 
@@ -207,6 +213,7 @@ struct NowPlayingView: View {
                     Text("\(viewModel.recentTracks.count) scrobbles")
                         .font(.system(size: 8, weight: .medium, design: .monospaced))
                         .foregroundStyle(.quaternary)
+                        .contentTransition(.numericText(value: Double(viewModel.recentTracks.count)))
                     Spacer()
                     Button {
                         Task { await viewModel.forceRefresh() }
@@ -214,6 +221,7 @@ struct NowPlayingView: View {
                         Image(systemName: "arrow.clockwise")
                             .font(.system(size: 9))
                             .foregroundStyle(.secondary)
+                            .symbolEffect(.pulse, isActive: viewModel.isLoading)
                     }
                     .buttonStyle(.plain)
                 }
@@ -223,13 +231,18 @@ struct NowPlayingView: View {
                 } // end else (not settings mode)
             }
         }
+        // MARK: Haptics
+        .sensoryFeedback(.impact(weight: .light), trigger: isExpanded)
+        .sensoryFeedback(.selection, trigger: mode)
+        .sensoryFeedback(.impact(weight: .medium), trigger: visualizerTheme)
+        .sensoryFeedback(.success, trigger: scrobbler.didScrobbleCurrent) { _, new in new }
     }
 
     // MARK: - Nav Button Helper
 
     private func navButton(icon: String, mode targetMode: AppMode, label: String) -> some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
+            withAnimation(.smooth(duration: 0.2)) {
                 mode = mode == targetMode ? .feed : targetMode
                 albumToView = nil
             }
@@ -345,7 +358,7 @@ struct NowPlayingView: View {
                 Color.clear
                     .frame(width: frameSize, height: frameSize)
                     .onTapGesture(count: 2) {
-                        withAnimation(.easeInOut(duration: 0.3)) { showVisualizer = false }
+                        withAnimation(.smooth(duration: 0.3)) { showVisualizer = false }
                     }
                     .onTapGesture {
                         visualizerTheme = visualizerTheme.next
@@ -369,7 +382,7 @@ struct NowPlayingView: View {
 
                 // Back-to-art button
                 Button {
-                    withAnimation(.easeInOut(duration: 0.3)) { showVisualizer = false }
+                    withAnimation(.smooth(duration: 0.3)) { showVisualizer = false }
                 } label: {
                     Image(systemName: "photo")
                         .font(.system(size: 9, weight: .medium))
@@ -385,7 +398,7 @@ struct NowPlayingView: View {
                     .frame(width: frameSize, height: frameSize)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .onTapGesture {
-                        withAnimation(.easeInOut(duration: 0.3)) { showVisualizer = true }
+                        withAnimation(.smooth(duration: 0.3)) { showVisualizer = true }
                         showThemeLabel = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             withAnimation { showThemeLabel = false }
@@ -412,7 +425,7 @@ struct NowPlayingView: View {
             HStack {
                 Spacer()
                 Button {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                    withAnimation(.spring(duration: 0.45, bounce: 0.18)) {
                         isExpanded = false
                         showVisualizer = false
                     }
@@ -462,7 +475,7 @@ struct NowPlayingView: View {
                 .padding(.top, 2)
                 .onTapGesture {
                     guard !track.album.isEmpty else { return }
-                    withAnimation(.easeInOut(duration: 0.2)) {
+                    withAnimation(.smooth(duration: 0.2)) {
                         albumToView = (track.album, track.artist)
                         isExpanded = false
                     }
@@ -528,9 +541,12 @@ struct NowPlayingView: View {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 10))
                             .foregroundStyle(.green)
+                            .symbolEffect(.bounce.up, value: scrobbler.didScrobbleCurrent)
+                            .transition(.blurReplace)
                         Text("Scrobbled")
                             .font(.system(size: 8, weight: .medium))
                             .foregroundStyle(.green)
+                            .transition(.blurReplace)
                     } else {
                         ZStack {
                             Circle().stroke(Color.white.opacity(0.08), lineWidth: 2)
@@ -543,6 +559,7 @@ struct NowPlayingView: View {
                         Text("\(Int(scrobbler.scrobbleProgress * 100))%")
                             .font(.system(size: 8, weight: .bold, design: .monospaced))
                             .foregroundStyle(.tertiary)
+                            .contentTransition(.numericText(value: scrobbler.scrobbleProgress))
                     }
                 }
             }
@@ -556,7 +573,7 @@ struct NowPlayingView: View {
                 }
                 expandedButton(icon: "magnifyingglass", label: "Discover") {
                     guard !track.artist.isEmpty else { return }
-                    withAnimation(.easeInOut(duration: 0.2)) {
+                    withAnimation(.smooth(duration: 0.2)) {
                         albumToView = (track.album.isEmpty ? track.title : track.album, track.artist)
                         isExpanded = false
                     }
@@ -596,7 +613,7 @@ struct NowPlayingView: View {
             HStack {
                 Spacer()
                 Button {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                    withAnimation(.spring(duration: 0.45, bounce: 0.18)) {
                         isExpanded = false
                         lastNowPlaying = nil
                         showVisualizer = false
@@ -678,7 +695,7 @@ struct NowPlayingView: View {
                 }
                 expandedButton(icon: "magnifyingglass", label: "Discover") {
                     guard !track.artistName.isEmpty else { return }
-                    withAnimation(.easeInOut(duration: 0.2)) {
+                    withAnimation(.smooth(duration: 0.2)) {
                         albumToView = (track.albumName.isEmpty ? track.name : track.albumName, track.artistName)
                         isExpanded = false
                     }
@@ -755,6 +772,8 @@ struct NowPlayingView: View {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 12))
                             .foregroundStyle(.green)
+                            .symbolEffect(.bounce.up, value: scrobbler.didScrobbleCurrent)
+                            .transition(.blurReplace)
                     } else {
                         // Circular progress toward scrobble
                         ZStack {
@@ -766,10 +785,12 @@ struct NowPlayingView: View {
                                 .rotationEffect(.degrees(-90))
                         }
                         .frame(width: 18, height: 18)
+                        .transition(.blurReplace)
                     }
                     Text(scrobbler.didScrobbleCurrent ? "✓" : "\(Int(scrobbler.scrobbleProgress * 100))%")
                         .font(.system(size: 6, weight: .bold, design: .monospaced))
                         .foregroundStyle(.tertiary)
+                        .contentTransition(.numericText(value: scrobbler.scrobbleProgress))
                 }
             }
 

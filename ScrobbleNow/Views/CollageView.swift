@@ -177,6 +177,10 @@ struct CollageView: View {
             }
         }
         #endif
+        .sensoryFeedback(.impact(weight: .heavy), trigger: vm.albums.count) { old, new in
+            new > 0 && old == 0
+        }
+        .sensoryFeedback(.success, trigger: vm.exportMessage) { _, new in new != nil }
     }
 
     // MARK: - Collage Grid

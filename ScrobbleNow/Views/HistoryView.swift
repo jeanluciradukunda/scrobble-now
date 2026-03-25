@@ -21,6 +21,7 @@ struct HistoryView: View {
                         }
                     }
                 }
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
         .task { await vm.load() }
@@ -97,6 +98,11 @@ struct HistoryView: View {
                 .onTapGesture {
                     guard !track.albumName.isEmpty else { return }
                     onAlbumTap(track.albumName, track.artistName)
+                }
+                .scrollTransition(.interactive) { content, phase in
+                    content
+                        .opacity(phase.isIdentity ? 1 : 0.45)
+                        .offset(x: phase.value * 6)
                 }
             }
         }

@@ -37,7 +37,7 @@ struct LibraryView: View {
             HStack(spacing: 0) {
                 ForEach(LibraryViewModel.LibraryMode.allCases, id: \.self) { mode in
                     Button {
-                        withAnimation(.easeInOut(duration: 0.15)) { vm.mode = mode }
+                        withAnimation(.smooth(duration: 0.15)) { vm.mode = mode }
                     } label: {
                         Text(mode.rawValue)
                             .font(.system(size: 9, weight: .medium))
@@ -84,10 +84,16 @@ struct LibraryView: View {
                         .onTapGesture {
                             onAlbumTap(album.albumName, album.artistName)
                         }
+                        .scrollTransition(.interactive) { content, phase in
+                            content
+                                .opacity(phase.isIdentity ? 1 : 0.4)
+                                .scaleEffect(phase.isIdentity ? 1 : 0.92)
+                        }
                 }
             }
             .padding(.horizontal, 16)
         }
+        .scrollBounceBehavior(.basedOnSize)
     }
 
     private func albumCell(_ album: TopAlbumEntry) -> some View {
@@ -152,8 +158,14 @@ struct LibraryView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 4)
+                    .scrollTransition(.interactive) { content, phase in
+                        content
+                            .opacity(phase.isIdentity ? 1 : 0.45)
+                            .offset(x: phase.value * 8)
+                    }
                 }
             }
         }
+        .scrollBounceBehavior(.basedOnSize)
     }
 }
