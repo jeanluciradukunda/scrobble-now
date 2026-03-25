@@ -33,6 +33,7 @@ struct NowPlayingView: View {
             VStack(spacing: 0) {
                 // Top bar
                 HStack(spacing: 8) {
+                    #if os(macOS)
                     // Library
                     navButton(icon: "square.stack", mode: .library, label: "Library")
                     // Collage
@@ -41,6 +42,7 @@ struct NowPlayingView: View {
                     navButton(icon: "clock.arrow.circlepath", mode: .history, label: "Listening History")
                     // Stats
                     navButton(icon: "chart.bar", mode: .stats, label: "Statistics")
+                    #endif
 
                     Spacer()
 
