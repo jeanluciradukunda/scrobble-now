@@ -1,10 +1,10 @@
-import AppKit
+import Foundation
 
 actor CacheService {
     static let shared = CacheService()
 
     private var albumCache: [String: AlbumDetail] = [:]
-    private var imageCache: [URL: NSImage] = [:]
+    private var imageCache: [URL: PlatformImage] = [:]
     private var recentTracksCache: [String: [ScrobbledTrack]] = [:]
 
     // MARK: - Albums
@@ -17,11 +17,11 @@ actor CacheService {
     }
 
     // MARK: - Images
-    func getCachedImage(url: URL) -> NSImage? {
+    func getCachedImage(url: URL) -> PlatformImage? {
         imageCache[url]
     }
 
-    func cacheImage(url: URL, image: NSImage) {
+    func cacheImage(url: URL, image: PlatformImage) {
         imageCache[url] = image
         if imageCache.count > 100 {
             let keysToRemove = Array(imageCache.keys.prefix(20))

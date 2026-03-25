@@ -1,3 +1,4 @@
+#if os(macOS)
 import Foundation
 import AppKit
 
@@ -195,3 +196,4 @@ class MetricsService: ObservableObject {
         String(format: "%.2fs", cpuTimeSec)
     }
 }
+#endif
