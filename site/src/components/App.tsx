@@ -71,6 +71,10 @@ export function App() {
         <div class="cover-text">
           <p class="kicker-top">macOS Menu Bar Companion for Last.fm</p>
           <img src={`${base}assets/title-scrobble-now.png`} alt="Scrobble Now" class="cover-title" />
+          <div class="hero-beta">
+            <span class="beta-pill">PUBLIC BETA</span>
+            <p>Shipping fast in the open. Expect UI changes, new features, and the occasional rough edge while the app settles.</p>
+          </div>
           <div class="condec-stripe-h">
             <For each={STRIPE_COLORS}>{(c) => <span style={`background:${c}`} />}</For>
           </div>

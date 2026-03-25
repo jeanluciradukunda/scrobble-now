@@ -73,6 +73,7 @@ export const footerFacts = [
 ];
 
 export const FAQ_ITEMS = [
+  { q: "Is this app stable yet?", a: "Not fully. Scrobble Now is still in public beta. The core workflow — live feed, album discovery, collages, history — is usable, but the UI, scoring accuracy, and some edge cases are still being refined in the open." },
   { q: "Do I need a Last.fm account?", a: "Yes. Scrobble Now reads your scrobbling data from Last.fm. You need a Last.fm account and a free API key from last.fm/api." },
   { q: "Does this app do the scrobbling?", a: "No. Scrobble Now represents your listening — it shows what you're scrobbling, discovers albums, and generates collages. The actual scrobbling is done by your music player (Spotify, Apple Music, etc.) or a tool like Web Scrobbler." },
   { q: "Is my data sent anywhere?", a: "No. Everything stays on your Mac. Scrobble data is fetched from Last.fm's public API and cached locally. No analytics, no cloud storage, no telemetry." },
