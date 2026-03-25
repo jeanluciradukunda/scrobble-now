@@ -6,7 +6,7 @@ class NowPlayingViewModel: ObservableObject {
     @Published var recentTracks: [ScrobbledTrack] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var albumArtwork: NSImage?
+    @Published var albumArtwork: PlatformImage?
 
     private let lastfmService = LastFMService()
     private let cache = CacheService.shared
@@ -46,7 +46,7 @@ class NowPlayingViewModel: ObservableObject {
             if let np = nowPlaying, np.name != oldNowPlaying?.name,
                let artURL = np.albumArtworkURL {
                 let (data, _) = try await URLSession.shared.data(from: artURL)
-                albumArtwork = NSImage(data: data)
+                albumArtwork = PlatformImage(data: data)
             }
 
             errorMessage = nil

@@ -3,13 +3,13 @@ options:
   bundleIdPrefix: com.personal
   deploymentTarget:
     macOS: "14.0"
+    iOS: "17.0"
   xcodeVersion: "16.0"
   minimumXcodeGenVersion: "2.0"
 
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    MACOSX_DEPLOYMENT_TARGET: "14.0"
 
 targets:
   ScrobbleNow:
@@ -17,6 +17,8 @@ targets:
     platform: macOS
     sources:
       - path: ScrobbleNow
+        excludes:
+          - "**/.DS_Store"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.personal.ScrobbleNow
@@ -29,6 +31,7 @@ targets:
         COMBINE_HIDPI_IMAGES: YES
         DEVELOPMENT_TEAM: YNB3ADRMFC
         CODE_SIGN_STYLE: Automatic
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
     info:
       path: ScrobbleNow/Resources/Info.plist
       properties:
@@ -36,3 +39,31 @@ targets:
         CFBundleDisplayName: "Scrobble Now"
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
+
+  ScrobbleNowiOS:
+    type: application
+    platform: iOS
+    sources:
+      - path: ScrobbleNow
+        excludes:
+          - "App/ScrobbleNowApp.swift"
+          - "Services/MediaRemoteBridge.swift"
+          - "Services/MetricsService.swift"
+          - "Resources/Info.plist"
+          - "**/.DS_Store"
+      - path: ScrobbleNowiOS
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.personal.ScrobbleNow.ios
+        INFOPLIST_FILE: ""
+        GENERATE_INFOPLIST_FILE: YES
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        PRODUCT_NAME: "Scrobble Now"
+        DEVELOPMENT_TEAM: YNB3ADRMFC
+        CODE_SIGN_STYLE: Automatic
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        INFOPLIST_KEY_CFBundleDisplayName: "Scrobble Now"
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads: YES

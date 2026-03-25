@@ -9,41 +9,80 @@
 /* Begin PBXBuildFile section */
 		017C8A218A693DE4F03BEE9B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E00961C407B21D13CF45EB9E /* Assets.xcassets */; };
 		0411D4BD98B0A692B918C738 /* MusicBrainzService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7414E9B734282F6B342C5A /* MusicBrainzService.swift */; };
+		04631386DFDB792CA8ED03F8 /* AlbumDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC0CBEE725DC8AF8080E89A /* AlbumDetailView.swift */; };
 		05BA47968FBBFEC344CF9800 /* AlbumDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC0CBEE725DC8AF8080E89A /* AlbumDetailView.swift */; };
+		060E5C068DD007D897484F5C /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE4230F732B9F8257B84158 /* NowPlayingView.swift */; };
 		06B92F41D3E2566A2F416070 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FE681000BC36994A602D83 /* KeychainService.swift */; };
 		0BA3EE29324374EE09B50D41 /* LibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB2BB2F20879D5AA4800774 /* LibraryViewModel.swift */; };
+		0CA23012ECB19020988FF852 /* SparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD1B44005A77903F50E51973 /* SparklineView.swift */; };
 		11BE473C0BFB47723DEDF381 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56AD0226D56AC9B449D3CBE4 /* HistoryView.swift */; };
+		13F5C76719408C9115951E92 /* ScrobbleNowiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E95E4954D6A90905F67E61A2 /* ScrobbleNowiOSApp.swift */; };
+		182680E9969FE8ED7810258F /* PlatformImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C962FA640E5DCB09F0AA1FFA /* PlatformImage.swift */; };
 		19E221D7BD55284070245C6E /* NowPlayingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */; };
 		1E021E9EEABAEAE687AC87A6 /* iTunesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB67D6E70719959ED127C567 /* iTunesService.swift */; };
+		1E5216179E621B10E341322D /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FE681000BC36994A602D83 /* KeychainService.swift */; };
+		226B44F05BC44BCC453E40A7 /* YouTubeMusicFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BF1538A622E83C2C86506E /* YouTubeMusicFilter.swift */; };
+		23C99D34F4E5D7E56D55A258 /* APITracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FC4A8F0FE421C4A49FDEFB0 /* APITracker.swift */; };
+		2465A17A25A6A8B16E2DBEEA /* LibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB2BB2F20879D5AA4800774 /* LibraryViewModel.swift */; };
+		25D07AA16642575B11FCD564 /* WikidataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */; };
+		26EF427488E4AB61974433F2 /* ScrobbleCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF9BDB1C50EA86588165F202 /* ScrobbleCache.swift */; };
 		292661EC3FD2C9201A251D7C /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA730E7257F76B5CCDFE472 /* Album.swift */; };
+		2D2B5386EB0355DB8D1D2DA7 /* SystemScrobbleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254BEDF3534B4D7781A96A81 /* SystemScrobbleService.swift */; };
+		2D8CF4034D649388E7205462 /* CacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB479C6E709FA48840511EBB /* CacheService.swift */; };
 		31B182C7ED234C69123A39AB /* YouTubeMusicFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BF1538A622E83C2C86506E /* YouTubeMusicFilter.swift */; };
 		34F13A0C91351C800524B842 /* RadarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019A647E4552F30A7374FDCC /* RadarChartView.swift */; };
+		3EE44B8CD0CE384793B91F81 /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AAB98902C5909700E29F6F7 /* StatisticsView.swift */; };
 		42B1D520A0213B02A7650386 /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE4230F732B9F8257B84158 /* NowPlayingView.swift */; };
 		59BC7D098303753E227F2E99 /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */; };
+		63C5793D3E0BCDBE450F898E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E00961C407B21D13CF45EB9E /* Assets.xcassets */; };
+		699BE5E7825946678B4120EE /* PlatformImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C962FA640E5DCB09F0AA1FFA /* PlatformImage.swift */; };
 		6A4C549A6B7F29C31553C055 /* DiscogsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */; };
 		6CFF6CD9103720A4B84760BA /* WikidataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */; };
+		6E256F60E0DA83541A6ACBC0 /* MPNowPlayingBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6CF26C04EC1F288F7BF407 /* MPNowPlayingBridge.swift */; };
+		72211E1C53163C98A5AC00C9 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */; };
+		752BE5B3D2722A9D1A68EF13 /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA730E7257F76B5CCDFE472 /* Album.swift */; };
 		76E9B67AC9C98FFCB28AAB01 /* ScrobbleCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF9BDB1C50EA86588165F202 /* ScrobbleCache.swift */; };
 		77A86A4F46081352DA4AA51F /* CacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB479C6E709FA48840511EBB /* CacheService.swift */; };
 		77B76EF1DE6497F42AB7A1AA /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C98113A7ABDD5E7BDF1F23 /* SettingsManager.swift */; };
 		78C6A2A7C4454084919B997E /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AAB98902C5909700E29F6F7 /* StatisticsView.swift */; };
+		794BF6F6EB95B2631952669F /* DiscogsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */; };
+		7AC847C1CC26873D42E13F78 /* SystemNowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F0C55D55CA394E6FF2818F9 /* SystemNowPlaying.swift */; };
 		7F898C5AA1FE6904631D66EE /* APITracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FC4A8F0FE421C4A49FDEFB0 /* APITracker.swift */; };
 		838D457CB4833F9EA3B31F14 /* SystemScrobbleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254BEDF3534B4D7781A96A81 /* SystemScrobbleService.swift */; };
+		8582B339081DFE55C0230AB7 /* LastFMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB4C530B436DAC304D43681 /* LastFMService.swift */; };
 		89DA4AA470CC0A995FFF4E02 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = FE197619BE346D8CE2D36B96 /* Secrets.plist */; };
+		8F37E48851B0BC2B29ED1BD4 /* StatisticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A3650658D9721D4060B6A6 /* StatisticsViewModel.swift */; };
 		8FAECCD67931F57234F4F61D /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */; };
 		946BD53FD4FFDE08673F91A2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475214BADE0D94B22F53D601 /* SettingsView.swift */; };
+		95C52601CE30BA78852058F8 /* AlbumDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */; };
+		98B24A70524A5C518EF27421 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCD2BD832C94BD88F4F7299 /* HistoryViewModel.swift */; };
 		9AAB082D4C52B0BB2986EC91 /* StatisticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A3650658D9721D4060B6A6 /* StatisticsViewModel.swift */; };
+		A06110905BCE6E1233B27F1A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475214BADE0D94B22F53D601 /* SettingsView.swift */; };
 		A3BCFFCFA5E125BF09C74B4E /* AlbumDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */; };
+		A4B345FC24488FDF1EB2DDCA /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56AD0226D56AC9B449D3CBE4 /* HistoryView.swift */; };
 		A78C2813884ABDE0883B8163 /* LastFMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB4C530B436DAC304D43681 /* LastFMService.swift */; };
+		A7A3A8106E40084102DE1EE1 /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */; };
 		ACB62FE43B215150A9B93041 /* CollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A424FB0DA92E827E33FDB9 /* CollageView.swift */; };
+		B31F0CA9754B15949A380E5D /* CollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A424FB0DA92E827E33FDB9 /* CollageView.swift */; };
+		B5172DDDFBE9FD9323CBEB54 /* Secrets.example.plist in Resources */ = {isa = PBXBuildFile; fileRef = 599193E3C13DA0BF15B628B4 /* Secrets.example.plist */; };
+		BDF75E9C680BDA459A81ABFF /* SystemNowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F0C55D55CA394E6FF2818F9 /* SystemNowPlaying.swift */; };
 		C310ACE2A49021CB3CA8EFDF /* Secrets.example.plist in Resources */ = {isa = PBXBuildFile; fileRef = 599193E3C13DA0BF15B628B4 /* Secrets.example.plist */; };
 		C485A5E90C35443F32988330 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5A2E4F83C3B47FFC9939C469 /* Info.plist */; };
+		C550C146E7F66AC0C26C7CE5 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = FE197619BE346D8CE2D36B96 /* Secrets.plist */; };
+		CA82194884970E747FA97A14 /* MusicBrainzService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7414E9B734282F6B342C5A /* MusicBrainzService.swift */; };
+		CB9DE65E77A6A9920250F8D7 /* RadarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019A647E4552F30A7374FDCC /* RadarChartView.swift */; };
 		CF56914916AA5B8CC433D86F /* CollageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B7933EA834B896C87C1F7BA /* CollageViewModel.swift */; };
 		D71A9DB3E05F1807BE21160C /* MediaRemoteBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73E507B8BC0D0152B1CB879A /* MediaRemoteBridge.swift */; };
+		D7E86D3F78C3042B40B90ED3 /* iTunesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB67D6E70719959ED127C567 /* iTunesService.swift */; };
 		D9643C658E5F4D823638ED9A /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD12B4CB16C74BEFCD7E7473 /* Track.swift */; };
 		DD135A1C4DAF72925830D6F7 /* MetricsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F6052BE4C62C9BBD87485D /* MetricsService.swift */; };
 		DF35F5B9EE37C276DC9F5710 /* ScrobbleNowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36C5EFF085D5F70BD16C3644 /* ScrobbleNowApp.swift */; };
 		E1FD89349690CCE755E3E772 /* SparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD1B44005A77903F50E51973 /* SparklineView.swift */; };
+		E708DFF4A228C1EC56DAC9EA /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD12B4CB16C74BEFCD7E7473 /* Track.swift */; };
+		E7C2C63B66C05D9DB2BEDB04 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C98113A7ABDD5E7BDF1F23 /* SettingsManager.swift */; };
 		F308F446FD29717A2B7D0B2C /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCD2BD832C94BD88F4F7299 /* HistoryViewModel.swift */; };
+		F7CB61806C99C01FCB8E9861 /* NowPlayingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */; };
+		FE6EB7BCD3CB3413049A8DA6 /* CollageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B7933EA834B896C87C1F7BA /* CollageViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,6 +96,7 @@
 		3EB4C530B436DAC304D43681 /* LastFMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastFMService.swift; sourceTree = "<group>"; };
 		402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDiscoveryService.swift; sourceTree = "<group>"; };
 		475214BADE0D94B22F53D601 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		4835A1860F5ACC8A6948705E /* ScrobbleNowiOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ScrobbleNowiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F96D950C7C4D1627BA1BDE8 /* ScrobbleNow.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScrobbleNow.entitlements; sourceTree = "<group>"; };
 		4FC4A8F0FE421C4A49FDEFB0 /* APITracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITracker.swift; sourceTree = "<group>"; };
 		54BF1538A622E83C2C86506E /* YouTubeMusicFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeMusicFilter.swift; sourceTree = "<group>"; };
@@ -70,15 +110,19 @@
 		81A3650658D9721D4060B6A6 /* StatisticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewModel.swift; sourceTree = "<group>"; };
 		88F6052BE4C62C9BBD87485D /* MetricsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsService.swift; sourceTree = "<group>"; };
 		8CC0CBEE725DC8AF8080E89A /* AlbumDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDetailView.swift; sourceTree = "<group>"; };
+		8F0C55D55CA394E6FF2818F9 /* SystemNowPlaying.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNowPlaying.swift; sourceTree = "<group>"; };
 		922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingViewModel.swift; sourceTree = "<group>"; };
 		AB479C6E709FA48840511EBB /* CacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheService.swift; sourceTree = "<group>"; };
+		AD6CF26C04EC1F288F7BF407 /* MPNowPlayingBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MPNowPlayingBridge.swift; sourceTree = "<group>"; };
 		BCB2BB2F20879D5AA4800774 /* LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewModel.swift; sourceTree = "<group>"; };
 		BF9BDB1C50EA86588165F202 /* ScrobbleCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleCache.swift; sourceTree = "<group>"; };
+		C962FA640E5DCB09F0AA1FFA /* PlatformImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformImage.swift; sourceTree = "<group>"; };
 		D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		D8C98113A7ABDD5E7BDF1F23 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		DB67D6E70719959ED127C567 /* iTunesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iTunesService.swift; sourceTree = "<group>"; };
 		DB7414E9B734282F6B342C5A /* MusicBrainzService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicBrainzService.swift; sourceTree = "<group>"; };
 		E00961C407B21D13CF45EB9E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E95E4954D6A90905F67E61A2 /* ScrobbleNowiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleNowiOSApp.swift; sourceTree = "<group>"; };
 		F3A424FB0DA92E827E33FDB9 /* CollageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageView.swift; sourceTree = "<group>"; };
 		F4FE681000BC36994A602D83 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
 		F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WikidataService.swift; sourceTree = "<group>"; };
@@ -89,6 +133,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		15F92CD74F6AABC86282D8FD /* ScrobbleNowiOS */ = {
+			isa = PBXGroup;
+			children = (
+				AD6CF26C04EC1F288F7BF407 /* MPNowPlayingBridge.swift */,
+				E95E4954D6A90905F67E61A2 /* ScrobbleNowiOSApp.swift */,
+			);
+			path = ScrobbleNowiOS;
+			sourceTree = "<group>";
+		};
 		1F1B0658793DE120569C0A07 /* ScrobbleNow */ = {
 			isa = PBXGroup;
 			children = (
@@ -96,6 +149,7 @@
 				536664214AD2BBA5A9CCA5C6 /* Models */,
 				61E4B43FB6CEDC51079FF09C /* Resources */,
 				F1141E265F02D77F30DBE1BB /* Services */,
+				3DFA6566359A02711AFDEB82 /* Shared */,
 				2B6312A219BE34E5C8EDE217 /* Views */,
 			);
 			path = ScrobbleNow;
@@ -118,6 +172,14 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		3DFA6566359A02711AFDEB82 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				C962FA640E5DCB09F0AA1FFA /* PlatformImage.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		536664214AD2BBA5A9CCA5C6 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -128,6 +190,7 @@
 				922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */,
 				D8C98113A7ABDD5E7BDF1F23 /* SettingsManager.swift */,
 				81A3650658D9721D4060B6A6 /* StatisticsViewModel.swift */,
+				8F0C55D55CA394E6FF2818F9 /* SystemNowPlaying.swift */,
 				FD12B4CB16C74BEFCD7E7473 /* Track.swift */,
 			);
 			path = Models;
@@ -149,6 +212,7 @@
 			isa = PBXGroup;
 			children = (
 				1F1B0658793DE120569C0A07 /* ScrobbleNow */,
+				15F92CD74F6AABC86282D8FD /* ScrobbleNowiOS */,
 				BB00A2E5D0BEC7BD2220E4D7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -157,6 +221,7 @@
 			isa = PBXGroup;
 			children = (
 				2D9FC698960908EA651FD429 /* ScrobbleNow.app */,
+				4835A1860F5ACC8A6948705E /* ScrobbleNowiOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -211,6 +276,24 @@
 			productReference = 2D9FC698960908EA651FD429 /* ScrobbleNow.app */;
 			productType = "com.apple.product-type.application";
 		};
+		C68E352C9E065EEB55AD4D25 /* ScrobbleNowiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DFF934CDA838832CCC16847 /* Build configuration list for PBXNativeTarget "ScrobbleNowiOS" */;
+			buildPhases = (
+				428653419688A2CEA639DDC3 /* Sources */,
+				22CBC74725C6440D2F95CBBB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ScrobbleNowiOS;
+			packageProductDependencies = (
+			);
+			productName = ScrobbleNowiOS;
+			productReference = 4835A1860F5ACC8A6948705E /* ScrobbleNowiOS.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -221,6 +304,10 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					BAF763319D7C797101653D7A = {
+						DevelopmentTeam = YNB3ADRMFC;
+						ProvisioningStyle = Automatic;
+					};
+					C68E352C9E065EEB55AD4D25 = {
 						DevelopmentTeam = YNB3ADRMFC;
 						ProvisioningStyle = Automatic;
 					};
@@ -241,6 +328,7 @@
 			projectRoot = "";
 			targets = (
 				BAF763319D7C797101653D7A /* ScrobbleNow */,
+				C68E352C9E065EEB55AD4D25 /* ScrobbleNowiOS */,
 			);
 		};
 /* End PBXProject section */
@@ -257,9 +345,60 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		22CBC74725C6440D2F95CBBB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				63C5793D3E0BCDBE450F898E /* Assets.xcassets in Resources */,
+				B5172DDDFBE9FD9323CBEB54 /* Secrets.example.plist in Resources */,
+				C550C146E7F66AC0C26C7CE5 /* Secrets.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		428653419688A2CEA639DDC3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23C99D34F4E5D7E56D55A258 /* APITracker.swift in Sources */,
+				A7A3A8106E40084102DE1EE1 /* AccentColor.swift in Sources */,
+				752BE5B3D2722A9D1A68EF13 /* Album.swift in Sources */,
+				04631386DFDB792CA8ED03F8 /* AlbumDetailView.swift in Sources */,
+				95C52601CE30BA78852058F8 /* AlbumDiscoveryService.swift in Sources */,
+				2D8CF4034D649388E7205462 /* CacheService.swift in Sources */,
+				B31F0CA9754B15949A380E5D /* CollageView.swift in Sources */,
+				FE6EB7BCD3CB3413049A8DA6 /* CollageViewModel.swift in Sources */,
+				794BF6F6EB95B2631952669F /* DiscogsService.swift in Sources */,
+				A4B345FC24488FDF1EB2DDCA /* HistoryView.swift in Sources */,
+				98B24A70524A5C518EF27421 /* HistoryViewModel.swift in Sources */,
+				1E5216179E621B10E341322D /* KeychainService.swift in Sources */,
+				8582B339081DFE55C0230AB7 /* LastFMService.swift in Sources */,
+				72211E1C53163C98A5AC00C9 /* LibraryView.swift in Sources */,
+				2465A17A25A6A8B16E2DBEEA /* LibraryViewModel.swift in Sources */,
+				6E256F60E0DA83541A6ACBC0 /* MPNowPlayingBridge.swift in Sources */,
+				CA82194884970E747FA97A14 /* MusicBrainzService.swift in Sources */,
+				060E5C068DD007D897484F5C /* NowPlayingView.swift in Sources */,
+				F7CB61806C99C01FCB8E9861 /* NowPlayingViewModel.swift in Sources */,
+				699BE5E7825946678B4120EE /* PlatformImage.swift in Sources */,
+				CB9DE65E77A6A9920250F8D7 /* RadarChartView.swift in Sources */,
+				26EF427488E4AB61974433F2 /* ScrobbleCache.swift in Sources */,
+				13F5C76719408C9115951E92 /* ScrobbleNowiOSApp.swift in Sources */,
+				E7C2C63B66C05D9DB2BEDB04 /* SettingsManager.swift in Sources */,
+				A06110905BCE6E1233B27F1A /* SettingsView.swift in Sources */,
+				0CA23012ECB19020988FF852 /* SparklineView.swift in Sources */,
+				3EE44B8CD0CE384793B91F81 /* StatisticsView.swift in Sources */,
+				8F37E48851B0BC2B29ED1BD4 /* StatisticsViewModel.swift in Sources */,
+				7AC847C1CC26873D42E13F78 /* SystemNowPlaying.swift in Sources */,
+				2D2B5386EB0355DB8D1D2DA7 /* SystemScrobbleService.swift in Sources */,
+				E708DFF4A228C1EC56DAC9EA /* Track.swift in Sources */,
+				25D07AA16642575B11FCD564 /* WikidataService.swift in Sources */,
+				226B44F05BC44BCC453E40A7 /* YouTubeMusicFilter.swift in Sources */,
+				D7E86D3F78C3042B40B90ED3 /* iTunesService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		605740C98EEDA1C50C1330AC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -284,6 +423,7 @@
 				0411D4BD98B0A692B918C738 /* MusicBrainzService.swift in Sources */,
 				42B1D520A0213B02A7650386 /* NowPlayingView.swift in Sources */,
 				19E221D7BD55284070245C6E /* NowPlayingViewModel.swift in Sources */,
+				182680E9969FE8ED7810258F /* PlatformImage.swift in Sources */,
 				34F13A0C91351C800524B842 /* RadarChartView.swift in Sources */,
 				76E9B67AC9C98FFCB28AAB01 /* ScrobbleCache.swift in Sources */,
 				DF35F5B9EE37C276DC9F5710 /* ScrobbleNowApp.swift in Sources */,
@@ -292,6 +432,7 @@
 				E1FD89349690CCE755E3E772 /* SparklineView.swift in Sources */,
 				78C6A2A7C4454084919B997E /* StatisticsView.swift in Sources */,
 				9AAB082D4C52B0BB2986EC91 /* StatisticsViewModel.swift in Sources */,
+				BDF75E9C680BDA459A81ABFF /* SystemNowPlaying.swift in Sources */,
 				838D457CB4833F9EA3B31F14 /* SystemScrobbleService.swift in Sources */,
 				D9643C658E5F4D823638ED9A /* Track.swift in Sources */,
 				6CFF6CD9103720A4B84760BA /* WikidataService.swift in Sources */,
@@ -318,6 +459,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.personal.ScrobbleNow;
 				PRODUCT_NAME = "Scrobble Now";
@@ -370,11 +512,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
@@ -432,12 +574,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
@@ -459,6 +601,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.personal.ScrobbleNow;
 				PRODUCT_NAME = "Scrobble Now";
@@ -466,9 +609,70 @@
 			};
 			name = Release;
 		};
+		AEBE07674E97B63AC379ABE3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YNB3ADRMFC;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
+				INFOPLIST_KEY_CFBundleDisplayName = "Scrobble Now";
+				INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.personal.ScrobbleNow.ios;
+				PRODUCT_NAME = "Scrobble Now";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CF3BF25CFBCB33AA35FD0649 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YNB3ADRMFC;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "";
+				INFOPLIST_KEY_CFBundleDisplayName = "Scrobble Now";
+				INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.personal.ScrobbleNow.ios;
+				PRODUCT_NAME = "Scrobble Now";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1DFF934CDA838832CCC16847 /* Build configuration list for PBXNativeTarget "ScrobbleNowiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AEBE07674E97B63AC379ABE3 /* Debug */,
+				CF3BF25CFBCB33AA35FD0649 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		89A634862E8211D914149555 /* Build configuration list for PBXProject "ScrobbleNow" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

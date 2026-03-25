@@ -11,69 +11,33 @@ struct NowPlayingView: View {
     @State private var mode: AppMode = .feed
     @State private var albumToView: (name: String, artist: String)?
     @State private var isExpanded: Bool = false
+    @State private var lastNowPlaying: ScrobbledTrack?
+
+    #if os(macOS)
+    private var bridge: MediaRemoteBridge { MediaRemoteBridge.shared }
+    #else
+    private var bridge: MPNowPlayingBridge { MPNowPlayingBridge.shared }
+    #endif
 
     var body: some View {
         ZStack {
+            #if os(macOS)
             VisualEffectBackground()
+            #else
+            Color(.systemBackground).ignoresSafeArea()
+            #endif
 
             VStack(spacing: 0) {
                 // Top bar
                 HStack(spacing: 8) {
                     // Library
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            mode = mode == .library ? .feed : .library
-                            albumToView = nil
-                        }
-                    } label: {
-                        Image(systemName: "square.stack")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(mode == .library ? AppAccent.current : .secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .help("Library")
-
+                    navButton(icon: "square.stack", mode: .library, label: "Library")
                     // Collage
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            mode = mode == .collage ? .feed : .collage
-                            albumToView = nil
-                        }
-                    } label: {
-                        Image(systemName: "square.grid.3x3")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(mode == .collage ? AppAccent.current : .secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .help("Collage Generator")
-
+                    navButton(icon: "square.grid.3x3", mode: .collage, label: "Collage Generator")
                     // History
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            mode = mode == .history ? .feed : .history
-                            albumToView = nil
-                        }
-                    } label: {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(mode == .history ? AppAccent.current : .secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .help("Listening History")
-
+                    navButton(icon: "clock.arrow.circlepath", mode: .history, label: "Listening History")
                     // Stats
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            mode = mode == .stats ? .feed : .stats
-                            albumToView = nil
-                        }
-                    } label: {
-                        Image(systemName: "chart.bar")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(mode == .stats ? AppAccent.current : .secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .help("Statistics")
+                    navButton(icon: "chart.bar", mode: .stats, label: "Statistics")
 
                     Spacer()
 
@@ -89,7 +53,9 @@ struct NowPlayingView: View {
                             .foregroundStyle(mode == .settings ? AppAccent.current : .secondary)
                     }
                     .buttonStyle(.plain)
+                    #if os(macOS)
                     .help("Settings")
+                    #endif
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 8)
@@ -156,16 +122,14 @@ struct NowPlayingView: View {
                 .padding(.bottom, 8)
 
                 // ALL active playing sources
-                let playingSources = MediaRemoteBridge.shared.activeSources.values
+                let playingSources = bridge.activeSources.values
                     .filter { $0.isPlaying }
                     .sorted { $0.timestamp > $1.timestamp }
 
                 if let primary = playingSources.first {
                     if isExpanded {
-                        // ═══════ EXPANDED: one source in focus ═══════
                         expandedNowPlaying(track: primary, allSources: Array(playingSources))
                     } else {
-                        // ═══════ COMPACT: primary card ═══════
                         systemNowPlayingCard(track: primary)
                             .padding(.horizontal, 16)
                             .padding(.bottom, 4)
@@ -176,18 +140,31 @@ struct NowPlayingView: View {
                             }
                     }
 
-                    // ═══════ OTHER SOURCES: horizontal ticker strip ═══════
                     if playingSources.count > 1 {
                         otherSourcesStrip(
                             sources: Array(playingSources.dropFirst()),
                             onSelect: { selected in
-                                // Swap: make this the primary
-                                MediaRemoteBridge.shared.currentTrack = selected
+                                bridge.currentTrack = selected
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                                     isExpanded = true
                                 }
                             }
                         )
+                    }
+                } else if let np = viewModel.nowPlaying ?? (isExpanded ? lastNowPlaying : nil) {
+                    // Fallback: show Last.fm now-playing (cloud scrobble detection)
+                    if isExpanded {
+                        expandedLastFMNowPlaying(track: np)
+                    } else {
+                        nowPlayingCard(track: np)
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 4)
+                            .onTapGesture {
+                                lastNowPlaying = np
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                                    isExpanded = true
+                                }
+                            }
                     }
                 }
 
@@ -243,6 +220,25 @@ struct NowPlayingView: View {
         }
     }
 
+    // MARK: - Nav Button Helper
+
+    private func navButton(icon: String, mode targetMode: AppMode, label: String) -> some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                mode = mode == targetMode ? .feed : targetMode
+                albumToView = nil
+            }
+        } label: {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(mode == targetMode ? AppAccent.current : .secondary)
+        }
+        .buttonStyle(.plain)
+        #if os(macOS)
+        .help(label)
+        #endif
+    }
+
     // MARK: - Other Sources Horizontal Strip
 
     private func otherSourcesStrip(sources: [SystemNowPlaying], onSelect: @escaping (SystemNowPlaying) -> Void) -> some View {
@@ -273,7 +269,7 @@ struct NowPlayingView: View {
         HStack(spacing: 6) {
             // Small artwork
             if let artwork = source.artwork {
-                Image(nsImage: artwork)
+                artwork.swiftUIImage
                     .resizable()
                     .aspectRatio(1, contentMode: .fill)
                     .frame(width: 28, height: 28)
@@ -294,12 +290,14 @@ struct NowPlayingView: View {
                     .font(.system(size: 8, weight: .medium))
                     .lineLimit(1)
                 HStack(spacing: 3) {
+                    #if os(macOS)
                     if let icon = MediaRemoteBridge.shared.appIcon(for: source.sourceBundleId) {
                         Image(nsImage: icon)
                             .resizable()
                             .frame(width: 8, height: 8)
                             .clipShape(RoundedRectangle(cornerRadius: 1))
                     }
+                    #endif
                     Text(source.artist)
                         .font(.system(size: 7))
                         .foregroundStyle(.secondary)
@@ -344,7 +342,7 @@ struct NowPlayingView: View {
             // Large album artwork
             Group {
                 if let artwork = track.artwork {
-                    Image(nsImage: artwork)
+                    artwork.swiftUIImage
                         .resizable()
                         .aspectRatio(1, contentMode: .fill)
                 } else {
@@ -357,7 +355,11 @@ struct NowPlayingView: View {
                         }
                 }
             }
+            #if os(macOS)
             .frame(width: 240, height: 240)
+            #else
+            .frame(width: 300, height: 300)
+            #endif
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
             .padding(.bottom, 14)
@@ -421,12 +423,14 @@ struct NowPlayingView: View {
             HStack(spacing: 8) {
                 // Source app
                 HStack(spacing: 4) {
+                    #if os(macOS)
                     if let icon = MediaRemoteBridge.shared.appIcon(for: track.sourceBundleId) {
                         Image(nsImage: icon)
                             .resizable()
                             .frame(width: 12, height: 12)
                             .clipShape(RoundedRectangle(cornerRadius: 2))
                     }
+                    #endif
                     Text(track.sourceAppName)
                         .font(.system(size: 8, weight: .medium))
                         .foregroundStyle(.tertiary)
@@ -501,6 +505,112 @@ struct NowPlayingView: View {
         .buttonStyle(.plain)
     }
 
+    // MARK: - Expanded Last.fm Now Playing (cloud scrobble)
+
+    private func expandedLastFMNowPlaying(track: ScrobbledTrack) -> some View {
+        VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                Button {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                        isExpanded = false
+                        lastNowPlaying = nil
+                    }
+                } label: {
+                    Image(systemName: "chevron.compact.down")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(.tertiary)
+                        .frame(width: 40, height: 20)
+                }
+                .buttonStyle(.plain)
+                Spacer()
+            }
+            .padding(.bottom, 4)
+
+            // Large album artwork
+            Group {
+                if let artURL = track.albumArtworkURL {
+                    AsyncImage(url: artURL) { phase in
+                        if case .success(let img) = phase {
+                            img.resizable().aspectRatio(1, contentMode: .fill)
+                        } else {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(.ultraThinMaterial)
+                                .overlay {
+                                    Image(systemName: "music.note")
+                                        .font(.system(size: 36))
+                                        .foregroundStyle(.tertiary)
+                                }
+                        }
+                    }
+                } else {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(.ultraThinMaterial)
+                        .overlay {
+                            Image(systemName: "music.note")
+                                .font(.system(size: 36))
+                                .foregroundStyle(.tertiary)
+                        }
+                }
+            }
+            #if os(macOS)
+            .frame(width: 240, height: 240)
+            #else
+            .frame(width: 300, height: 300)
+            #endif
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
+            .padding(.bottom, 14)
+
+            Text(track.name)
+                .font(.system(size: 16, weight: .bold))
+                .lineLimit(1)
+                .padding(.horizontal, 20)
+
+            Text(track.artistName)
+                .font(.system(size: 13))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .padding(.top, 2)
+
+            if !track.albumName.isEmpty {
+                Text(track.albumName)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
+                    .padding(.top, 1)
+            }
+
+            // Source badge
+            HStack(spacing: 4) {
+                Circle().fill(AppAccent.current).frame(width: 5, height: 5)
+                Text("SCROBBLING VIA LAST.FM")
+                    .font(.system(size: 7, weight: .bold, design: .monospaced))
+                    .foregroundStyle(AppAccent.current)
+            }
+            .padding(.top, 10)
+
+            // Action buttons
+            HStack(spacing: 12) {
+                expandedButton(icon: "heart", label: "Love") {
+                    // TODO: Love track on Last.fm
+                }
+                expandedButton(icon: "magnifyingglass", label: "Discover") {
+                    guard !track.artistName.isEmpty else { return }
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        albumToView = (track.albumName.isEmpty ? track.name : track.albumName, track.artistName)
+                        isExpanded = false
+                    }
+                }
+            }
+            .padding(.top, 12)
+            .padding(.horizontal, 20)
+
+            Spacer(minLength: 6)
+        }
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+    }
+
     // MARK: - System Now Playing Card (from MediaRemote)
 
     private func systemNowPlayingCard(track: SystemNowPlaying) -> some View {
@@ -508,7 +618,7 @@ struct NowPlayingView: View {
             HStack(spacing: 10) {
                 // System artwork
                 if let artwork = track.artwork {
-                    Image(nsImage: artwork)
+                    artwork.swiftUIImage
                         .resizable()
                         .aspectRatio(1, contentMode: .fill)
                         .frame(width: 56, height: 56)
@@ -526,12 +636,14 @@ struct NowPlayingView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     // Source app badge
                     HStack(spacing: 4) {
+                        #if os(macOS)
                         if let icon = MediaRemoteBridge.shared.appIcon(for: track.sourceBundleId) {
                             Image(nsImage: icon)
                                 .resizable()
                                 .frame(width: 10, height: 10)
                                 .clipShape(RoundedRectangle(cornerRadius: 2))
                         }
+                        #endif
                         Text(track.sourceAppName.uppercased())
                             .font(.system(size: 7, weight: .bold, design: .monospaced))
                             .foregroundStyle(.secondary)
@@ -622,7 +734,7 @@ struct NowPlayingView: View {
         HStack(spacing: 10) {
             // Album art
             if let artwork = viewModel.albumArtwork {
-                Image(nsImage: artwork)
+                artwork.swiftUIImage
                     .resizable()
                     .aspectRatio(1, contentMode: .fill)
                     .frame(width: 56, height: 56)
@@ -720,6 +832,7 @@ struct NowPlayingView: View {
 
 // MARK: - Visual Effect Background
 
+#if os(macOS)
 struct VisualEffectBackground: NSViewRepresentable {
     func makeNSView(context: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
@@ -731,3 +844,4 @@ struct VisualEffectBackground: NSViewRepresentable {
 
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
+#endif
