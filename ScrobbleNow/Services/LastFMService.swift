@@ -8,8 +8,11 @@ actor LastFMService {
 
     // MARK: - Recent Tracks (live feed)
 
-    func getRecentTracks(user: String, limit: Int = 30) async throws -> [ScrobbledTrack] {
-        let url = URL(string: "\(baseURL)?method=user.getRecentTracks&user=\(user)&api_key=\(apiKey)&format=json&limit=\(limit)&extended=1")!
+    func getRecentTracks(user: String, limit: Int = 30, from: Date? = nil, to: Date? = nil) async throws -> [ScrobbledTrack] {
+        var urlStr = "\(baseURL)?method=user.getRecentTracks&user=\(user)&api_key=\(apiKey)&format=json&limit=\(limit)&extended=1"
+        if let from { urlStr += "&from=\(Int(from.timeIntervalSince1970))" }
+        if let to   { urlStr += "&to=\(Int(to.timeIntervalSince1970))" }
+        let url = URL(string: urlStr)!
         let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
