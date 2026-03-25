@@ -1,3 +1,4 @@
+#if os(macOS)
 import Foundation
 import AppKit
 
@@ -335,7 +336,7 @@ class MediaRemoteBridge: ObservableObject {
                 }
                 // If YouTube Music API gave us artist/track, fetch proper album art from Last.fm
                 if let ytArtist = result.artist, let ytTrack = result.track {
-                    var artwork: NSImage?
+                    var artwork: PlatformImage?
                     var albumName = result.album ?? ""
 
                     // Try Last.fm track.getInfo for album art
@@ -362,7 +363,7 @@ class MediaRemoteBridge: ObservableObject {
                                            let urlStr = img["#text"] as? String, !urlStr.isEmpty,
                                            let imgURL = URL(string: urlStr),
                                            let (imgData, _) = try? await URLSession.shared.data(from: imgURL) {
-                                            artwork = NSImage(data: imgData)
+                                            artwork = PlatformImage(data: imgData)
                                             break
                                         }
                                     }
@@ -375,7 +376,7 @@ class MediaRemoteBridge: ObservableObject {
                     if artwork == nil {
                         let thumbURL = URL(string: "https://img.youtube.com/vi/\(videoId)/hqdefault.jpg")!
                         if let (imgData, _) = try? await URLSession.shared.data(from: thumbURL) {
-                            artwork = NSImage(data: imgData)
+                            artwork = PlatformImage(data: imgData)
                         }
                     }
 
@@ -570,9 +571,9 @@ class MediaRemoteBridge: ObservableObject {
             }
         }
 
-        var artwork: NSImage?
+        var artwork: PlatformImage?
         if let data = info["kMRMediaRemoteNowPlayingInfoArtworkData"] as? Data, !data.isEmpty {
-            artwork = NSImage(data: data)
+            artwork = PlatformImage(data: data)
         }
 
         let track = SystemNowPlaying(
@@ -639,7 +640,7 @@ class MediaRemoteBridge: ObservableObject {
 
     // MARK: - Spotify Artwork
 
-    private func loadSpotifyArtwork() async -> NSImage? {
+    private func loadSpotifyArtwork() async -> PlatformImage? {
         let script = """
         tell application "Spotify"
             if player state is playing then
@@ -652,7 +653,7 @@ class MediaRemoteBridge: ObservableObject {
         let result = appleScript.executeAndReturnError(&error)
         guard error == nil, let urlStr = result.stringValue, let url = URL(string: urlStr),
               let (data, _) = try? await URLSession.shared.data(from: url) else { return nil }
-        return NSImage(data: data)
+        return PlatformImage(data: data)
     }
 
     // MARK: - Helpers
@@ -675,40 +676,4 @@ class MediaRemoteBridge: ObservableObject {
 
     deinit { if let handle { dlclose(handle) } }
 }
-
-// MARK: - Data Model
-
-struct SystemNowPlaying: Equatable {
-    let title: String
-    let artist: String
-    let album: String
-    let duration: Double
-    let elapsed: Double
-    let playbackRate: Double
-    let artwork: NSImage?
-    let sourceBundleId: String
-    let sourceAppName: String
-    let timestamp: Date
-
-    var isPlaying: Bool { playbackRate > 0 }
-    var progress: Double { duration > 0 ? min(1, elapsed / duration) : 0 }
-    var elapsedFormatted: String { formatTime(elapsed) }
-    var durationFormatted: String { formatTime(duration) }
-    var remainingFormatted: String { formatTime(max(0, duration - elapsed)) }
-
-    func withArtwork(_ img: NSImage) -> SystemNowPlaying {
-        SystemNowPlaying(title: title, artist: artist, album: album,
-                         duration: duration, elapsed: elapsed, playbackRate: playbackRate,
-                         artwork: img, sourceBundleId: sourceBundleId,
-                         sourceAppName: sourceAppName, timestamp: timestamp)
-    }
-
-    private func formatTime(_ seconds: Double) -> String {
-        let m = Int(seconds) / 60; let s = Int(seconds) % 60
-        return "\(m):\(String(format: "%02d", s))"
-    }
-
-    static func == (lhs: SystemNowPlaying, rhs: SystemNowPlaying) -> Bool {
-        lhs.title == rhs.title && lhs.artist == rhs.artist && lhs.sourceBundleId == rhs.sourceBundleId
-    }
-}
+#endif

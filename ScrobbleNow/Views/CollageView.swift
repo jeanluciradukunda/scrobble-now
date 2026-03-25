@@ -2,6 +2,10 @@ import SwiftUI
 
 struct CollageView: View {
     @StateObject private var vm = CollageViewModel()
+    #if os(iOS)
+    @State private var collageShareImage: Image?
+    @State private var showShareSheet = false
+    #endif
 
     var body: some View {
         VStack(spacing: 6) {
@@ -63,7 +67,9 @@ struct CollageView: View {
                     .padding(.vertical, 3)
                     .background(Color.white.opacity(0.05), in: Capsule())
                 }
+                #if os(macOS)
                 .menuStyle(.borderlessButton)
+                #endif
                 .fixedSize()
             }
             .padding(.horizontal, 16)
@@ -92,6 +98,7 @@ struct CollageView: View {
 
                 // Export button
                 HStack(spacing: 8) {
+                    #if os(macOS)
                     Button {
                         vm.exportCollage()
                     } label: {
@@ -107,6 +114,26 @@ struct CollageView: View {
                         .background(AppAccent.current.opacity(0.1), in: RoundedRectangle(cornerRadius: 6))
                     }
                     .buttonStyle(.plain)
+                    #else
+                    Button {
+                        if let data = vm.shareCollage(), let image = UIImage(data: data) {
+                            collageShareImage = Image(uiImage: image)
+                            showShareSheet = true
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 9))
+                            Text("Share")
+                                .font(.system(size: 9, weight: .medium))
+                        }
+                        .foregroundStyle(AppAccent.current)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(AppAccent.current.opacity(0.1), in: RoundedRectangle(cornerRadius: 6))
+                    }
+                    .buttonStyle(.plain)
+                    #endif
 
                     Button {
                         vm.copyToClipboard()
@@ -143,6 +170,13 @@ struct CollageView: View {
 
             Spacer(minLength: 4)
         }
+        #if os(iOS)
+        .sheet(isPresented: $showShareSheet) {
+            if let image = collageShareImage {
+                ShareLink(item: image, preview: SharePreview("Scrobble Collage", image: image))
+            }
+        }
+        #endif
     }
 
     // MARK: - Collage Grid

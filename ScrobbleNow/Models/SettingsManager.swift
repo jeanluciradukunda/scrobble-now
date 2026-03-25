@@ -1,5 +1,7 @@
 import SwiftUI
+#if os(macOS)
 import ServiceManagement
+#endif
 
 @MainActor
 class SettingsManager: ObservableObject {
@@ -37,7 +39,11 @@ class SettingsManager: ObservableObject {
         if !artworkDownloadPath.isEmpty, FileManager.default.fileExists(atPath: artworkDownloadPath) {
             return URL(fileURLWithPath: artworkDownloadPath)
         }
+        #if os(macOS)
         return FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first!
+        #else
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        #endif
     }
 
     // MARK: - Scrobble Behavior
@@ -50,6 +56,7 @@ class SettingsManager: ObservableObject {
     @AppStorage("scrobbleNotifications") var scrobbleNotifications: Bool = false
 
     // MARK: - System
+    #if os(macOS)
     @AppStorage("launchAtLogin") var launchAtLogin: Bool = false {
         didSet { updateLaunchAtLogin() }
     }
@@ -65,4 +72,5 @@ class SettingsManager: ObservableObject {
             print("Launch at login error: \(error)")
         }
     }
+    #endif
 }
