@@ -1,5 +1,30 @@
 import SwiftUI
 
+// MARK: - Mini EQ Indicator (3-bar animated equalizer for compact cards)
+
+struct MiniEQView: View {
+    var color: Color = .accentColor
+    var isPlaying: Bool = true
+
+    var body: some View {
+        TimelineView(.animation(paused: !isPlaying)) { tl in
+            let t = tl.date.timeIntervalSinceReferenceDate
+            Canvas { ctx, size in
+                let barW = (size.width - 3.0) / 3.0
+                let phases = [0.0, 0.55, 1.1]
+                for (i, phase) in phases.enumerated() {
+                    let h = 0.2 + 0.8 * max(0, sin(t * 4.8 + phase * .pi))
+                    let barH = max(2, size.height * CGFloat(h))
+                    let x = CGFloat(i) * (barW + 1.5)
+                    let rect = CGRect(x: x, y: size.height - barH, width: barW, height: barH)
+                    ctx.fill(Path(roundedRect: rect, cornerRadius: 1.0),
+                             with: .color(color.opacity(0.65 + 0.35 * h)))
+                }
+            }
+        }
+    }
+}
+
 // MARK: - Theme
 
 enum VisualizerTheme: String, CaseIterable {

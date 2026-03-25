@@ -15,11 +15,17 @@ struct NowPlayingView: View {
     @State private var showVisualizer = false
     @State private var visualizerTheme: VisualizerTheme = .bars
     @State private var showThemeLabel = false
+    @Namespace private var artworkNS
+    @Namespace private var albumZoomNS
+    @State private var showScrollToTop = false
+    @State private var feedScrollToTopToken = false
 
     #if os(macOS)
     private var bridge: MediaRemoteBridge { MediaRemoteBridge.shared }
+    private var isShowingAlbumInline: Bool { albumToView != nil }
     #else
     private var bridge: MPNowPlayingBridge { MPNowPlayingBridge.shared }
+    private var isShowingAlbumInline: Bool { false }
     #endif
 
     var body: some View {
@@ -86,8 +92,9 @@ struct NowPlayingView: View {
                     }
                 } else if mode == .stats {
                     StatisticsView()
-                } else if let album = albumToView {
-                    // Album detail view
+                } else if isShowingAlbumInline, let album = albumToView {
+                    // Album detail view (macOS: inline; iOS: uses sheet below)
+                    #if os(macOS)
                     HStack {
                         Button {
                             withAnimation(.smooth(duration: 0.2)) {
@@ -110,6 +117,7 @@ struct NowPlayingView: View {
                     .padding(.bottom, 4)
 
                     AlbumDetailView(albumName: album.name, artistName: album.artist)
+                    #endif
                 } else {
 
                 // Header
@@ -186,25 +194,55 @@ struct NowPlayingView: View {
 
                     // Recent tracks
                     ScrollView(.vertical, showsIndicators: false) {
-                        LazyVStack(spacing: 1) {
-                            ForEach(viewModel.recentTracks.filter { !$0.isNowPlaying }) { track in
-                                trackRow(track: track)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        guard !track.albumName.isEmpty else { return }
-                                        withAnimation(.smooth(duration: 0.2)) {
-                                            albumToView = (track.albumName, track.artistName)
+                        ScrollViewReader { proxy in
+                            LazyVStack(spacing: 1) {
+                                Color.clear.frame(height: 0).id("feedTop")
+                                ForEach(viewModel.recentTracks.filter { !$0.isNowPlaying }) { track in
+                                    trackRow(track: track)
+                                        .contentShape(Rectangle())
+                                        .onTapGesture {
+                                            guard !track.albumName.isEmpty else { return }
+                                            withAnimation(.smooth(duration: 0.2)) {
+                                                albumToView = (track.albumName, track.artistName)
+                                            }
                                         }
-                                    }
-                                    .scrollTransition(.interactive) { content, phase in
-                                        content
-                                            .opacity(phase.isIdentity ? 1 : 0.5)
-                                            .scaleEffect(phase.isIdentity ? 1 : 0.97)
-                                    }
+                                        .scrollTransition(.interactive) { content, phase in
+                                            content
+                                                .opacity(phase.isIdentity ? 1 : 0.5)
+                                                .scaleEffect(phase.isIdentity ? 1 : 0.97)
+                                        }
+                                        .zoomSource(
+                                            id: "\(track.albumName)-\(track.artistName)",
+                                            in: albumZoomNS
+                                        )
+                                }
+                            }
+                            .onChange(of: feedScrollToTopToken) { _, _ in
+                                withAnimation(.spring(duration: 0.5, bounce: 0.1)) {
+                                    proxy.scrollTo("feedTop", anchor: .top)
+                                }
                             }
                         }
                     }
                     .scrollBounceBehavior(.basedOnSize)
+                    .onScrollThresholdChange(threshold: 80) { exceeded in
+                        withAnimation(.smooth(duration: 0.2)) { showScrollToTop = exceeded }
+                    }
+                    .overlay(alignment: .bottomTrailing) {
+                        if showScrollToTop {
+                            Button {
+                                feedScrollToTopToken.toggle()
+                            } label: {
+                                Image(systemName: "arrow.up.circle.fill")
+                                    .font(.system(size: 22))
+                                    .foregroundStyle(AppAccent.current)
+                                    .shadow(color: .black.opacity(0.3), radius: 4)
+                            }
+                            .buttonStyle(.plain)
+                            .padding(10)
+                            .transition(.scale.combined(with: .opacity))
+                        }
+                    }
                     .padding(.top, 8)
                 }
 
@@ -231,6 +269,31 @@ struct NowPlayingView: View {
                 } // end else (not settings mode)
             }
         }
+        // MARK: iOS Album Detail Sheet
+        #if os(iOS)
+        .sheet(isPresented: Binding(
+            get: { albumToView != nil },
+            set: { if !$0 { withAnimation(.smooth(duration: 0.2)) { albumToView = nil } } }
+        )) {
+            if let album = albumToView {
+                NavigationStack {
+                    AlbumDetailView(albumName: album.name, artistName: album.artist)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarLeading) {
+                                Button {
+                                    withAnimation(.smooth(duration: 0.2)) { albumToView = nil }
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                }
+                .zoomNavTransition(id: "\(album.name)-\(album.artist)", in: albumZoomNS)
+            }
+        }
+        #endif
         // MARK: Haptics
         .sensoryFeedback(.impact(weight: .light), trigger: isExpanded)
         .sensoryFeedback(.selection, trigger: mode)
@@ -459,6 +522,7 @@ struct NowPlayingView: View {
                 }},
                 isPlaying: track.isPlaying
             )
+            .matchedGeometryEffect(id: "sysArt", in: artworkNS)
             .padding(.bottom, 14)
 
             // Track title
@@ -658,6 +722,7 @@ struct NowPlayingView: View {
                 }},
                 isPlaying: true
             )
+            .matchedGeometryEffect(id: "lastFMArt", in: artworkNS)
             .padding(.bottom, 14)
 
             Text(track.name)
@@ -681,7 +746,10 @@ struct NowPlayingView: View {
 
             // Source badge
             HStack(spacing: 4) {
-                Circle().fill(AppAccent.current).frame(width: 5, height: 5)
+                PhaseAnimator([0.4, 1.0]) { opacity in
+                    Circle().fill(AppAccent.current).frame(width: 5, height: 5)
+                        .opacity(opacity)
+                } animation: { _ in .easeInOut(duration: 0.9) }
                 Text("SCROBBLING VIA LAST.FM")
                     .font(.system(size: 7, weight: .bold, design: .monospaced))
                     .foregroundStyle(AppAccent.current)
@@ -715,21 +783,24 @@ struct NowPlayingView: View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 // System artwork
-                if let artwork = track.artwork {
-                    artwork.swiftUIImage
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fill)
-                        .frame(width: 56, height: 56)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                } else {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(.ultraThinMaterial)
-                        .frame(width: 56, height: 56)
-                        .overlay {
-                            Image(systemName: "music.note")
-                                .foregroundStyle(.tertiary)
-                        }
+                Group {
+                    if let artwork = track.artwork {
+                        artwork.swiftUIImage
+                            .resizable()
+                            .aspectRatio(1, contentMode: .fill)
+                            .frame(width: 56, height: 56)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    } else {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.ultraThinMaterial)
+                            .frame(width: 56, height: 56)
+                            .overlay {
+                                Image(systemName: "music.note")
+                                    .foregroundStyle(.tertiary)
+                            }
+                    }
                 }
+                .matchedGeometryEffect(id: "sysArt", in: artworkNS)
 
                 VStack(alignment: .leading, spacing: 3) {
                     // Source app badge
@@ -745,6 +816,8 @@ struct NowPlayingView: View {
                         Text(track.sourceAppName.uppercased())
                             .font(.system(size: 7, weight: .bold, design: .monospaced))
                             .foregroundStyle(.secondary)
+                        MiniEQView(color: AppAccent.current, isPlaying: track.isPlaying)
+                            .frame(width: 12, height: 8)
                     }
 
                     Text(track.title)
@@ -835,25 +908,31 @@ struct NowPlayingView: View {
     private func nowPlayingCard(track: ScrobbledTrack) -> some View {
         HStack(spacing: 10) {
             // Album art
-            if let artwork = viewModel.albumArtwork {
-                artwork.swiftUIImage
-                    .resizable()
-                    .aspectRatio(1, contentMode: .fill)
-                    .frame(width: 56, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            } else {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(.ultraThinMaterial)
-                    .frame(width: 56, height: 56)
-                    .overlay {
-                        Image(systemName: "music.note")
-                            .foregroundStyle(.tertiary)
-                    }
+            Group {
+                if let artwork = viewModel.albumArtwork {
+                    artwork.swiftUIImage
+                        .resizable()
+                        .aspectRatio(1, contentMode: .fill)
+                        .frame(width: 56, height: 56)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 56, height: 56)
+                        .overlay {
+                            Image(systemName: "music.note")
+                                .foregroundStyle(.tertiary)
+                        }
+                }
             }
+            .matchedGeometryEffect(id: "lastFMArt", in: artworkNS)
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 4) {
-                    Circle().fill(AppAccent.current).frame(width: 5, height: 5)
+                    PhaseAnimator([0.4, 1.0]) { opacity in
+                        Circle().fill(AppAccent.current).frame(width: 5, height: 5)
+                            .opacity(opacity)
+                    } animation: { _ in .easeInOut(duration: 0.7) }
                     Text("NOW PLAYING")
                         .font(.system(size: 7, weight: .bold, design: .monospaced))
                         .foregroundStyle(AppAccent.current)
@@ -947,3 +1026,40 @@ struct VisualEffectBackground: NSViewRepresentable {
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
 #endif
+
+// MARK: - Platform-Availability Extensions
+
+extension View {
+    @ViewBuilder
+    func zoomSource<ID: Hashable>(id: ID, in ns: Namespace.ID) -> some View {
+        if #available(iOS 18.0, macOS 15.0, *) {
+            self.matchedTransitionSource(id: id, in: ns)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
+    func zoomNavTransition<ID: Hashable>(id: ID, in ns: Namespace.ID) -> some View {
+        #if os(iOS)
+        if #available(iOS 18.0, *) {
+            self.navigationTransition(.zoom(sourceID: id, in: ns))
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
+    }
+
+    @ViewBuilder
+    func onScrollThresholdChange(threshold: CGFloat, action: @escaping (Bool) -> Void) -> some View {
+        if #available(iOS 18.0, macOS 15.0, *) {
+            self.onScrollGeometryChange(for: Bool.self, of: { $0.contentOffset.y > threshold }) { _, exceeded in
+                action(exceeded)
+            }
+        } else {
+            self
+        }
+    }
+}
