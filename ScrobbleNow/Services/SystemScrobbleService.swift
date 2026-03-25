@@ -337,9 +337,7 @@ class SystemScrobbleService: ObservableObject {
     private func findCurrentYouTubeVideoId() -> String? {
         #if os(macOS)
         // Check the last browser title key for a YouTube URL
-        let lastTitle = bridge.lastBrowserTitle
-        // The bridge stores "bundleId:title" — we need to find the URL from the last poll
-        // For now, return nil — we'll improve this later
+        // TODO: use bridge.lastBrowserTitle to detect YouTube URL from last poll
         return nil
         #else
         return nil

@@ -534,7 +534,7 @@ class MediaRemoteBridge: ObservableObject {
         let rawTitle = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String ?? ""
         guard !rawTitle.isEmpty else { return }
 
-        var artist = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? ""
+        let artist = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? ""
         var title = rawTitle
         let album = info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String ?? ""
         let duration = info["kMRMediaRemoteNowPlayingInfoDuration"] as? Double ?? 0
