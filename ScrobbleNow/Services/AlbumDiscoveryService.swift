@@ -284,7 +284,7 @@ actor AlbumDiscoveryService {
     static func normalize(_ str: String) -> String {
         str.lowercased()
             .folding(options: .diacriticInsensitive, locale: nil)
-            .replacingOccurrences(of: "[^\\p{L}\\p{N} ]", with: "", options: .regularExpression)
+            .replacingOccurrences(of: "[^\\p{L}\\p{M}\\p{N} ]", with: "", options: .regularExpression)
             .trimmingCharacters(in: .whitespaces)
     }
 
