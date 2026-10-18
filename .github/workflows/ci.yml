@@ -20,6 +20,9 @@ jobs:
       - name: Build
         run: |
           xcodebuild -scheme ScrobbleNow -configuration Debug -destination 'platform=macOS' CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO build
+      - name: Test
+        run: |
+          xcodebuild test -scheme ScrobbleNow -destination 'platform=macOS' CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO
       - name: Build iOS
         env:
           DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
