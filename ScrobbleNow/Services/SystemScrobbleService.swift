@@ -176,7 +176,11 @@ class SystemScrobbleService: ObservableObject {
 
     /// Browser tabs report playing whenever a music tab is open, so a repeat cannot be told from a paused tab.
     nonisolated static func canDetectRepeats(bundleId: String) -> Bool {
-        !browserBundleIds.contains(bundleId)
+        !isBrowser(bundleId)
+    }
+
+    nonisolated static func isBrowser(_ bundleId: String) -> Bool {
+        browserBundleIds.contains(bundleId)
     }
 
     private nonisolated static let browserBundleIds: Set<String> = [
