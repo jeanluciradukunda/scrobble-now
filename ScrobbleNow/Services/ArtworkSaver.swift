@@ -27,13 +27,13 @@ enum ArtworkSaver {
     static func saveToPhotos(_ images: [Data]) async -> String {
         let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
         guard status == .authorized || status == .limited else { return "Photos access denied" }
+        let decoded = images.compactMap(UIImage.init(data:))
+        guard !decoded.isEmpty else { return "Save failed" }
         do {
             try await PHPhotoLibrary.shared().performChanges {
-                for data in images {
-                    if let image = UIImage(data: data) { PHAssetChangeRequest.creationRequestForAsset(from: image) }
-                }
+                for image in decoded { PHAssetChangeRequest.creationRequestForAsset(from: image) }
             }
-            return images.count == 1 ? "Saved to Photos" : "Saved \(images.count) covers to Photos"
+            return decoded.count == 1 ? "Saved to Photos" : "Saved \(decoded.count) covers to Photos"
         } catch {
             return "Save failed"
         }
