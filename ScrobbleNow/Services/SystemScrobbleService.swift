@@ -184,6 +184,17 @@ class SystemScrobbleService: ObservableObject {
         "org.mozilla.firefox", "com.microsoft.edgemac"
     ]
 
+    /// Artwork lookups are slow; one for a track the user has already skipped must not bring it back.
+    private func applyArtwork(_ image: PlatformImage, to track: SystemNowPlaying) {
+        guard currentTrack == track else { return }
+        let updated = (currentTrack ?? track).withArtwork(image)
+        bridge.activeSources[track.sourceBundleId] = updated
+        if bridge.currentTrack == track {
+            bridge.currentTrack = updated
+        }
+        currentTrack = updated
+    }
+
     private func canScrobble(_ track: SystemNowPlaying) -> Bool {
         isEnabled && isConnectorEnabled(for: track.sourceBundleId)
             && !(settings.filterPodcasts && Self.isPodcastApp(track.sourceBundleId))
@@ -228,12 +239,7 @@ class SystemScrobbleService: ObservableObject {
                         let (data, _) = try await URLSession.shared.data(from: url)
                         if let image = PlatformImage(data: data) {
                             // Update the track in the bridge with artwork
-                            let updated = track.withArtwork(image)
-                            bridge.activeSources[track.sourceBundleId] = updated
-                            if bridge.currentTrack?.sourceBundleId == track.sourceBundleId {
-                                bridge.currentTrack = updated
-                            }
-                            currentTrack = updated
+                            applyArtwork(image, to: track)
                             return
                         }
                     }
@@ -253,12 +259,7 @@ class SystemScrobbleService: ObservableObject {
                        let url = URL(string: urlStr) {
                         let (data, _) = try await URLSession.shared.data(from: url)
                         if let image = PlatformImage(data: data) {
-                            let updated = track.withArtwork(image)
-                            bridge.activeSources[track.sourceBundleId] = updated
-                            if bridge.currentTrack?.sourceBundleId == track.sourceBundleId {
-                                bridge.currentTrack = updated
-                            }
-                            currentTrack = updated
+                            applyArtwork(image, to: track)
                             return
                         }
                     }
@@ -289,12 +290,7 @@ class SystemScrobbleService: ObservableObject {
                        let url = URL(string: urlStr) {
                         let (imgData, _) = try await URLSession.shared.data(from: url)
                         if let image = PlatformImage(data: imgData) {
-                            let updated = track.withArtwork(image)
-                            bridge.activeSources[track.sourceBundleId] = updated
-                            if bridge.currentTrack?.sourceBundleId == track.sourceBundleId {
-                                bridge.currentTrack = updated
-                            }
-                            currentTrack = updated
+                            applyArtwork(image, to: track)
                             return
                         }
                     }
@@ -308,12 +304,7 @@ class SystemScrobbleService: ObservableObject {
             do {
                 let (data, _) = try await URLSession.shared.data(from: thumbURL)
                 if let image = PlatformImage(data: data) {
-                    let updated = track.withArtwork(image)
-                    bridge.activeSources[track.sourceBundleId] = updated
-                    if bridge.currentTrack?.sourceBundleId == track.sourceBundleId {
-                        bridge.currentTrack = updated
-                    }
-                    currentTrack = updated
+                    applyArtwork(image, to: track)
                 }
             } catch {}
         }
