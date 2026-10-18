@@ -314,16 +314,9 @@ class SystemScrobbleService: ObservableObject {
         }
     }
 
+    // Always nil until the browser poll keeps the tab URL, so the thumbnail fallback that calls it never runs.
     private func findCurrentYouTubeVideoId() -> String? {
-        #if os(macOS)
-        // Check the last browser title key for a YouTube URL
-        let lastTitle = bridge.lastBrowserTitle
-        // The bridge stores "bundleId:title" — we need to find the URL from the last poll
-        // For now, return nil — we'll improve this later
-        return nil
-        #else
-        return nil
-        #endif
+        nil
     }
 
     // MARK: - Scrobble Submission
