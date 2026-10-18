@@ -176,10 +176,10 @@ struct StatisticsView: View {
         return colors[hash]
     }
 
-    private func formatNumber(_ n: Int) -> String {
-        if n >= 1_000_000 { return String(format: "%.1fM", Double(n) / 1_000_000) }
-        if n >= 1_000 { return String(format: "%.0fK", Double(n) / 1_000) }
-        return "\(n)"
+    private func formatNumber(_ number: Int) -> String {
+        if number >= 1_000_000 { return String(format: "%.1fM", Double(number) / 1_000_000) }
+        if number >= 1_000 { return String(format: "%.0fK", Double(number) / 1_000) }
+        return "\(number)"
     }
 }
 

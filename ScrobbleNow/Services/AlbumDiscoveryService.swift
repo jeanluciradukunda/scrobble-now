@@ -4,7 +4,7 @@ actor AlbumDiscoveryService {
     private let lastfm = LastFMService()
     private let discogs = DiscogsService()
     private let musicbrainz = MusicBrainzService()
-    private let itunes = iTunesService()
+    private let itunes = ITunesService()
     private let wikidata = WikidataService()
     private let cache = CacheService.shared
 
@@ -51,12 +51,12 @@ actor AlbumDiscoveryService {
 
         // Deduplicate by normalized album name
         var deduped: [String: AlbumCandidate] = [:]
-        for c in passing {
-            let key = normalize(c.album.albumName)
+        for candidate in passing {
+            let key = normalize(candidate.album.albumName)
             if let existing = deduped[key] {
-                if c.score > existing.score { deduped[key] = c }
+                if candidate.score > existing.score { deduped[key] = candidate }
             } else {
-                deduped[key] = c
+                deduped[key] = candidate
             }
         }
 
@@ -129,10 +129,10 @@ actor AlbumDiscoveryService {
             .compactMap { $0["name"] as? String } ?? []
 
         let trackList = ((albumInfo["tracks"] as? [String: Any])?["track"] as? [[String: Any]]) ?? []
-        let tracks = trackList.enumerated().map { (i, t) -> AlbumTrack in
-            let tName = t["name"] as? String ?? ""
-            let dur = t["duration"] as? Int ?? Int(t["duration"] as? String ?? "0") ?? 0
-            let playcount = (t["@attr"] as? [String: Any])?["playcount"] as? Int
+        let tracks = trackList.enumerated().map { (i, track) -> AlbumTrack in
+            let tName = track["name"] as? String ?? ""
+            let dur = track["duration"] as? Int ?? Int(track["duration"] as? String ?? "0") ?? 0
+            let playcount = (track["@attr"] as? [String: Any])?["playcount"] as? Int
             return AlbumTrack(name: tName, artistName: artistName, durationMs: dur * 1000, trackNumber: i + 1, previewURL: nil, userPlaycount: playcount)
         }
 
@@ -229,12 +229,12 @@ actor AlbumDiscoveryService {
     // MARK: - Scoring
 
     private func score(candidate: AlbumCandidate, ctx: AlbumSearchContext) -> AlbumCandidate {
-        var c = candidate
+        var scored = candidate
         var total: Double = 0
 
-        let albumNorm = normalize(c.album.albumName)
+        let albumNorm = normalize(scored.album.albumName)
         let targetNorm = normalize(ctx.albumName)
-        let artistNorm = normalize(c.album.artistName)
+        let artistNorm = normalize(scored.album.artistName)
         let targetArtist = normalize(ctx.artistName)
 
         // 1. Title match (35%)
@@ -262,21 +262,21 @@ actor AlbumDiscoveryService {
         }
 
         // 3. Tracks (10%)
-        if !c.album.tracks.isEmpty {
-            total += ctx.weightTracks * (c.album.tracks.count >= 4 ? 1.0 : 0.5)
+        if !scored.album.tracks.isEmpty {
+            total += ctx.weightTracks * (scored.album.tracks.count >= 4 ? 1.0 : 0.5)
         }
 
         // 4. Source trust (15%) — multiplicative
-        let trustMultiplier = 0.7 + (c.album.source.trustScore / 12.0) * 0.3
+        let trustMultiplier = 0.7 + (scored.album.source.trustScore / 12.0) * 0.3
         total *= trustMultiplier
-        total += (c.album.source.trustScore / 12.0) * (ctx.weightSource * 0.3)
+        total += (scored.album.source.trustScore / 12.0) * (ctx.weightSource * 0.3)
 
         // 5. Content completeness (5%)
-        if c.album.artworkURL != nil { total += ctx.weightContent * 0.5 }
-        if !c.album.tracks.isEmpty { total += ctx.weightContent * 0.5 }
+        if scored.album.artworkURL != nil { total += ctx.weightContent * 0.5 }
+        if !scored.album.tracks.isEmpty { total += ctx.weightContent * 0.5 }
 
-        c.score = min(100, total)
-        return c
+        scored.score = min(100, total)
+        return scored
     }
 
     // MARK: - Helpers
@@ -288,17 +288,17 @@ actor AlbumDiscoveryService {
             .trimmingCharacters(in: .whitespaces)
     }
 
-    private func levenshteinSimilarity(_ a: String, _ b: String) -> Double {
-        if a.isEmpty || b.isEmpty { return 0 }
-        let aChars = Array(a), bChars = Array(b)
+    private func levenshteinSimilarity(_ lhs: String, _ rhs: String) -> Double {
+        if lhs.isEmpty || rhs.isEmpty { return 0 }
+        let aChars = Array(lhs), bChars = Array(rhs)
         let aLen = aChars.count, bLen = bChars.count
         var matrix = [[Int]](repeating: [Int](repeating: 0, count: bLen + 1), count: aLen + 1)
         for i in 0...aLen { matrix[i][0] = i }
-        for j in 0...bLen { matrix[0][j] = j }
+        for col in 0...bLen { matrix[0][col] = col }
         for i in 1...aLen {
-            for j in 1...bLen {
-                let cost = aChars[i-1] == bChars[j-1] ? 0 : 1
-                matrix[i][j] = min(matrix[i-1][j]+1, matrix[i][j-1]+1, matrix[i-1][j-1]+cost)
+            for col in 1...bLen {
+                let cost = aChars[i-1] == bChars[col-1] ? 0 : 1
+                matrix[i][col] = min(matrix[i-1][col]+1, matrix[i][col-1]+1, matrix[i-1][col-1]+cost)
             }
         }
         return 1.0 - Double(matrix[aLen][bLen]) / Double(max(aLen, bLen))

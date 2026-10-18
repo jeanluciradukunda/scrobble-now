@@ -502,7 +502,7 @@ class MediaRemoteBridge: ObservableObject {
         guard let getInfo = _getNowPlayingInfo else { return }
 
         getInfo(DispatchQueue.main) { [weak self] cfDict in
-            let info = cfDict as NSDictionary as! [String: Any]
+            guard let info = cfDict as NSDictionary as? [String: Any] else { return }
             Task { @MainActor in
                 self?.processMediaRemoteInfo(info)
             }
@@ -522,11 +522,11 @@ class MediaRemoteBridge: ObservableObject {
         if !hasLoggedKeys {
             hasLoggedKeys = true
             print("[MediaRemote] ✓ Got data! Keys: \(info.keys.sorted().joined(separator: ", "))")
-            for (k, v) in info.sorted(by: { $0.key < $1.key }) {
-                if v is Data {
-                    print("[MediaRemote]   \(k) = <Data \((v as! Data).count) bytes>")
+            for (key, value) in info.sorted(by: { $0.key < $1.key }) {
+                if let data = value as? Data {
+                    print("[MediaRemote]   \(key) = <Data \(data.count) bytes>")
                 } else {
-                    print("[MediaRemote]   \(k) = \(String(describing: v).prefix(80))")
+                    print("[MediaRemote]   \(key) = \(String(describing: value).prefix(80))")
                 }
             }
         }

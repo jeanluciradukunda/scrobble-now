@@ -26,8 +26,8 @@ struct SystemNowPlaying: Equatable {
     }
 
     private func formatTime(_ seconds: Double) -> String {
-        let m = Int(seconds) / 60; let s = Int(seconds) % 60
-        return "\(m):\(String(format: "%02d", s))"
+        let minutes = Int(seconds) / 60; let secs = Int(seconds) % 60
+        return "\(minutes):\(String(format: "%02d", secs))"
     }
 
     static func == (lhs: SystemNowPlaying, rhs: SystemNowPlaying) -> Bool {

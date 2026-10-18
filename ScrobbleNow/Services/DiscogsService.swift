@@ -79,9 +79,9 @@ actor DiscogsService {
 
         // Tracklist
         let tracklist = (json["tracklist"] as? [[String: Any]]) ?? []
-        let tracks = tracklist.enumerated().compactMap { (i, t) -> AlbumTrack? in
-            guard let name = t["title"] as? String else { return nil }
-            let duration = t["duration"] as? String ?? ""
+        let tracks = tracklist.enumerated().compactMap { (i, track) -> AlbumTrack? in
+            guard let name = track["title"] as? String else { return nil }
+            let duration = track["duration"] as? String ?? ""
             let ms = parseDuration(duration)
             return AlbumTrack(name: name, artistName: artists, durationMs: ms, trackNumber: i + 1, previewURL: nil, userPlaycount: nil)
         }
