@@ -23,6 +23,7 @@ class CollageViewModel: ObservableObject {
     @Published var showTitles: Bool = false
     @Published var hideAlbumsWithoutCovers: Bool = false
     @Published var exportMessage: String?
+    @Published private(set) var exportSuccesses = 0
 
     /// Pre-downloaded artwork keyed by URL string
     private var downloadedImages: [String: PlatformImage] = [:]
@@ -83,6 +84,15 @@ class CollageViewModel: ObservableObject {
 
     // MARK: - Export as Image
 
+    nonisolated static func write(_ data: Data, to url: URL) -> Bool {
+        do {
+            try data.write(to: url, options: .atomic)
+            return true
+        } catch {
+            return false
+        }
+    }
+
     #if os(macOS)
     func exportCollage() {
         guard let pngData = renderCollagePNG() else {
@@ -98,9 +108,10 @@ class CollageViewModel: ObservableObject {
 
         panel.begin { [weak self] response in
             guard response == .OK, let url = panel.url else { return }
-            try? pngData.write(to: url)
+            let saved = Self.write(pngData, to: url)
             Task { @MainActor [weak self] in
-                self?.exportMessage = "Saved!"
+                self?.exportMessage = saved ? "Saved!" : "Could not save"
+                if saved { self?.exportSuccesses += 1 }
                 try? await Task.sleep(for: .seconds(2))
                 self?.exportMessage = nil
             }
@@ -116,6 +127,7 @@ class CollageViewModel: ObservableObject {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setData(pngData, forType: .png)
         exportMessage = "Copied!"
+        exportSuccesses += 1
         Task {
             try? await Task.sleep(for: .seconds(2))
             exportMessage = nil
@@ -137,6 +149,7 @@ class CollageViewModel: ObservableObject {
 
         UIPasteboard.general.image = image
         exportMessage = "Copied!"
+        exportSuccesses += 1
         Task {
             try? await Task.sleep(for: .seconds(2))
             exportMessage = nil
