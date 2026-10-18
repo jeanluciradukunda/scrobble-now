@@ -1,10 +1,22 @@
 import SwiftUI
 
+private struct AlbumRef: Identifiable {
+    let id = UUID()
+    let name: String
+    let artist: String
+}
+
 struct HistoryView: View {
     @StateObject private var vm = HistoryViewModel()
     let onAlbumTap: (String, String) -> Void
 
     @State private var collapsedSessions: Set<String> = []
+    @State private var lovedOverrides: [String: Bool] = [:]
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private let loveService = LastFMService()
+    #if os(iOS)
+    @State private var albumSheet: AlbumRef?
+    #endif
 
     // MARK: Platform sizing
     #if os(iOS)
@@ -45,9 +57,25 @@ struct HistoryView: View {
                     }
                 }
             }
-            .animation(.smooth(duration: 0.28), value: vm.viewMode)
+            .animation(reduceMotion ? nil : .smooth(duration: 0.28), value: vm.viewMode)
         }
         .task { await vm.load() }
+        #if os(iOS)
+        .sheet(item: $albumSheet) { ref in
+            NavigationStack {
+                AlbumDetailView(albumName: ref.name, artistName: ref.artist)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Done") { albumSheet = nil }
+                        }
+                    }
+            }
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+            .presentationCornerRadius(20)
+        }
+        #endif
     }
 
     // MARK: - Mode Toggle
@@ -186,7 +214,7 @@ struct HistoryView: View {
         return VStack(spacing: 0) {
             // Session header
             Button {
-                withAnimation(.spring(duration: 0.3, bounce: 0.1)) {
+                withAnimation(reduceMotion ? .linear(duration: 0.1) : .spring(duration: 0.3, bounce: 0.1)) {
                     if isCollapsed {
                         collapsedSessions.remove(session.id)
                     } else {
@@ -232,11 +260,13 @@ struct HistoryView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("\(session.timeLabel), \(session.trackCount) tracks, \(isCollapsed ? "collapsed" : "expanded")")
+            .accessibilityHint("Double-tap to \(isCollapsed ? "expand" : "collapse")")
             .sensoryFeedback(.impact(weight: .light), trigger: isCollapsed)
 
             // Track list (collapsible)
             if !isCollapsed {
-                trackList(session.tracks, onAlbumTap: onAlbumTap)
+                trackList(session.tracks, onAlbumTap: handleAlbumTap)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
@@ -244,21 +274,21 @@ struct HistoryView: View {
 
     // MARK: - Calendar or Detail
 
-    @ViewBuilder
     private var calendarOrDetail: some View {
-        if let day = vm.selectedDay {
-            dayDetailView(day: day)
-                .transition(.asymmetric(
-                    insertion: .move(edge: .trailing).combined(with: .opacity),
-                    removal:   .move(edge: .trailing).combined(with: .opacity)
-                ))
-        } else {
+        ZStack(alignment: .top) {
             calendarView
-                .transition(.asymmetric(
-                    insertion: .move(edge: .leading).combined(with: .opacity),
-                    removal:   .move(edge: .leading).combined(with: .opacity)
-                ))
+                .opacity(vm.selectedDay != nil ? 0 : 1)
+
+            if let day = vm.selectedDay {
+                dayDetailView(day: day)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal:   .move(edge: .trailing).combined(with: .opacity)
+                    ))
+            }
         }
+        .animation(reduceMotion ? .linear(duration: 0.12) : .spring(duration: 0.38, bounce: 0.1), value: vm.selectedDay?.id)
+        .clipped()
     }
 
     // MARK: - Calendar Grid
@@ -410,7 +440,18 @@ struct HistoryView: View {
             }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabelForDay(day: day, date: date, count: count, isFuture: isFuture))
+        .accessibilityHint(hasScrobbles && !isFuture ? "Double-tap to view" : "")
         .sensoryFeedback(.impact(weight: .light), trigger: vm.selectedDay?.id == key)
+    }
+
+    private func accessibilityLabelForDay(day: Int, date: Date, count: Int, isFuture: Bool) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "EEEE, MMMM d"
+        let dayStr = f.string(from: date)
+        if isFuture { return dayStr }
+        if count == 0 { return "\(dayStr), no scrobbles" }
+        return "\(dayStr), \(count) scrobble\(count == 1 ? "" : "s")"
     }
 
     // MARK: - Day Detail View
@@ -478,7 +519,7 @@ struct HistoryView: View {
             VStack(alignment: .leading, spacing: 6) {
                 // Back button
                 Button {
-                    withAnimation(.spring(duration: 0.38, bounce: 0.1)) {
+                    withAnimation(reduceMotion ? .linear(duration: 0.1) : .spring(duration: 0.38, bounce: 0.1)) {
                         vm.selectedDay = nil
                     }
                 } label: {
@@ -548,12 +589,47 @@ struct HistoryView: View {
     @ViewBuilder
     private func trackList(_ tracks: [ScrobbledTrack], onAlbumTap: @escaping (String, String) -> Void) -> some View {
         ForEach(tracks) { track in
-            trackRow(track)
+            let isLoved = lovedOverrides[track.id] ?? track.loved
+            trackRow(track, isLoved: isLoved)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     guard !track.albumName.isEmpty else { return }
                     onAlbumTap(track.albumName, track.artistName)
                 }
+                .contextMenu {
+                    Button {
+                        toggleLove(track, currentlyLoved: isLoved)
+                    } label: {
+                        Label(isLoved ? "Unlove" : "Love", systemImage: isLoved ? "heart.slash" : "heart.fill")
+                    }
+                    if let url = track.lastfmURL {
+                        Button { openURL(url) } label: {
+                            Label("Open on Last.fm", systemImage: "safari")
+                        }
+                    }
+                    Divider()
+                    Button {
+                        copyToClipboard("\(track.artistName) — \(track.name)")
+                    } label: {
+                        Label("Copy Track Info", systemImage: "doc.on.doc")
+                    }
+                }
+                #if os(iOS)
+                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                    Button {
+                        toggleLove(track, currentlyLoved: isLoved)
+                    } label: {
+                        Label(isLoved ? "Unlove" : "Love", systemImage: isLoved ? "heart.slash" : "heart.fill")
+                    }
+                    .tint(isLoved ? .gray : .pink)
+                }
+                .swipeActions(edge: .trailing) {
+                    if let url = track.lastfmURL {
+                        Button { openURL(url) } label: { Label("Last.fm", systemImage: "safari") }
+                            .tint(Color(red: 0.85, green: 0.1, blue: 0.1))
+                    }
+                }
+                #endif
                 .scrollTransition(.interactive) { content, phase in
                     content
                         .opacity(phase.isIdentity ? 1 : 0.45)
@@ -564,7 +640,7 @@ struct HistoryView: View {
 
     // MARK: - Track Row
 
-    private func trackRow(_ track: ScrobbledTrack) -> some View {
+    private func trackRow(_ track: ScrobbledTrack, isLoved: Bool = false) -> some View {
         HStack(spacing: 10) {
             Text(timeString(track.timestamp))
                 .font(timeFont)
@@ -574,7 +650,7 @@ struct HistoryView: View {
             VStack(spacing: 0) {
                 Rectangle().fill(Color.white.opacity(0.06)).frame(width: 1)
                 Circle()
-                    .fill(track.loved ? Color.red : AppAccent.current.opacity(0.45))
+                    .fill(isLoved ? Color.red : AppAccent.current.opacity(0.45))
                     .frame(width: 5, height: 5)
                 Rectangle().fill(Color.white.opacity(0.06)).frame(width: 1)
             }
@@ -618,10 +694,11 @@ struct HistoryView: View {
 
             Spacer(minLength: 0)
 
-            if track.loved {
+            if isLoved {
                 Image(systemName: "heart.fill")
                     .font(.system(size: 8))
                     .foregroundStyle(.red)
+                    .accessibilityLabel("Loved")
             }
         }
         .padding(.horizontal, 16)
@@ -636,6 +713,51 @@ struct HistoryView: View {
             Text(text).font(.system(size: 8, weight: .medium, design: .monospaced))
         }
         .foregroundStyle(.tertiary)
+    }
+
+    // MARK: - Love / URL / Clipboard
+
+    private func toggleLove(_ track: ScrobbledTrack, currentlyLoved: Bool) {
+        let newState = !currentlyLoved
+        lovedOverrides[track.id] = newState
+        Task {
+            do {
+                if newState {
+                    try await loveService.loveTrack(artist: track.artistName, track: track.name)
+                } else {
+                    try await loveService.unloveTrack(artist: track.artistName, track: track.name)
+                }
+            } catch {
+                // Revert on failure
+                await MainActor.run { lovedOverrides[track.id] = currentlyLoved }
+            }
+        }
+    }
+
+    private func openURL(_ url: URL) {
+        #if os(iOS)
+        UIApplication.shared.open(url)
+        #else
+        NSWorkspace.shared.open(url)
+        #endif
+    }
+
+    private func copyToClipboard(_ text: String) {
+        #if os(iOS)
+        UIPasteboard.general.string = text
+        #else
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+        #endif
+    }
+
+    // MARK: - Tap Handler
+
+    private func handleAlbumTap(_ album: String, _ artist: String) {
+        onAlbumTap(album, artist)
+        #if os(iOS)
+        albumSheet = AlbumRef(name: album, artist: artist)
+        #endif
     }
 
     // MARK: - Helpers

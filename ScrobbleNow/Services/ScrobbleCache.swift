@@ -32,7 +32,7 @@ actor ScrobbleCache {
     // MARK: - Retry all pending scrobbles
 
     func retryPending(using lastfm: LastFMService) async -> (succeeded: Int, failed: Int) {
-        var pending = loadPending()
+        let pending = loadPending()
         guard !pending.isEmpty else { return (0, 0) }
 
         var succeeded = 0

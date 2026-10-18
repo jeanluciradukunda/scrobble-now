@@ -54,9 +54,14 @@ actor LastFMService {
             return []
         }
 
+        var seen = Set<String>()
         return albums.compactMap { dict -> TopAlbumEntry? in
             guard let name = dict["name"] as? String,
                   let artist = (dict["artist"] as? [String: Any])?["name"] as? String else { return nil }
+            let normAlbum = Self.normalizeAlbumName(name)
+            let normArtist = Self.normalizePrimaryArtist(artist)
+            let key = "\(normAlbum)|\(normArtist)"
+            guard seen.insert(key).inserted else { return nil }
             let playcount = Int((dict["playcount"] as? String) ?? "0") ?? 0
             let imageURL = extractImageURL(from: dict)
             let url = URL(string: (dict["url"] as? String) ?? "")
@@ -82,6 +87,28 @@ actor LastFMService {
             let imageURL = extractImageURL(from: dict)
             let url = URL(string: (dict["url"] as? String) ?? "")
             return TopArtistEntry(name: name, playcount: playcount, imageURL: imageURL, lastfmURL: url)
+        }
+    }
+
+    // MARK: - Top Tracks
+
+    func getTopTracks(user: String, period: String = "overall", limit: Int = 50) async throws -> [TopTrackEntry] {
+        let url = URL(string: "\(baseURL)?method=user.getTopTracks&user=\(user)&period=\(period)&api_key=\(apiKey)&format=json&limit=\(limit)")!
+        let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+        guard let topTracks = json?["toptracks"] as? [String: Any],
+              let tracks = topTracks["track"] as? [[String: Any]] else {
+            return []
+        }
+
+        return tracks.compactMap { dict -> TopTrackEntry? in
+            guard let name = dict["name"] as? String else { return nil }
+            let artist = (dict["artist"] as? [String: Any])?["name"] as? String ?? ""
+            let playcount = Int((dict["playcount"] as? String) ?? "0") ?? 0
+            let imageURL = extractImageURL(from: dict)
+            let url = URL(string: (dict["url"] as? String) ?? "")
+            return TopTrackEntry(name: name, artistName: artist, playcount: playcount, imageURL: imageURL, lastfmURL: url)
         }
     }
 
@@ -134,6 +161,60 @@ actor LastFMService {
             "api_key": apiKey, "sk": sk
         ]
         try await signedPost(params: params)
+    }
+
+    // MARK: - Love / Unlove
+
+    func loveTrack(artist: String, track: String) async throws {
+        guard let sk = KeychainService.lastfmSessionKey else { return }
+        let params: [String: String] = [
+            "method": "track.love",
+            "artist": artist, "track": track,
+            "api_key": apiKey, "sk": sk
+        ]
+        try await signedPost(params: params)
+    }
+
+    func unloveTrack(artist: String, track: String) async throws {
+        guard let sk = KeychainService.lastfmSessionKey else { return }
+        let params: [String: String] = [
+            "method": "track.unlove",
+            "artist": artist, "track": track,
+            "api_key": apiKey, "sk": sk
+        ]
+        try await signedPost(params: params)
+    }
+
+    // MARK: - Dedup Normalization
+
+    /// Strip edition suffixes: "(Deluxe)", "(Special Edition)", "- EP", "- Single", "(Complete Edition)", etc.
+    private static func normalizeAlbumName(_ name: String) -> String {
+        var s = name.lowercased()
+        // Remove parenthetical/bracketed suffixes
+        let patterns = [
+            "\\s*[\\(\\[]\\s*(deluxe|special|expanded|complete|remastered|anniversary|bonus|limited|collector|standard|explicit|clean).*?[\\)\\]]",
+            "\\s*-\\s*(ep|single|lp)$",
+            "\\s*\\(\\d+th anniversary.*?\\)",
+        ]
+        for pattern in patterns {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+                s = regex.stringByReplacingMatches(in: s, range: NSRange(s.startIndex..., in: s), withTemplate: "")
+            }
+        }
+        return s.trimmingCharacters(in: .whitespaces)
+    }
+
+    /// Extract primary artist: "Kanye West & Travis Scott" → "kanye west"
+    private static func normalizePrimaryArtist(_ artist: String) -> String {
+        let s = artist.lowercased()
+        // Split on common featuring/collaboration delimiters
+        let delimiters = [" & ", " feat. ", " feat ", " ft. ", " ft ", " featuring ", " with ", " x ", ", "]
+        for delim in delimiters {
+            if let range = s.range(of: delim) {
+                return String(s[s.startIndex..<range.lowerBound]).trimmingCharacters(in: .whitespaces)
+            }
+        }
+        return s.trimmingCharacters(in: .whitespaces)
     }
 
     // MARK: - Helpers

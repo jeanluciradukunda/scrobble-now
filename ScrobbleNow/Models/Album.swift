@@ -93,3 +93,12 @@ struct TopArtistEntry: Identifiable {
     let imageURL: URL?
     let lastfmURL: URL?
 }
+
+struct TopTrackEntry: Identifiable {
+    let id = UUID()
+    let name: String
+    let artistName: String
+    let playcount: Int
+    let imageURL: URL?
+    let lastfmURL: URL?
+}

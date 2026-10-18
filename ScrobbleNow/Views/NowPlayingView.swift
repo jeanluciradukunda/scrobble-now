@@ -64,6 +64,7 @@ struct NowPlayingView: View {
                             .foregroundStyle(mode == .settings ? AppAccent.current : .secondary)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(mode == .settings ? "Close Settings" : "Settings")
                     #if os(macOS)
                     .help("Settings")
                     #endif
@@ -315,6 +316,7 @@ struct NowPlayingView: View {
                 .foregroundStyle(mode == targetMode ? AppAccent.current : .secondary)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(label)
         #if os(macOS)
         .help(label)
         #endif

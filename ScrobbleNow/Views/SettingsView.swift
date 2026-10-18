@@ -13,6 +13,8 @@ struct SettingsView: View {
     @State private var usernameInput: String = ""
     @State private var isAuthenticating = false
     @State private var authError: String?
+    @State private var showDisconnectConfirm = false
+    @State private var showQuitConfirm = false
 
     private let lastfmService = LastFMService()
 
@@ -51,6 +53,21 @@ struct SettingsView: View {
                 .padding(16)
             }
         }
+        .confirmationDialog("Disconnect from Last.fm?", isPresented: $showDisconnectConfirm, titleVisibility: .visible) {
+            Button("Disconnect", role: .destructive) {
+                settings.lastfmUsername = ""
+                KeychainService.delete(.lastfmSessionKey)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Scrobble Now will stop submitting scrobbles. Your history on Last.fm is preserved.")
+        }
+        #if os(macOS)
+        .confirmationDialog("Quit Scrobble Now?", isPresented: $showQuitConfirm, titleVisibility: .visible) {
+            Button("Quit", role: .destructive) { NSApplication.shared.terminate(nil) }
+            Button("Cancel", role: .cancel) {}
+        }
+        #endif
     }
 
     // ═══════════════════════════════════════════
@@ -122,21 +139,25 @@ struct SettingsView: View {
             settingsToggle("Show track in menu bar", isOn: $settings.showTitleInMenuBar)
             #endif
 
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 5), spacing: 4) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 5), spacing: 0) {
                 ForEach(AppAccent.options) { option in
                     Button {
                         settings.accentColorName = option.id
                     } label: {
                         Circle()
                             .fill(option.color)
-                            .frame(width: 20, height: 20)
+                            .frame(width: 22, height: 22)
                             .overlay {
                                 if settings.accentColorName == option.id {
                                     Circle().strokeBorder(.white, lineWidth: 2)
                                 }
                             }
+                            .frame(width: 44, height: 44)
                     }
                     .buttonStyle(.plain)
+                    .contentShape(Rectangle())
+                    .accessibilityLabel(option.name)
+                    .accessibilityAddTraits(settings.accentColorName == option.id ? .isSelected : [])
                     .help(option.name)
                 }
             }
@@ -147,12 +168,11 @@ struct SettingsView: View {
             // Quit
             HStack {
                 Spacer()
-                Button("Quit Scrobble Now") {
-                    NSApplication.shared.terminate(nil)
+                Button("Quit Scrobble Now", role: .destructive) {
+                    showQuitConfirm = true
                 }
                 .buttonStyle(.plain)
                 .font(.system(size: 9, weight: .medium))
-                .foregroundStyle(.red)
                 Spacer()
             }
             #endif
@@ -430,8 +450,8 @@ struct SettingsView: View {
 
                 HStack {
                     Spacer()
-                    Button("Reset Stats") { APITracker.shared.clear() }
-                        .buttonStyle(.plain).font(.system(size: 8, weight: .medium)).foregroundStyle(.red)
+                    Button("Reset Stats", role: .destructive) { APITracker.shared.clear() }
+                        .buttonStyle(.plain).font(.system(size: 8, weight: .medium))
                 }
             }
 
@@ -516,14 +536,14 @@ struct SettingsView: View {
             HStack {
                 Text("Scrobble history").font(.system(size: 10))
                 Spacer()
-                Button("Clear") { Task { await ScrobbleCache.shared.clearHistory() } }
-                    .buttonStyle(.plain).font(.system(size: 8, weight: .medium)).foregroundStyle(.red)
+                Button("Clear", role: .destructive) { Task { await ScrobbleCache.shared.clearHistory() } }
+                    .buttonStyle(.plain).font(.system(size: 8, weight: .medium))
             }
             HStack {
                 Text("Discovery cache").font(.system(size: 10))
                 Spacer()
-                Button("Clear") { }
-                    .buttonStyle(.plain).font(.system(size: 8, weight: .medium)).foregroundStyle(.red)
+                Button("Clear", role: .destructive) { }
+                    .buttonStyle(.plain).font(.system(size: 8, weight: .medium))
             }
         }
     }
@@ -683,13 +703,11 @@ struct SettingsView: View {
                     }
                 }
                 Spacer()
-                Button("Disconnect") {
-                    settings.lastfmUsername = ""
-                    KeychainService.delete(.lastfmSessionKey)
+                Button("Disconnect", role: .destructive) {
+                    showDisconnectConfirm = true
                 }
                 .buttonStyle(.plain)
                 .font(.system(size: 8, weight: .medium))
-                .foregroundStyle(.red)
             }
             .padding(8)
             .background(Color.white.opacity(0.03), in: RoundedRectangle(cornerRadius: 8))
