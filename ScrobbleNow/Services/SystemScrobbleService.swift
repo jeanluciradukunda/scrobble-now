@@ -32,6 +32,7 @@ class SystemScrobbleService: ObservableObject {
     // MARK: - Tracking State
 
     private var engine = ScrobbleEngine(lastScrobbled: SystemScrobbleService.loadLastScrobble())
+    private var persistedLastScrobble = SystemScrobbleService.loadLastScrobble()
     private var progressTimer: Timer?
     private var rules: ScrobbleRules {
         ScrobbleRules(thresholdPercent: settings.scrobbleThresholdPercent,
@@ -142,8 +143,10 @@ class SystemScrobbleService: ObservableObject {
     private func syncEngineState() {
         scrobbleProgress = engine.progress(rules: rules)
         didScrobbleCurrent = engine.didScrobbleCurrent
-        if let record = engine.lastScrobbled, let data = try? JSONEncoder().encode(record) {
+        if let record = engine.lastScrobbled, record != persistedLastScrobble,
+           let data = try? JSONEncoder().encode(record) {
             UserDefaults.standard.set(data, forKey: Self.lastScrobbleKey)
+            persistedLastScrobble = record
         }
     }
 
