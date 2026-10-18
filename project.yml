@@ -22,9 +22,17 @@ targets:
       - path: ScrobbleNow
         excludes:
           - "**/.DS_Store"
+      - path: Vendor/MediaRemoteAdapter/bin/mediaremote-adapter.pl
+        buildPhase: resources
+    postCompileScripts:
+      - name: Build MediaRemoteAdapter
+        script: |
+          "$SRCROOT/Vendor/MediaRemoteAdapter/build.sh" "$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH" "$TARGET_BUILD_DIR/$EXECUTABLE_FOLDER_PATH"
+        basedOnDependencyAnalysis: false
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.personal.ScrobbleNow
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_LSUIElement: YES
         INFOPLIST_KEY_NSAppleEventsUsageDescription: "Scrobble Now reads the current tab in Safari and Chrome, and the artwork in Spotify, to scrobble what is playing."
@@ -63,6 +71,8 @@ targets:
           - "App/ScrobbleNowApp.swift"
           - "Services/MediaRemoteBridge.swift"
           - "Services/MetricsService.swift"
+          - "Services/MediaRemoteAdapterSource.swift"
+          - "Views/AdapterSettingsRow.swift"
           - "**/.DS_Store"
       - path: ScrobbleNowiOS
     settings:

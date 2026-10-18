@@ -42,6 +42,7 @@ class SettingsManager: ObservableObject {
 
     // MARK: - Scrobble Behavior
     @AppStorage("scrobbleEnabled") var scrobbleEnabled: Bool = true
+    @AppStorage("useMediaRemoteAdapter") var useMediaRemoteAdapter: Bool = false
     @AppStorage("scrobbleThresholdPercent") var scrobbleThresholdPercent: Double = 50
     @AppStorage("minTrackDuration") var minTrackDuration: Int = 30
     @AppStorage("filterPodcasts") var filterPodcasts: Bool = true

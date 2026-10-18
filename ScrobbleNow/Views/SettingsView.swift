@@ -267,6 +267,11 @@ struct SettingsView: View {
                 serviceRow(name: "Tidal / Deezer", icon: "⚫", detail: "Tab scanning — 3s poll")
                 serviceRow(name: "Other native apps", icon: "🟣", detail: "MediaRemote — 1s poll")
             }
+
+            #if os(macOS)
+            AdapterSettingsRow()
+                .padding(.top, 4)
+            #endif
         }
     }
 
