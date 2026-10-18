@@ -48,7 +48,7 @@ actor ScrobbleCache {
                 )
                 succeeded += 1
                 logHistory(entry, success: true)
-            } catch let error as LastFMService.LastFMError where error.disposition == .keepUntilAuthorised {
+            } catch let error as LastFMService.LastFMError where error.disposition == .keepUntilFixed {
                 stillFailed.append(contentsOf: pending[index...])
                 break
             } catch let error as LastFMService.LastFMError where error.disposition == .drop {

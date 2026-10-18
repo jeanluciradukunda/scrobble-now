@@ -6,9 +6,14 @@ actor LastFMService {
     private var apiKey: String { KeychainService.lastfmApiKey }
     private var sharedSecret: String { KeychainService.lastfmSharedSecret }
     private let sessionKey: @Sendable () -> String?
+    private let invalidateSession: @Sendable () -> Void
 
-    init(sessionKey: @escaping @Sendable () -> String? = { KeychainService.lastfmSessionKey }) {
+    init(
+        sessionKey: @escaping @Sendable () -> String? = { KeychainService.lastfmSessionKey },
+        invalidateSession: @escaping @Sendable () -> Void = { KeychainService.delete(.lastfmSessionKey) }
+    ) {
         self.sessionKey = sessionKey
+        self.invalidateSession = invalidateSession
     }
 
     // MARK: - Recent Tracks (live feed)
@@ -208,7 +213,12 @@ actor LastFMService {
         request.httpBody = Data(Self.formBody(allParams).utf8)
 
         let (data, response) = try await URLSession.shared.trackedData(for: request, service: "Last.fm")
-        try Self.checkResponse(data: data, statusCode: (response as? HTTPURLResponse)?.statusCode ?? 0)
+        do {
+            try Self.checkResponse(data: data, statusCode: (response as? HTTPURLResponse)?.statusCode ?? 0)
+        } catch LastFMError.api(9, _) {
+            invalidateSession()
+            throw LastFMError.api(code: 9, message: "Invalid session key")
+        }
         return data
     }
 
@@ -219,15 +229,19 @@ actor LastFMService {
         case api(code: Int, message: String)
         case ignored(code: Int)
 
-        enum Disposition { case retry, keepUntilAuthorised, drop }
+        enum Disposition { case retry, keepUntilFixed, drop }
 
-        /// Per https://www.last.fm/api/errorcodes: 11, 16 and 29 are temporary; 9 means the session must be renewed.
+        /// A wrong retry costs a request; a wrong drop loses the scrobble for good. So drop only what is certainly
+        /// permanent and about this scrobble (https://www.last.fm/api/errorcodes, track.scrobble ignored codes);
+        /// credential faults (4, 9, 10, 13, 26) stop the pass and keep the queue.
         var disposition: Disposition {
             switch self {
-            case .requestFailed: return .retry
-            case .api(let code, _) where [11, 16, 29].contains(code): return .retry
-            case .notAuthenticated, .api(9, _): return .keepUntilAuthorised
-            case .authFailed, .api, .ignored: return .drop
+            case .requestFailed, .authFailed: return .retry
+            case .api(let code, _) where [8, 11, 16, 29].contains(code): return .retry
+            case .ignored(5): return .retry
+            case .notAuthenticated: return .keepUntilFixed
+            case .api(let code, _) where [4, 9, 10, 13, 26].contains(code): return .keepUntilFixed
+            case .api, .ignored: return .drop
             }
         }
 
