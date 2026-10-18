@@ -31,7 +31,7 @@ class SystemScrobbleService: ObservableObject {
 
     // MARK: - Tracking State
 
-    private var engine = ScrobbleEngine()
+    private var engine = ScrobbleEngine(lastScrobbled: SystemScrobbleService.loadLastScrobble())
     private var progressTimer: Timer?
     private var rules: ScrobbleRules {
         ScrobbleRules(thresholdPercent: settings.scrobbleThresholdPercent,
@@ -111,11 +111,11 @@ class SystemScrobbleService: ObservableObject {
 
     private func tick() {
         isPlaying = bridge.isPlaying
-        let counting = currentTrack != nil && isPlaying && !didScrobbleCurrent
+        let playing = currentTrack != nil && isPlaying
         let scrobbles = engine.tick(isPlaying: isPlaying, now: Date(), rules: rules, isAllowed: canScrobble)
 
         // Update the track's elapsed time for the UI progress bar
-        if counting, let track = currentTrack, track.duration > 0 {
+        if playing, let track = currentTrack, track.duration > 0 {
             let updatedTrack = SystemNowPlaying(
                 title: track.title, artist: track.artist, album: track.album,
                 duration: track.duration, elapsed: min(engine.accumulatedPlayTime, track.duration),
@@ -135,13 +135,23 @@ class SystemScrobbleService: ObservableObject {
 
         // Also refresh the bridge data periodically for elapsed time updates
         #if os(macOS)
-        if counting { bridge.pollMediaRemote() }
+        if playing { bridge.pollMediaRemote() }
         #endif
     }
 
     private func syncEngineState() {
         scrobbleProgress = engine.progress(rules: rules)
         didScrobbleCurrent = engine.didScrobbleCurrent
+        if let record = engine.lastScrobbled, let data = try? JSONEncoder().encode(record) {
+            UserDefaults.standard.set(data, forKey: Self.lastScrobbleKey)
+        }
+    }
+
+    private static let lastScrobbleKey = "sn_last_scrobble"
+
+    private static func loadLastScrobble() -> ScrobbleRecord? {
+        guard let data = UserDefaults.standard.data(forKey: lastScrobbleKey) else { return nil }
+        return try? JSONDecoder().decode(ScrobbleRecord.self, from: data)
     }
 
     private func canScrobble(_ track: SystemNowPlaying) -> Bool {
