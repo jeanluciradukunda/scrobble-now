@@ -14,7 +14,6 @@ class SystemScrobbleService: ObservableObject {
     @Published var scrobbleProgress: Double = 0  // 0-1, how close to scrobble threshold
     @Published var didScrobbleCurrent: Bool = false
     @Published var totalScrobbled: Int = 0
-    @Published var isEnabled: Bool = true
 
     // MARK: - Dependencies
 
@@ -25,6 +24,7 @@ class SystemScrobbleService: ObservableObject {
     #endif
     private let lastfm = LastFMService()
     private var settings: SettingsManager { SettingsManager.shared }
+    var isEnabled: Bool { settings.scrobbleEnabled }
 
     /// Called after a successful scrobble — use to refresh history
     var onScrobbleSuccess: (() -> Void)?
