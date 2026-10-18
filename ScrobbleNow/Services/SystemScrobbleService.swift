@@ -111,10 +111,11 @@ class SystemScrobbleService: ObservableObject {
 
     private func tick() {
         isPlaying = bridge.isPlaying
+        let counting = currentTrack != nil && isPlaying && !didScrobbleCurrent
         let scrobbles = engine.tick(isPlaying: isPlaying, now: Date(), rules: rules, isAllowed: canScrobble)
 
         // Update the track's elapsed time for the UI progress bar
-        if let track = currentTrack, isPlaying, !didScrobbleCurrent, track.duration > 0 {
+        if counting, let track = currentTrack, track.duration > 0 {
             let updatedTrack = SystemNowPlaying(
                 title: track.title, artist: track.artist, album: track.album,
                 duration: track.duration, elapsed: min(engine.accumulatedPlayTime, track.duration),
@@ -134,7 +135,7 @@ class SystemScrobbleService: ObservableObject {
 
         // Also refresh the bridge data periodically for elapsed time updates
         #if os(macOS)
-        bridge.pollMediaRemote()
+        if counting { bridge.pollMediaRemote() }
         #endif
     }
 

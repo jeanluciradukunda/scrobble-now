@@ -74,7 +74,7 @@ struct ScrobbleEngineTests {
         #expect(play(&shortTrack, seconds: 60, from: start).0.isEmpty)
     }
 
-    // Characterisation of current behaviour that the swiss found wrong (A5 to A8); 1g changes each of these.
+    // Pins today's behaviour; the rules PR changes each of these.
 
     @Test func currentBehaviourTimestampIsSubmitTime() {
         var engine = ScrobbleEngine()

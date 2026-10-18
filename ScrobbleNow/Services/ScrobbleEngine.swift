@@ -4,8 +4,6 @@ struct ScrobbleRules {
     var thresholdPercent: Double
     var minTrackDuration: TimeInterval
 
-    /// Seconds of play needed before scrobbling: the percentage of a known duration capped at 4 minutes,
-    /// or 60 s when the duration is unknown, and never less than the minimum track length.
     func threshold(for track: SystemNowPlaying) -> TimeInterval {
         if track.duration > 0 {
             return max(minTrackDuration, min(track.duration * thresholdPercent / 100, 240))
@@ -17,13 +15,8 @@ struct ScrobbleRules {
 struct PendingScrobble: Equatable {
     let track: SystemNowPlaying
     let timestamp: Int
-
-    static func == (lhs: PendingScrobble, rhs: PendingScrobble) -> Bool {
-        lhs.track == rhs.track && lhs.timestamp == rhs.timestamp
-    }
 }
 
-/// The scrobble rules as a value type with an injected clock, so they can be tested without timers or singletons.
 struct ScrobbleEngine {
     private(set) var current: SystemNowPlaying?
     private(set) var accumulatedPlayTime: TimeInterval = 0
