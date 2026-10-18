@@ -256,7 +256,7 @@ class SystemScrobbleService: ObservableObject {
             }
 
             // If album search failed, try track.getInfo
-            let trackInfoURL = URL(string: "https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=\(KeychainService.lastfmApiKey)&artist=\(track.artist.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&track=\(track.title.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&format=json")!
+            let trackInfoURL = URL(string: "https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=\(KeychainService.lastfmApiKey)&artist=\(track.artist.queryValueEncoded)&track=\(track.title.queryValueEncoded)&format=json")!
             let (trackData, _) = try await URLSession.shared.data(from: trackInfoURL)
             if let trackJson = try JSONSerialization.jsonObject(with: trackData) as? [String: Any],
                let trackInfo = trackJson["track"] as? [String: Any],
@@ -291,7 +291,7 @@ class SystemScrobbleService: ObservableObject {
 
     private func fetchYouTubeThumbnail(for track: SystemNowPlaying) async {
         // Simpler: use Last.fm artist image as fallback
-        let artistURL = URL(string: "https://ws.audioscrobbler.com/2.0/?method=artist.getInfo&api_key=\(KeychainService.lastfmApiKey)&artist=\(track.artist.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&format=json")!
+        let artistURL = URL(string: "https://ws.audioscrobbler.com/2.0/?method=artist.getInfo&api_key=\(KeychainService.lastfmApiKey)&artist=\(track.artist.queryValueEncoded)&format=json")!
 
         do {
             let (data, _) = try await URLSession.shared.data(from: artistURL)

@@ -26,7 +26,7 @@ actor DiscogsService {
     // MARK: - Search
 
     func searchRelease(album: String, artist: String) async throws -> [SearchResult] {
-        let query = "\(artist) \(album)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let query = "\(artist) \(album)".queryValueEncoded
         let url = URL(string: "https://api.discogs.com/database/search?q=\(query)&type=release&per_page=5&token=\(token)")!
 
         var request = URLRequest(url: url)

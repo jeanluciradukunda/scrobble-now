@@ -401,8 +401,7 @@ struct AlbumDetailView: View {
     // MARK: - External Links
 
     private func externalLinks(album: AlbumDetail) -> some View {
-        let bandcampQuery = "\(album.artistName) \(album.albumName)"
-            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let bandcampQuery = "\(album.artistName) \(album.albumName)".queryValueEncoded
         let bandcampURL = URL(string: "https://bandcamp.com/search?q=\(bandcampQuery)")
 
         return HStack(spacing: 4) {

@@ -13,7 +13,7 @@ actor WikidataService {
           SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . }
         } LIMIT 5
         """
-        let encoded = sparql.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encoded = sparql.queryValueEncoded
         let url = URL(string: "https://query.wikidata.org/sparql?format=json&query=\(encoded)")!
 
         var request = URLRequest(url: url)

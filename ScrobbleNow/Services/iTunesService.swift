@@ -9,7 +9,7 @@ actor ITunesService {
         ]
 
         for query in queries {
-            let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+            let encoded = query.queryValueEncoded
             let url = URL(string: "https://itunes.apple.com/search?term=\(encoded)&entity=album&limit=5")!
             let (data, _) = try await URLSession.shared.trackedData(from: url, service: "iTunes")
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]

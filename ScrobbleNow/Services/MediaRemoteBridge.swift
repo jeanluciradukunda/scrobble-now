@@ -342,8 +342,8 @@ class MediaRemoteBridge: ObservableObject {
                     // Try Last.fm track.getInfo for album art
                     let apiKey = KeychainService.lastfmApiKey
                     if !apiKey.isEmpty {
-                        let artistEnc = ytArtist.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-                        let trackEnc = ytTrack.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                        let artistEnc = ytArtist.queryValueEncoded
+                        let trackEnc = ytTrack.queryValueEncoded
 
                         // Try track.getInfo first — gives us album name + artwork
                         if let trackURL = URL(string: "https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=\(apiKey)&artist=\(artistEnc)&track=\(trackEnc)&format=json"),
