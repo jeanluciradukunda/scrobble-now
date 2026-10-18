@@ -9,21 +9,15 @@ class SettingsManager: ObservableObject {
 
     // MARK: - General
     @AppStorage("showTitleInMenuBar") var showTitleInMenuBar: Bool = false
-    @AppStorage("notifyNewTrack") var notifyNewTrack: Bool = true
-    @AppStorage("pinMenuPopover") var pinMenuPopover: Bool = false
 
     // MARK: - Last.fm
     @AppStorage("lastfmUsername") var lastfmUsername: String = ""
     @AppStorage("pollIntervalSeconds") var pollIntervalSeconds: Double = 15
 
-    // MARK: - Data
-    @AppStorage("enableCaching") var enableCaching: Bool = true
-
     // MARK: - Appearance
     @AppStorage("accentColorName") var accentColorName: String = "red"
 
-    // MARK: - Developer Mode
-    @AppStorage("developerMode") var developerMode: Bool = false
+    // MARK: - Album scoring
     @AppStorage("scoreWeightTitle") var scoreWeightTitle: Double = 35
     @AppStorage("scoreWeightArtist") var scoreWeightArtist: Double = 30
     @AppStorage("scoreWeightTracks") var scoreWeightTracks: Double = 10
@@ -50,10 +44,7 @@ class SettingsManager: ObservableObject {
     @AppStorage("scrobbleEnabled") var scrobbleEnabled: Bool = true
     @AppStorage("scrobbleThresholdPercent") var scrobbleThresholdPercent: Double = 50
     @AppStorage("minTrackDuration") var minTrackDuration: Int = 30
-    @AppStorage("forceRecognition") var forceRecognition: Bool = false
     @AppStorage("filterPodcasts") var filterPodcasts: Bool = true
-    @AppStorage("albumGuessing") var albumGuessing: Bool = true
-    @AppStorage("scrobbleNotifications") var scrobbleNotifications: Bool = false
 
     // MARK: - System
     #if os(macOS)

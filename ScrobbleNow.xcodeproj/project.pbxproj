@@ -87,6 +87,7 @@
 		DF35F5B9EE37C276DC9F5710 /* ScrobbleNowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36C5EFF085D5F70BD16C3644 /* ScrobbleNowApp.swift */; };
 		E1FD89349690CCE755E3E772 /* SparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD1B44005A77903F50E51973 /* SparklineView.swift */; };
 		E24C3C4AF9925E1A11F4E6AD /* ScrobbleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0977F9C959BD74B3EA1A2458 /* ScrobbleEngine.swift */; };
+		E3DF95B2154AFCE503186E97 /* PodcastFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06298860519D35054AB31DE9 /* PodcastFilterTests.swift */; };
 		E639095D8ADEFD2DA475E3E7 /* LastFMResponseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F074F1740C761909CC599214 /* LastFMResponseTests.swift */; };
 		E708DFF4A228C1EC56DAC9EA /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD12B4CB16C74BEFCD7E7473 /* Track.swift */; };
 		E7C2C63B66C05D9DB2BEDB04 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C98113A7ABDD5E7BDF1F23 /* SettingsManager.swift */; };
@@ -108,6 +109,7 @@
 
 /* Begin PBXFileReference section */
 		019A647E4552F30A7374FDCC /* RadarChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarChartView.swift; sourceTree = "<group>"; };
+		06298860519D35054AB31DE9 /* PodcastFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastFilterTests.swift; sourceTree = "<group>"; };
 		0977F9C959BD74B3EA1A2458 /* ScrobbleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleEngine.swift; sourceTree = "<group>"; };
 		0DCD2BD832C94BD88F4F7299 /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
 		0EA730E7257F76B5CCDFE472 /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
@@ -246,6 +248,7 @@
 				195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */,
 				F8A2E41BA9585185F71B82EB /* LastFMRequestTests.swift */,
 				F074F1740C761909CC599214 /* LastFMResponseTests.swift */,
+				06298860519D35054AB31DE9 /* PodcastFilterTests.swift */,
 				3CC5E069331060B9F3116E81 /* ScrobbleCacheEntryTests.swift */,
 				714C7CFE00B62B5BB0005651 /* ScrobbleEngineTests.swift */,
 				1B404CD40FB787F537581773 /* ScrobbleQueueTests.swift */,
@@ -479,6 +482,7 @@
 				5D863AFCF53A06DEBC27F78F /* AlbumNormaliseTests.swift in Sources */,
 				04ADD9F83A79D5A6A494ABBE /* LastFMRequestTests.swift in Sources */,
 				E639095D8ADEFD2DA475E3E7 /* LastFMResponseTests.swift in Sources */,
+				E3DF95B2154AFCE503186E97 /* PodcastFilterTests.swift in Sources */,
 				3F547B81768F66BD278BFAEC /* ScrobbleCacheEntryTests.swift in Sources */,
 				C015AEE9B0C91E32E5BFF56C /* ScrobbleEngineTests.swift in Sources */,
 				3E1C143B78B3232BAE74ACED /* ScrobbleQueueTests.swift in Sources */,
