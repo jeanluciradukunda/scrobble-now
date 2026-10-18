@@ -27,7 +27,7 @@
 
 ## What it is
 
-Scrobble Now sits in your menu bar and keeps your listening history one click away. It reads your Last.fm profile, surfaces the track you are listening to right now, lets you drill into album metadata from five different music sources, and turns the same history into charts and collage exports that are easy to share.
+Scrobble Now sits in your menu bar, scrobbles what you play on your Mac to Last.fm, and keeps your listening history one click away. It reads your Last.fm profile, surfaces the track you are listening to right now, lets you drill into album metadata from five different music sources, and turns the same history into charts and collage exports that are easy to share.
 
 It is built for people who already scrobble everything and want that data to feel alive instead of buried in a browser tab.
 
@@ -62,6 +62,20 @@ It is built for people who already scrobble everything and want that data to fee
       Track total scrobbles, today, this week, top artists, genre breakdowns, and account history in a compact dashboard.
     </td>
   </tr>
+  <tr>
+    <td width="33%" valign="top">
+      <strong>Scrobbling</strong><br>
+      Detects what is playing and scrobbles it following Last.fm's rules: half the track or four minutes, tracks longer than 30 seconds, timestamped when you started listening, with an offline retry queue.
+    </td>
+    <td width="33%" valign="top">
+      <strong>Supported players</strong><br>
+      The Spotify and Apple Music apps, plus music sites in Safari and Chrome tabs: YouTube (music videos only), SoundCloud, Bandcamp, Spotify, Tidal, Deezer and Apple Music on the web. Each app can be switched off individually.
+    </td>
+    <td width="33%" valign="top">
+      <strong>iPhone companion</strong><br>
+      A Last.fm companion for iOS in <code>ScrobbleNowiOS/</code>: history, stats, loved tracks and collages. It does not scrobble.
+    </td>
+  </tr>
 </table>
 
 ## Why it feels good
@@ -77,9 +91,13 @@ It is built for people who already scrobble everything and want that data to fee
 
 1. Download the latest DMG from [Releases](https://github.com/jeanluciradukunda/scrobble-now/releases/latest).
 2. Open the DMG and drag Scrobble Now to Applications.
-3. Launch Scrobble Now and enter your Last.fm username in settings.
+3. Launch Scrobble Now, enter your Last.fm username in Settings, then click **Authorize Scrobbling** and approve it on last.fm.
 
-> Signed and notarized with Apple Developer ID — no security warnings or Terminal commands needed.
+Releases ship with Scrobble Now's own Last.fm API key, so there is nothing else to set up. To use your own key instead, open Settings, Integrations, API Keys, Advanced.
+
+> v1.1.0 shipped without a working Last.fm key and cannot connect. Use the next release.
+
+Releases are signed with an Apple Developer ID and notarised by Apple.
 
 ### Build from source
 
@@ -90,7 +108,7 @@ It is built for people who already scrobble everything and want that data to fee
 cp ScrobbleNow/Resources/Secrets.example.plist ScrobbleNow/Resources/Secrets.plist
 ```
 
-3. Fill in the values in `ScrobbleNow/Resources/Secrets.plist`.
+3. Fill in the values in `ScrobbleNow/Resources/Secrets.plist` with your own Last.fm API account (create one at [last.fm/api/account/create](https://www.last.fm/api/account/create)).
 4. Generate the project with `xcodegen generate` (`brew install xcodegen`), so it picks up your `Secrets.plist`.
 5. Open `ScrobbleNow.xcodeproj` in Xcode and run the `ScrobbleNow` target.
 
@@ -125,10 +143,13 @@ Useful commands:
 ## Repo map
 
 ```text
-ScrobbleNow/                 macOS app source
-ScrobbleNow/Services/        API clients and caching
+ScrobbleNow/                 macOS app source (shared with the iOS target)
+ScrobbleNow/Services/        scrobble engine, now-playing detection, API clients, caching
 ScrobbleNow/Views/           Menu bar UI, detail views, stats, collage tools
-ScrobbleNow/Resources/       plist files, entitlements, app assets
+ScrobbleNow/Resources/       secrets template, entitlements, app assets
+ScrobbleNowiOS/              iOS companion app
+ScrobbleNowTests/            unit tests (Swift Testing)
+.github/workflows/           CI, release, site deploy
 site/                        SolidJS landing page
 tools/illustrations/         artwork generation and cleanup scripts
 project.yml                  XcodeGen project spec
@@ -136,7 +157,12 @@ project.yml                  XcodeGen project spec
 
 ## Privacy
 
-Scrobble Now does not ship analytics, cloud sync, or telemetry. It fetches data from public music APIs, caches what it needs locally, and keeps the rest on your machine.
+Scrobble Now has no analytics, cloud sync or telemetry. What leaves your Mac:
+
+- **Last.fm:** your scrobbles and now-playing updates (once you authorise), plus reads of your profile.
+- **Metadata lookups:** artist, track and album names sent to Last.fm, Discogs, MusicBrainz, Cover Art Archive, iTunes, Wikidata and YouTube to find artwork and album details.
+
+Your history cache and the retry queue stay on your Mac.
 
 ## License
 

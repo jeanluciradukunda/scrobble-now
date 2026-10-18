@@ -74,10 +74,10 @@ export const footerFacts = [
 
 export const FAQ_ITEMS = [
   { q: "Is this app stable yet?", a: "Not fully. Scrobble Now is still in public beta. The core workflow — live feed, album discovery, collages, history — is usable, but the UI, scoring accuracy, and some edge cases are still being refined in the open." },
-  { q: "Do I need a Last.fm account?", a: "Yes. Scrobble Now reads your scrobbling data from Last.fm. You need a Last.fm account and a free API key from last.fm/api." },
-  { q: "Does this app do the scrobbling?", a: "No. Scrobble Now represents your listening — it shows what you're scrobbling, discovers albums, and generates collages. The actual scrobbling is done by your music player (Spotify, Apple Music, etc.) or a tool like Web Scrobbler." },
-  { q: "Is my data sent anywhere?", a: "No. Everything stays on your Mac. Scrobble data is fetched from Last.fm's public API and cached locally. No analytics, no cloud storage, no telemetry." },
+  { q: "Do I need a Last.fm account?", a: "Yes. Scrobble Now scrobbles to and reads from your Last.fm account. The app ships with its own API key, so you only sign in and authorise it." },
+  { q: "Does this app do the scrobbling?", a: "Yes, on the Mac. It detects what is playing in the Spotify and Apple Music apps and on music sites (YouTube, SoundCloud, Bandcamp and more) in Safari and Chrome, and scrobbles it following Last.fm's rules. Each app can be switched off. The iPhone companion shows your Last.fm data but does not scrobble." },
+  { q: "Is my data sent anywhere?", a: "Only where it has to go: your scrobbles go to Last.fm, and artist and album names go to the music databases used for artwork and album details. No analytics, no cloud storage, no telemetry." },
   { q: "How does album discovery work?", a: "When you tap an album, five sources are queried in parallel — Last.fm, Discogs, MusicBrainz, iTunes, and Wikidata. Each result is scored on title match, artist match, track count, source trust, and content completeness. External links and artwork from all sources are merged into the top result." },
-  { q: "What API keys do I need?", a: "A Last.fm API key (free at last.fm/api) and optionally a Discogs token (free at discogs.com/settings/developers). iTunes, MusicBrainz, and Wikidata don't require keys." },
+  { q: "What API keys do I need?", a: "None. The app ships with its own Last.fm API key. If you prefer your own, add it under Settings, Integrations, API Keys, Advanced. Building from source needs your own key in Secrets.plist." },
   { q: "Is the app signed?", a: "Yes. Scrobble Now is signed with an Apple Developer ID certificate and notarized by Apple. Download, install, and it just works — no security warnings or Terminal commands." },
 ];
