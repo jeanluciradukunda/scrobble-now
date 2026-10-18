@@ -15,9 +15,24 @@ struct SettingsView: View {
     @State private var authError: String?
 
     @State private var showDisconnectConfirm = false
-    @State private var showQuitConfirm = false
 
     private let lastfmService = LastFMService()
+
+    #if os(macOS)
+    /// An app-modal alert rather than a SwiftUI dialog: a dialog attached to the menu-bar panel can close with
+    /// the panel before Quit is pressed, and with no Dock icon there is no other way to quit.
+    private func confirmQuit() {
+        let alert = NSAlert()
+        alert.messageText = "Quit Scrobble Now?"
+        alert.informativeText = "Scrobbling stops until you open it again."
+        alert.addButton(withTitle: "Quit")
+        alert.addButton(withTitle: "Cancel")
+        NSApp.activate(ignoringOtherApps: true)
+        if alert.runModal() == .alertFirstButtonReturn {
+            NSApplication.shared.terminate(nil)
+        }
+    }
+    #endif
 
     var body: some View {
         VStack(spacing: 0) {
@@ -63,12 +78,6 @@ struct SettingsView: View {
         } message: {
             Text("Scrobble Now will stop submitting scrobbles. Your history on Last.fm is kept.")
         }
-        #if os(macOS)
-        .confirmationDialog("Quit Scrobble Now?", isPresented: $showQuitConfirm, titleVisibility: .visible) {
-            Button("Quit", role: .destructive) { NSApplication.shared.terminate(nil) }
-            Button("Cancel", role: .cancel) {}
-        }
-        #endif
     }
 
     // ═══════════════════════════════════════════
@@ -171,7 +180,7 @@ struct SettingsView: View {
             HStack {
                 Spacer()
                 Button("Quit Scrobble Now") {
-                    showQuitConfirm = true
+                    confirmQuit()
                 }
                 .buttonStyle(.plain)
                 .font(.system(size: 9, weight: .medium))
