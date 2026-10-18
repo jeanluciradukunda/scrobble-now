@@ -2,6 +2,8 @@ import SwiftUI
 
 @MainActor
 class NowPlayingViewModel: ObservableObject {
+    static let shared = NowPlayingViewModel()
+
     @Published var nowPlaying: ScrobbledTrack?
     @Published var recentTracks: [ScrobbledTrack] = []
     @Published var isLoading = false

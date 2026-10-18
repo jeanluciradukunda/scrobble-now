@@ -3,7 +3,7 @@ import SwiftUI
 
 @main
 struct ScrobbleNowiOSApp: App {
-    @StateObject private var viewModel = NowPlayingViewModel()
+    @StateObject private var viewModel = NowPlayingViewModel.shared
     @StateObject private var settings = SettingsManager.shared
     @StateObject private var scrobbler = SystemScrobbleService.shared
 
@@ -11,9 +11,9 @@ struct ScrobbleNowiOSApp: App {
         KeychainService.bootstrapDefaults()
         MPNowPlayingBridge.shared.startListening()
 
-        let vm = viewModel
+        // Not `viewModel`: a @StateObject read in App.init is a throwaway instance, not the one the views get.
         SystemScrobbleService.shared.onScrobbleSuccess = {
-            Task { await vm.refresh() }
+            Task { await NowPlayingViewModel.shared.refresh() }
         }
     }
 
