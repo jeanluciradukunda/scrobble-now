@@ -35,7 +35,10 @@ enum AlbumNormalisation {
     }
 
     static func identityKey(album: String, artist: String) -> String {
-        "\(normalize(withoutEdition(album)))|\(normalize(primaryArtist(artist)))"
+        // Titles with no letters or digits (Ed Sheeran's ÷, +, =) normalise to "" and would all merge.
+        let title = normalize(withoutEdition(album))
+        let titleKey = title.isEmpty ? album.lowercased().trimmingCharacters(in: .whitespaces) : title
+        return "\(titleKey)|\(normalize(primaryArtist(artist)))"
     }
 
     /// Editions and featured-artist variants of one album collapse into the first, most-played entry, with plays summed.

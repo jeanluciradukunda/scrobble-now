@@ -49,6 +49,13 @@ struct TopAlbumDedupTests {
         #expect(merged.first?.playcount == 65)
     }
 
+    @Test func symbolOnlyTitlesStayDistinct() {
+        let merged = AlbumNormalisation.mergingDuplicates([
+            entry("÷", "Ed Sheeran", 50), entry("+", "Ed Sheeran", 30), entry("=", "Ed Sheeran", 20), entry("-", "Ed Sheeran", 10)
+        ])
+        #expect(merged.count == 4)
+    }
+
     @Test func nonLatinAlbumsStayDistinct() {
         let merged = AlbumNormalisation.mergingDuplicates([entry("東京", "A", 5), entry("大阪", "A", 4)])
         #expect(merged.count == 2)
