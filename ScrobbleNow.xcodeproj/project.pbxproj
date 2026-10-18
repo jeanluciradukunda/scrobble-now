@@ -42,11 +42,13 @@
 		42B1D520A0213B02A7650386 /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE4230F732B9F8257B84158 /* NowPlayingView.swift */; };
 		45B588A2405363982E2243CF /* ScrobbleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0977F9C959BD74B3EA1A2458 /* ScrobbleEngine.swift */; };
 		4A9B10C411F239377074C60F /* MediaRemoteAdapterParseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7D737271DCE4CAC28CEAA9 /* MediaRemoteAdapterParseTests.swift */; };
+		50995D2AF8167692C0077593 /* AudioVisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF54E44F6AEFC8D36975682 /* AudioVisualizerView.swift */; };
 		5471BDD6A041D659CC3B7555 /* CacheServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6606687BCF9E1498E0A1CE79 /* CacheServiceTests.swift */; };
 		55BD9ECD9CA4D545DFA6B875 /* mediaremote-adapter.pl in Resources */ = {isa = PBXBuildFile; fileRef = DC792954E7D14A2D1391C969 /* mediaremote-adapter.pl */; };
 		59BC7D098303753E227F2E99 /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */; };
 		5D863AFCF53A06DEBC27F78F /* AlbumNormaliseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7380D7C9C6C6CECE85339D18 /* AlbumNormaliseTests.swift */; };
 		5FC806B86E3F3A0C152DE9BA /* QueryEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A662AF3CBAFD3B72A35836 /* QueryEncoding.swift */; };
+		622B2F7D6067897C79067854 /* AudioVisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF54E44F6AEFC8D36975682 /* AudioVisualizerView.swift */; };
 		63C5793D3E0BCDBE450F898E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E00961C407B21D13CF45EB9E /* Assets.xcassets */; };
 		659A439E391453E04A706FF1 /* APITrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */; };
 		66E01F35F81C6237DC3A3FEF /* ArtworkSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C741F6BBF59669CF69856B6 /* ArtworkSaver.swift */; };
@@ -138,6 +140,7 @@
 		36C5EFF085D5F70BD16C3644 /* ScrobbleNowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleNowApp.swift; sourceTree = "<group>"; };
 		3A1A949550ADA4678020597F /* MediaRemoteAdapterSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaRemoteAdapterSource.swift; sourceTree = "<group>"; };
 		3CC5E069331060B9F3116E81 /* ScrobbleCacheEntryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleCacheEntryTests.swift; sourceTree = "<group>"; };
+		3DF54E44F6AEFC8D36975682 /* AudioVisualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioVisualizerView.swift; sourceTree = "<group>"; };
 		3EB4C530B436DAC304D43681 /* LastFMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastFMService.swift; sourceTree = "<group>"; };
 		402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDiscoveryService.swift; sourceTree = "<group>"; };
 		475214BADE0D94B22F53D601 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -219,6 +222,7 @@
 				FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */,
 				62A322D42DACEDAB25ED1D4F /* AdapterSettingsRow.swift */,
 				8CC0CBEE725DC8AF8080E89A /* AlbumDetailView.swift */,
+				3DF54E44F6AEFC8D36975682 /* AudioVisualizerView.swift */,
 				F3A424FB0DA92E827E33FDB9 /* CollageView.swift */,
 				56AD0226D56AC9B449D3CBE4 /* HistoryView.swift */,
 				D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */,
@@ -510,6 +514,7 @@
 				95C52601CE30BA78852058F8 /* AlbumDiscoveryService.swift in Sources */,
 				DFAE68C13FF092F59EA2C1D9 /* AlbumNormalisation.swift in Sources */,
 				A39C0B73286554CC861E5268 /* ArtworkSaver.swift in Sources */,
+				50995D2AF8167692C0077593 /* AudioVisualizerView.swift in Sources */,
 				2D8CF4034D649388E7205462 /* CacheService.swift in Sources */,
 				B31F0CA9754B15949A380E5D /* CollageView.swift in Sources */,
 				FE6EB7BCD3CB3413049A8DA6 /* CollageViewModel.swift in Sources */,
@@ -580,6 +585,7 @@
 				A3BCFFCFA5E125BF09C74B4E /* AlbumDiscoveryService.swift in Sources */,
 				6B2B61EE009C8848E813AC73 /* AlbumNormalisation.swift in Sources */,
 				66E01F35F81C6237DC3A3FEF /* ArtworkSaver.swift in Sources */,
+				622B2F7D6067897C79067854 /* AudioVisualizerView.swift in Sources */,
 				77A86A4F46081352DA4AA51F /* CacheService.swift in Sources */,
 				ACB62FE43B215150A9B93041 /* CollageView.swift in Sources */,
 				CF56914916AA5B8CC433D86F /* CollageViewModel.swift in Sources */,

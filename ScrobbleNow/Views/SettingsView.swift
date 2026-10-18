@@ -148,6 +148,7 @@ struct SettingsView: View {
             sectionHeader("Appearance")
             #if os(macOS)
             settingsToggle("Show track in menu bar", isOn: $settings.showTitleInMenuBar)
+            settingsToggle("Artwork visualiser (experimental)", isOn: $settings.showAudioVisualizer)
             #endif
 
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 5), spacing: 0) {
