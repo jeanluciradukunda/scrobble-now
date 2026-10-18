@@ -24,7 +24,8 @@ final class MediaRemoteAdapterSource {
     }
 
     private var process: Process?
-    private var isStopping = false
+    /// Bumped by every start and stop, so a test or backoff task from an earlier start cannot launch a stream.
+    private var generation = 0
     private var quickFailures = 0
     private var startedAt = Date.distantPast
     private var terminationObserver: NSObjectProtocol?
@@ -37,7 +38,8 @@ final class MediaRemoteAdapterSource {
             status = .unavailable
             return
         }
-        isStopping = false
+        generation += 1
+        let gen = generation
         quickFailures = 0
         status = .starting
         terminationObserver = NotificationCenter.default.addObserver(
@@ -47,9 +49,9 @@ final class MediaRemoteAdapterSource {
         }
         Task {
             let passed = await Self.runTest(paths)
-            guard !isStopping else { return }
+            guard gen == generation else { return }
             if passed {
-                launchStream(paths)
+                launchStream(paths, generation: gen)
             } else {
                 status = .unavailable
             }
@@ -57,7 +59,7 @@ final class MediaRemoteAdapterSource {
     }
 
     func stop() {
-        isStopping = true
+        generation += 1
         process?.terminate()
         process = nil
         if let terminationObserver { NotificationCenter.default.removeObserver(terminationObserver) }
@@ -65,7 +67,7 @@ final class MediaRemoteAdapterSource {
         status = .off
     }
 
-    private func launchStream(_ paths: Paths) {
+    private func launchStream(_ paths: Paths, generation gen: Int) {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
         // Artwork is several hundred KB of base64 per line; the scrobbler already fetches artwork from Last.fm.
@@ -84,13 +86,14 @@ final class MediaRemoteAdapterSource {
             for line in lines.append(data) {
                 let now = Date()
                 Task { @MainActor in
-                    guard let self, let update = Self.parse(line: line, now: now, appName: self.appName) else { return }
+                    guard let self, gen == self.generation,
+                          let update = Self.parse(line: line, now: now, appName: self.appName) else { return }
                     self.onUpdate?(update)
                 }
             }
         }
-        process.terminationHandler = { [weak self] _ in
-            Task { @MainActor in self?.streamEnded(paths) }
+        process.terminationHandler = { [weak self] ended in
+            Task { @MainActor in self?.streamEnded(paths, generation: gen, process: ended) }
         }
 
         do {
@@ -103,9 +106,9 @@ final class MediaRemoteAdapterSource {
         }
     }
 
-    private func streamEnded(_ paths: Paths) {
+    private func streamEnded(_ paths: Paths, generation gen: Int, process ended: Process) {
+        guard gen == generation, ended === process else { return }
         process = nil
-        guard !isStopping else { return }
         if Date().timeIntervalSince(startedAt) < 10 {
             quickFailures += 1
         } else {
@@ -119,8 +122,8 @@ final class MediaRemoteAdapterSource {
         let delay = min(60, pow(2, Double(quickFailures)))
         Task {
             try? await Task.sleep(for: .seconds(delay))
-            guard !isStopping else { return }
-            launchStream(paths)
+            guard gen == generation else { return }
+            launchStream(paths, generation: gen)
         }
     }
 

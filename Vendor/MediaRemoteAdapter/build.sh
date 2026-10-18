@@ -35,6 +35,7 @@ mkdir -p "$FRAMEWORK/Versions/A/Resources" "$FRAMEWORK/Versions/A/Headers" "$EXE
   -framework Foundation -framework AppKit -framework UniformTypeIdentifiers \
   "${SOURCES[@]}" -o "$BINARY")
 cp "$ROOT/include/MediaRemoteAdapter.h" "$FRAMEWORK/Versions/A/Headers/"
+cp "$ROOT/LICENSE" "$FRAMEWORK/Versions/A/Resources/LICENSE"
 cat > "$FRAMEWORK/Versions/A/Resources/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
