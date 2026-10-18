@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		017C8A218A693DE4F03BEE9B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E00961C407B21D13CF45EB9E /* Assets.xcassets */; };
+		01B7DEA15D85BEA35D7F192A /* MediaRemoteAdapterSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1A949550ADA4678020597F /* MediaRemoteAdapterSource.swift */; };
 		0411D4BD98B0A692B918C738 /* MusicBrainzService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7414E9B734282F6B342C5A /* MusicBrainzService.swift */; };
 		04631386DFDB792CA8ED03F8 /* AlbumDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC0CBEE725DC8AF8080E89A /* AlbumDetailView.swift */; };
 		04ADD9F83A79D5A6A494ABBE /* LastFMRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A2E41BA9585185F71B82EB /* LastFMRequestTests.swift */; };
@@ -29,6 +30,7 @@
 		25D07AA16642575B11FCD564 /* WikidataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */; };
 		26EF427488E4AB61974433F2 /* ScrobbleCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF9BDB1C50EA86588165F202 /* ScrobbleCache.swift */; };
 		292661EC3FD2C9201A251D7C /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA730E7257F76B5CCDFE472 /* Album.swift */; };
+		2C8948207946A3152F3A7A1E /* AdapterSettingsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A322D42DACEDAB25ED1D4F /* AdapterSettingsRow.swift */; };
 		2D2B5386EB0355DB8D1D2DA7 /* SystemScrobbleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254BEDF3534B4D7781A96A81 /* SystemScrobbleService.swift */; };
 		2D8CF4034D649388E7205462 /* CacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB479C6E709FA48840511EBB /* CacheService.swift */; };
 		31B182C7ED234C69123A39AB /* YouTubeMusicFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BF1538A622E83C2C86506E /* YouTubeMusicFilter.swift */; };
@@ -38,6 +40,8 @@
 		3F547B81768F66BD278BFAEC /* ScrobbleCacheEntryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC5E069331060B9F3116E81 /* ScrobbleCacheEntryTests.swift */; };
 		42B1D520A0213B02A7650386 /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE4230F732B9F8257B84158 /* NowPlayingView.swift */; };
 		45B588A2405363982E2243CF /* ScrobbleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0977F9C959BD74B3EA1A2458 /* ScrobbleEngine.swift */; };
+		4A9B10C411F239377074C60F /* MediaRemoteAdapterParseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7D737271DCE4CAC28CEAA9 /* MediaRemoteAdapterParseTests.swift */; };
+		55BD9ECD9CA4D545DFA6B875 /* mediaremote-adapter.pl in Resources */ = {isa = PBXBuildFile; fileRef = DC792954E7D14A2D1391C969 /* mediaremote-adapter.pl */; };
 		59BC7D098303753E227F2E99 /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */; };
 		5D863AFCF53A06DEBC27F78F /* AlbumNormaliseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7380D7C9C6C6CECE85339D18 /* AlbumNormaliseTests.swift */; };
 		5FC806B86E3F3A0C152DE9BA /* QueryEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A662AF3CBAFD3B72A35836 /* QueryEncoding.swift */; };
@@ -116,10 +120,12 @@
 		195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITrackerTests.swift; sourceTree = "<group>"; };
 		1B404CD40FB787F537581773 /* ScrobbleQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleQueueTests.swift; sourceTree = "<group>"; };
 		254BEDF3534B4D7781A96A81 /* SystemScrobbleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemScrobbleService.swift; sourceTree = "<group>"; };
+		2B7D737271DCE4CAC28CEAA9 /* MediaRemoteAdapterParseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaRemoteAdapterParseTests.swift; sourceTree = "<group>"; };
 		2BE4230F732B9F8257B84158 /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
 		2D9FC698960908EA651FD429 /* ScrobbleNow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScrobbleNow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		345CC51A65F8483972FCC5BB /* SecretSeedingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretSeedingTests.swift; sourceTree = "<group>"; };
 		36C5EFF085D5F70BD16C3644 /* ScrobbleNowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleNowApp.swift; sourceTree = "<group>"; };
+		3A1A949550ADA4678020597F /* MediaRemoteAdapterSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaRemoteAdapterSource.swift; sourceTree = "<group>"; };
 		3CC5E069331060B9F3116E81 /* ScrobbleCacheEntryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleCacheEntryTests.swift; sourceTree = "<group>"; };
 		3EB4C530B436DAC304D43681 /* LastFMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastFMService.swift; sourceTree = "<group>"; };
 		402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDiscoveryService.swift; sourceTree = "<group>"; };
@@ -131,6 +137,7 @@
 		56AD0226D56AC9B449D3CBE4 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		599193E3C13DA0BF15B628B4 /* Secrets.example.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Secrets.example.plist; sourceTree = "<group>"; };
 		5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscogsService.swift; sourceTree = "<group>"; };
+		62A322D42DACEDAB25ED1D4F /* AdapterSettingsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdapterSettingsRow.swift; sourceTree = "<group>"; };
 		6AAB98902C5909700E29F6F7 /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; sourceTree = "<group>"; };
 		6B7933EA834B896C87C1F7BA /* CollageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageViewModel.swift; sourceTree = "<group>"; };
 		714C7CFE00B62B5BB0005651 /* ScrobbleEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleEngineTests.swift; sourceTree = "<group>"; };
@@ -153,6 +160,7 @@
 		D8C98113A7ABDD5E7BDF1F23 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		DB67D6E70719959ED127C567 /* iTunesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iTunesService.swift; sourceTree = "<group>"; };
 		DB7414E9B734282F6B342C5A /* MusicBrainzService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicBrainzService.swift; sourceTree = "<group>"; };
+		DC792954E7D14A2D1391C969 /* mediaremote-adapter.pl */ = {isa = PBXFileReference; lastKnownFileType = text.script.perl; path = "mediaremote-adapter.pl"; sourceTree = "<group>"; };
 		E00961C407B21D13CF45EB9E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E2A662AF3CBAFD3B72A35836 /* QueryEncoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryEncoding.swift; sourceTree = "<group>"; };
 		E95E4954D6A90905F67E61A2 /* ScrobbleNowiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleNowiOSApp.swift; sourceTree = "<group>"; };
@@ -193,6 +201,7 @@
 			isa = PBXGroup;
 			children = (
 				FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */,
+				62A322D42DACEDAB25ED1D4F /* AdapterSettingsRow.swift */,
 				8CC0CBEE725DC8AF8080E89A /* AlbumDetailView.swift */,
 				F3A424FB0DA92E827E33FDB9 /* CollageView.swift */,
 				56AD0226D56AC9B449D3CBE4 /* HistoryView.swift */,
@@ -213,6 +222,15 @@
 				E2A662AF3CBAFD3B72A35836 /* QueryEncoding.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		4CA5DFC6622F36CFE0EED975 /* bin */ = {
+			isa = PBXGroup;
+			children = (
+				DC792954E7D14A2D1391C969 /* mediaremote-adapter.pl */,
+			);
+			name = bin;
+			path = Vendor/MediaRemoteAdapter/bin;
 			sourceTree = "<group>";
 		};
 		536664214AD2BBA5A9CCA5C6 /* Models */ = {
@@ -248,6 +266,7 @@
 				195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */,
 				F8A2E41BA9585185F71B82EB /* LastFMRequestTests.swift */,
 				F074F1740C761909CC599214 /* LastFMResponseTests.swift */,
+				2B7D737271DCE4CAC28CEAA9 /* MediaRemoteAdapterParseTests.swift */,
 				06298860519D35054AB31DE9 /* PodcastFilterTests.swift */,
 				3CC5E069331060B9F3116E81 /* ScrobbleCacheEntryTests.swift */,
 				714C7CFE00B62B5BB0005651 /* ScrobbleEngineTests.swift */,
@@ -262,6 +281,7 @@
 		A6619675D0217DC5EF5B66B1 = {
 			isa = PBXGroup;
 			children = (
+				4CA5DFC6622F36CFE0EED975 /* bin */,
 				1F1B0658793DE120569C0A07 /* ScrobbleNow */,
 				15F92CD74F6AABC86282D8FD /* ScrobbleNowiOS */,
 				A0E25DD0A2D5BAF1A827AA3F /* ScrobbleNowTests */,
@@ -297,6 +317,7 @@
 				DB67D6E70719959ED127C567 /* iTunesService.swift */,
 				F4FE681000BC36994A602D83 /* KeychainService.swift */,
 				3EB4C530B436DAC304D43681 /* LastFMService.swift */,
+				3A1A949550ADA4678020597F /* MediaRemoteAdapterSource.swift */,
 				73E507B8BC0D0152B1CB879A /* MediaRemoteBridge.swift */,
 				88F6052BE4C62C9BBD87485D /* MetricsService.swift */,
 				DB7414E9B734282F6B342C5A /* MusicBrainzService.swift */,
@@ -335,6 +356,7 @@
 			buildConfigurationList = B53B2EC4211339EE97893AC8 /* Build configuration list for PBXNativeTarget "ScrobbleNow" */;
 			buildPhases = (
 				605740C98EEDA1C50C1330AC /* Sources */,
+				BE93A4D8CC660D7B55738AC9 /* Build MediaRemoteAdapter */,
 				1F95BCBDEEA05A7CFCACB166 /* Resources */,
 			);
 			buildRules = (
@@ -416,6 +438,7 @@
 			files = (
 				017C8A218A693DE4F03BEE9B /* Assets.xcassets in Resources */,
 				C310ACE2A49021CB3CA8EFDF /* Secrets.example.plist in Resources */,
+				55BD9ECD9CA4D545DFA6B875 /* mediaremote-adapter.pl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -429,6 +452,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		BE93A4D8CC660D7B55738AC9 /* Build MediaRemoteAdapter */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build MediaRemoteAdapter";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$SRCROOT/Vendor/MediaRemoteAdapter/build.sh\" \"$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH\" \"$TARGET_BUILD_DIR/$EXECUTABLE_FOLDER_PATH\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		428653419688A2CEA639DDC3 /* Sources */ = {
@@ -482,6 +527,7 @@
 				5D863AFCF53A06DEBC27F78F /* AlbumNormaliseTests.swift in Sources */,
 				04ADD9F83A79D5A6A494ABBE /* LastFMRequestTests.swift in Sources */,
 				E639095D8ADEFD2DA475E3E7 /* LastFMResponseTests.swift in Sources */,
+				4A9B10C411F239377074C60F /* MediaRemoteAdapterParseTests.swift in Sources */,
 				E3DF95B2154AFCE503186E97 /* PodcastFilterTests.swift in Sources */,
 				3F547B81768F66BD278BFAEC /* ScrobbleCacheEntryTests.swift in Sources */,
 				C015AEE9B0C91E32E5BFF56C /* ScrobbleEngineTests.swift in Sources */,
@@ -498,6 +544,7 @@
 			files = (
 				7F898C5AA1FE6904631D66EE /* APITracker.swift in Sources */,
 				59BC7D098303753E227F2E99 /* AccentColor.swift in Sources */,
+				2C8948207946A3152F3A7A1E /* AdapterSettingsRow.swift in Sources */,
 				292661EC3FD2C9201A251D7C /* Album.swift in Sources */,
 				05BA47968FBBFEC344CF9800 /* AlbumDetailView.swift in Sources */,
 				A3BCFFCFA5E125BF09C74B4E /* AlbumDiscoveryService.swift in Sources */,
@@ -511,6 +558,7 @@
 				A78C2813884ABDE0883B8163 /* LastFMService.swift in Sources */,
 				8FAECCD67931F57234F4F61D /* LibraryView.swift in Sources */,
 				0BA3EE29324374EE09B50D41 /* LibraryViewModel.swift in Sources */,
+				01B7DEA15D85BEA35D7F192A /* MediaRemoteAdapterSource.swift in Sources */,
 				D71A9DB3E05F1807BE21160C /* MediaRemoteBridge.swift in Sources */,
 				DD135A1C4DAF72925830D6F7 /* MetricsService.swift in Sources */,
 				0411D4BD98B0A692B918C738 /* MusicBrainzService.swift in Sources */,
@@ -574,6 +622,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YNB3ADRMFC;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Scrobble Now";
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -736,6 +785,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YNB3ADRMFC;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Scrobble Now";
 				INFOPLIST_KEY_LSUIElement = YES;

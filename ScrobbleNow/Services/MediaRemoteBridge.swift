@@ -1,6 +1,7 @@
 #if os(macOS)
-import Foundation
 import AppKit
+import Combine
+import Foundation
 
 /// System-wide Now Playing detection — supports multiple simultaneous sources.
 @MainActor
@@ -16,7 +17,13 @@ class MediaRemoteBridge: ObservableObject {
 
     var onTrackChange: ((SystemNowPlaying?) -> Void)?
 
+    @Published private(set) var adapterStatus: AdapterStatus = .off
+
     private var pollTimer: Timer?
+    private let adapter = MediaRemoteAdapterSource()
+    private var adapterBundleId: String?
+    private var settingsObserver: AnyCancellable?
+    private var adapterIsHealthy: Bool { adapterStatus == .running }
 
     // MediaRemote framework
     private var handle: UnsafeMutableRawPointer?
@@ -84,7 +91,9 @@ class MediaRemoteBridge: ObservableObject {
         pollTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self else { return }
-                if self.mediaRemoteIsActive {
+                if self.adapterIsHealthy {
+                    // The adapter streams every player; the polls would only duplicate it.
+                } else if self.mediaRemoteIsActive {
                     // MediaRemote works — use it exclusively
                     self.pollMediaRemote()
                 } else {
@@ -96,12 +105,53 @@ class MediaRemoteBridge: ObservableObject {
         }
 
         print("[NowPlaying] ✓ Listening (Spotify + Music + \(mediaRemoteIsActive ? "MediaRemote" : "Browser scanning"))")
+
+        setUpAdapter()
     }
 
     func stopListening() {
         DistributedNotificationCenter.default().removeObserver(self)
         NotificationCenter.default.removeObserver(self)
         pollTimer?.invalidate()
+        settingsObserver = nil
+        adapter.stop()
+    }
+
+    // MARK: - mediaremote-adapter (opt-in)
+
+    private func setUpAdapter() {
+        adapter.appName = { [weak self] in self?.appName(for: $0) ?? $0 }
+        adapter.onStatusChange = { [weak self] in self?.adapterStatus = $0 }
+        adapter.onUpdate = { [weak self] in self?.handleAdapterUpdate($0) }
+        applyAdapterSetting()
+        settingsObserver = SettingsManager.shared.objectWillChange.sink { [weak self] _ in
+            // objectWillChange fires before the new value is stored.
+            DispatchQueue.main.async { self?.applyAdapterSetting() }
+        }
+    }
+
+    private func applyAdapterSetting() {
+        let wanted = SettingsManager.shared.useMediaRemoteAdapter
+        if wanted, adapterStatus == .off {
+            adapter.start()
+        } else if !wanted, adapterStatus != .off {
+            adapter.stop()
+        }
+    }
+
+    private func handleAdapterUpdate(_ update: AdapterUpdate) {
+        switch update {
+        case .track(let track):
+            adapterBundleId = track.sourceBundleId
+            if track.isPlaying {
+                updateSource(track)
+            } else {
+                if activeSources[track.sourceBundleId] == nil { activeSources[track.sourceBundleId] = track }
+                markPaused(track.sourceBundleId)
+            }
+        case .nothingPlaying:
+            if let adapterBundleId { markPaused(adapterBundleId) }
+        }
     }
 
     // MARK: - Spotify
@@ -499,7 +549,7 @@ class MediaRemoteBridge: ObservableObject {
     }
 
     func pollMediaRemote() {
-        guard let getInfo = _getNowPlayingInfo else { return }
+        guard !adapterIsHealthy, let getInfo = _getNowPlayingInfo else { return }
 
         getInfo(DispatchQueue.main) { [weak self] cfDict in
             guard let info = cfDict as NSDictionary as? [String: Any] else { return }
@@ -534,8 +584,8 @@ class MediaRemoteBridge: ObservableObject {
         let rawTitle = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String ?? ""
         guard !rawTitle.isEmpty else { return }
 
-        var artist = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? ""
-        var title = rawTitle
+        let artist = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? ""
+        let title = Self.cleanedTitle(rawTitle, artist: artist)
         let album = info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String ?? ""
         let duration = info["kMRMediaRemoteNowPlayingInfoDuration"] as? Double ?? 0
         let elapsed = info["kMRMediaRemoteNowPlayingInfoElapsedTime"] as? Double ?? 0
@@ -547,28 +597,6 @@ class MediaRemoteBridge: ObservableObject {
            let existing = activeSources[bundleId],
            Date().timeIntervalSince(existing.timestamp) < 10 {
             return
-        }
-
-        // If title looks like "Artist - Track (official video)" and we have a separate artist field,
-        // the title might contain redundant artist info — clean it up
-        if !artist.isEmpty && title.lowercased().hasPrefix(artist.lowercased()) {
-            // Title is "Artist - Actual Track Name..." — extract just the track
-            let afterArtist = title.dropFirst(artist.count)
-            let separators = [" - ", " – ", " — "]
-            for sep in separators {
-                if afterArtist.hasPrefix(sep) {
-                    title = String(afterArtist.dropFirst(sep.count))
-                    break
-                }
-            }
-        }
-
-        // Strip common YouTube suffixes
-        for suffix in [" (official video)", " (official audio)", " (official music video)",
-                       " (lyric video)", " (lyrics)", " (audio)", " (visualizer)", " (mv)"] {
-            if title.lowercased().hasSuffix(suffix) {
-                title = String(title.dropLast(suffix.count))
-            }
         }
 
         var artwork: PlatformImage?
@@ -585,6 +613,24 @@ class MediaRemoteBridge: ObservableObject {
         )
 
         updateSource(track)
+    }
+
+    /// Strips a leading "Artist - " and common YouTube suffixes from a title that has a separate artist field.
+    nonisolated static func cleanedTitle(_ rawTitle: String, artist: String) -> String {
+        var title = rawTitle
+        if !artist.isEmpty && title.lowercased().hasPrefix(artist.lowercased()) {
+            let afterArtist = title.dropFirst(artist.count)
+            for sep in [" - ", " – ", " — "] where afterArtist.hasPrefix(sep) {
+                title = String(afterArtist.dropFirst(sep.count))
+                break
+            }
+        }
+        for suffix in [" (official video)", " (official audio)", " (official music video)",
+                       " (lyric video)", " (lyrics)", " (audio)", " (visualizer)", " (mv)"]
+        where title.lowercased().hasSuffix(suffix) {
+            title = String(title.dropLast(suffix.count))
+        }
+        return title
     }
 
     // MARK: - Multi-source Management
