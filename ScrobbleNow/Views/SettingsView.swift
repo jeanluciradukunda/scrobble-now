@@ -229,29 +229,7 @@ struct SettingsView: View {
             // API Keys
             sectionHeader("API Keys")
 
-            ForEach(KeychainService.Key.allCases.filter(\.isUserEditable), id: \.rawValue) { key in
-                HStack {
-                    Text(key.displayName)
-                        .font(.system(size: 9))
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    let val = KeychainService.get(key) ?? ""
-                    if val.isEmpty {
-                        Text("Missing")
-                            .font(.system(size: 8, design: .monospaced))
-                            .foregroundStyle(.red)
-                    } else {
-                        HStack(spacing: 4) {
-                            Text("•••••••")
-                                .font(.system(size: 8, design: .monospaced))
-                                .foregroundStyle(.tertiary)
-                            Circle()
-                                .fill(.green)
-                                .frame(width: 5, height: 5)
-                        }
-                    }
-                }
-            }
+            APIKeysSection()
 
             Divider().opacity(0.2)
 

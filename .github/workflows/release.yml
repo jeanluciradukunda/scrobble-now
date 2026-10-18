@@ -21,6 +21,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check Last.fm secrets
+        env:
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          LASTFM_SHARED_SECRET: ${{ secrets.LASTFM_SHARED_SECRET }}
+        run: |
+          for name in LASTFM_API_KEY LASTFM_SHARED_SECRET; do
+            value="${!name}"
+            if [ -z "$value" ] || [[ "$value" == YOUR_*_HERE ]]; then
+              echo "::error::Repository secret $name is missing or a placeholder; a release without it cannot talk to Last.fm."
+              exit 1
+            fi
+          done
+
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
 
@@ -46,9 +59,15 @@ jobs:
           brew install xcodegen || true
           xcodegen generate
 
-      - name: Create dummy Secrets.plist
+      - name: Write Secrets.plist from repository secrets
+        env:
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          LASTFM_SHARED_SECRET: ${{ secrets.LASTFM_SHARED_SECRET }}
         run: |
-          cp ScrobbleNow/Resources/Secrets.example.plist ScrobbleNow/Resources/Secrets.plist
+          plist=ScrobbleNow/Resources/Secrets.plist
+          /usr/libexec/PlistBuddy -c "Add :LASTFM_API_KEY string $LASTFM_API_KEY" \
+            -c "Add :LASTFM_SHARED_SECRET string $LASTFM_SHARED_SECRET" \
+            -c "Add :DISCOGS_TOKEN string" "$plist"
 
       - name: Set version in project.yml
         run: |
