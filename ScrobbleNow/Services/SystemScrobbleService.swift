@@ -84,7 +84,7 @@ class SystemScrobbleService: ObservableObject {
         }
 
         // Update Now Playing on Last.fm
-        if let track = newTrack, isEnabled, isConnectorEnabled(for: track.sourceBundleId) {
+        if let track = newTrack, canScrobble(track) {
             Task {
                 try? await lastfm.updateNowPlaying(
                     artist: track.artist,
@@ -178,6 +178,12 @@ class SystemScrobbleService: ObservableObject {
 
     private func canScrobble(_ track: SystemNowPlaying) -> Bool {
         isEnabled && isConnectorEnabled(for: track.sourceBundleId)
+            && !(settings.filterPodcasts && Self.isPodcastApp(track.sourceBundleId))
+    }
+
+    nonisolated static func isPodcastApp(_ bundleId: String) -> Bool {
+        let id = bundleId.lowercased()
+        return ["podcast", "overcast", "pocketcast", "castro"].contains { id.contains($0) }
     }
 
     // MARK: - Retry Timer
@@ -364,16 +370,8 @@ class SystemScrobbleService: ObservableObject {
         guard !bundleId.isEmpty else { return }
         guard !connectors.contains(where: { $0.bundleId == bundleId }) else { return }
 
-        // Auto-disable podcasts
-        let isPodcast = bundleId.contains("podcast") || bundleId.contains("overcast") || bundleId.contains("pocketcast")
-
-        let connector = AppConnector(
-            bundleId: bundleId,
-            displayName: name,
-            enabled: !isPodcast
-        )
-        connectors.append(connector)
-        print("[Connector] Discovered: \(name) (\(bundleId)) — \(isPodcast ? "disabled (podcast)" : "enabled")")
+        connectors.append(AppConnector(bundleId: bundleId, displayName: name, enabled: true))
+        print("[Connector] Discovered: \(name) (\(bundleId))")
     }
 
     private func loadConnectors() {
