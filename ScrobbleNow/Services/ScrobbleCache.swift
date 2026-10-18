@@ -112,13 +112,10 @@ actor ScrobbleCache {
     // MARK: - Stats
 
     func pendingCount() -> Int { loadPending().count }
-    func historyCount() -> Int { loadHistory().count }
     func successCount() -> Int { loadHistory().filter { $0.succeeded == true }.count }
-    func failedCount() -> Int { loadHistory().filter { $0.succeeded == false }.count }
 
     // MARK: - Clear
 
-    func clearPending() { savePending([]) }
     func clearHistory() { saveHistory([]) }
 
     // MARK: - Persistence

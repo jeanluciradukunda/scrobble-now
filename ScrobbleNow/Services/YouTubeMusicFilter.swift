@@ -250,13 +250,4 @@ actor YouTubeMusicFilter {
 
         return MusicCheckResult(isMusic: false, artist: nil, track: nil, album: nil, durationSeconds: nil)
     }
-
-    /// Clear old cache entries (call periodically)
-    func cleanCache() {
-        if cache.count > 200 {
-            // Remove oldest half
-            let keys = Array(cache.keys.prefix(100))
-            for key in keys { cache.removeValue(forKey: key) }
-        }
-    }
 }
