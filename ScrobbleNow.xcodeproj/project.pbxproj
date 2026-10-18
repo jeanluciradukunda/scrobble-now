@@ -101,6 +101,7 @@
 		ECF8E4C59234BF07B8987CCB /* SecretSeedingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CC51A65F8483972FCC5BB /* SecretSeedingTests.swift */; };
 		F308F446FD29717A2B7D0B2C /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCD2BD832C94BD88F4F7299 /* HistoryViewModel.swift */; };
 		F7CB61806C99C01FCB8E9861 /* NowPlayingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */; };
+		FD71D4BAFD749D48EAC23B4C /* LastFMLoveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC004379850AB0044CFC78A0 /* LastFMLoveTests.swift */; };
 		FE6EB7BCD3CB3413049A8DA6 /* CollageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B7933EA834B896C87C1F7BA /* CollageViewModel.swift */; };
 /* End PBXBuildFile section */
 
@@ -176,6 +177,7 @@
 		F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WikidataService.swift; sourceTree = "<group>"; };
 		F8A2E41BA9585185F71B82EB /* LastFMRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastFMRequestTests.swift; sourceTree = "<group>"; };
 		FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentColor.swift; sourceTree = "<group>"; };
+		FC004379850AB0044CFC78A0 /* LastFMLoveTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastFMLoveTests.swift; sourceTree = "<group>"; };
 		FD12B4CB16C74BEFCD7E7473 /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
 		FD1B44005A77903F50E51973 /* SparklineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparklineView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -272,6 +274,7 @@
 				195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */,
 				D1433EF6AAB086474129AD51 /* BridgeAnnounceTests.swift */,
 				6606687BCF9E1498E0A1CE79 /* CacheServiceTests.swift */,
+				FC004379850AB0044CFC78A0 /* LastFMLoveTests.swift */,
 				F8A2E41BA9585185F71B82EB /* LastFMRequestTests.swift */,
 				F074F1740C761909CC599214 /* LastFMResponseTests.swift */,
 				2B7D737271DCE4CAC28CEAA9 /* MediaRemoteAdapterParseTests.swift */,
@@ -536,6 +539,7 @@
 				5D863AFCF53A06DEBC27F78F /* AlbumNormaliseTests.swift in Sources */,
 				98916A9893E2FC76FF52183D /* BridgeAnnounceTests.swift in Sources */,
 				5471BDD6A041D659CC3B7555 /* CacheServiceTests.swift in Sources */,
+				FD71D4BAFD749D48EAC23B4C /* LastFMLoveTests.swift in Sources */,
 				04ADD9F83A79D5A6A494ABBE /* LastFMRequestTests.swift in Sources */,
 				E639095D8ADEFD2DA475E3E7 /* LastFMResponseTests.swift in Sources */,
 				4A9B10C411F239377074C60F /* MediaRemoteAdapterParseTests.swift in Sources */,
