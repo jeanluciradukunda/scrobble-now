@@ -4,8 +4,8 @@ options:
   deploymentTarget:
     macOS: "14.0"
     iOS: "17.0"
-  xcodeVersion: "16.0"
-  minimumXcodeGenVersion: "2.0"
+  xcodeVersion: "26.2"
+  minimumXcodeGenVersion: "2.45.3"
 
 settings:
   base:
