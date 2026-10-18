@@ -31,11 +31,12 @@ class SystemScrobbleService: ObservableObject {
 
     // MARK: - Tracking State
 
-    private var trackStartTime: Date?
-    private var accumulatedPlayTime: TimeInterval = 0
-    private var lastTickTime: Date?
+    private var engine = ScrobbleEngine()
     private var progressTimer: Timer?
-    private var lastScrobbledTrack: String = "" // "artist|title" to prevent double scrobble
+    private var rules: ScrobbleRules {
+        ScrobbleRules(thresholdPercent: settings.scrobbleThresholdPercent,
+                      minTrackDuration: TimeInterval(settings.minTrackDuration))
+    }
 
     // MARK: - Connector Toggles (per-app)
 
@@ -68,39 +69,11 @@ class SystemScrobbleService: ObservableObject {
     // MARK: - Track Change Handler
 
     private func handleTrackChange(_ newTrack: SystemNowPlaying?) {
-        let oldTrack = currentTrack
-
-        // If there was a previous track and we hadn't scrobbled it yet,
-        // force scrobble if we've listened for at least 30 seconds
-        if let old = oldTrack, !didScrobbleCurrent, accumulatedPlayTime >= 30 {
-            checkAndScrobble(track: old, force: true)
-        }
-
+        let scrobbles = engine.trackChanged(to: newTrack, now: Date(), rules: rules, isAllowed: canScrobble)
         currentTrack = newTrack
         isPlaying = newTrack?.isPlaying ?? false
-        didScrobbleCurrent = false
-        trackStartTime = Date()
-        lastTickTime = Date()
-
-        // If the track is already mid-playback (app restart, or source reports elapsed time),
-        // seed accumulated time from the track's elapsed position
-        if let track = newTrack, track.elapsed > 0 {
-            accumulatedPlayTime = track.elapsed
-        } else {
-            accumulatedPlayTime = 0
-        }
-
-        // Update progress immediately
-        if let track = newTrack {
-            let threshold = scrobbleThreshold(for: track)
-            scrobbleProgress = threshold > 0 ? min(1, accumulatedPlayTime / threshold) : 0
-            // If we've already passed the threshold (e.g., app restarted late into a song)
-            if accumulatedPlayTime >= threshold {
-                checkAndScrobble(track: track, force: true)
-            }
-        } else {
-            scrobbleProgress = 0
-        }
+        syncEngineState()
+        scrobbles.forEach(submit)
 
         // Fetch artwork from Last.fm if the track doesn't have any
         if let track = newTrack, track.artwork == nil, !track.artist.isEmpty {
@@ -137,34 +110,14 @@ class SystemScrobbleService: ObservableObject {
     }
 
     private func tick() {
-        // Sync playing state from bridge
         isPlaying = bridge.isPlaying
-
-        guard let track = currentTrack, isPlaying, !didScrobbleCurrent else {
-            lastTickTime = Date()
-            return
-        }
-
-        // Accumulate play time
-        if let lastTick = lastTickTime {
-            let delta = Date().timeIntervalSince(lastTick)
-            if delta < 3 { // sanity check — don't count big gaps (sleep, etc.)
-                accumulatedPlayTime += delta
-            }
-        }
-        lastTickTime = Date()
-
-        // Update progress
-        let threshold = scrobbleThreshold(for: track)
-        if threshold > 0 {
-            scrobbleProgress = min(1, accumulatedPlayTime / threshold)
-        }
+        let scrobbles = engine.tick(isPlaying: isPlaying, now: Date(), rules: rules, isAllowed: canScrobble)
 
         // Update the track's elapsed time for the UI progress bar
-        if track.duration > 0 {
+        if let track = currentTrack, isPlaying, !didScrobbleCurrent, track.duration > 0 {
             let updatedTrack = SystemNowPlaying(
                 title: track.title, artist: track.artist, album: track.album,
-                duration: track.duration, elapsed: min(accumulatedPlayTime, track.duration),
+                duration: track.duration, elapsed: min(engine.accumulatedPlayTime, track.duration),
                 playbackRate: track.playbackRate, artwork: track.artwork,
                 sourceBundleId: track.sourceBundleId, sourceAppName: track.sourceAppName,
                 timestamp: track.timestamp
@@ -176,15 +129,22 @@ class SystemScrobbleService: ObservableObject {
             }
         }
 
-        // Check if we should scrobble
-        if accumulatedPlayTime >= threshold && !didScrobbleCurrent {
-            checkAndScrobble(track: track, force: true)
-        }
+        syncEngineState()
+        scrobbles.forEach(submit)
 
         // Also refresh the bridge data periodically for elapsed time updates
         #if os(macOS)
         bridge.pollMediaRemote()
         #endif
+    }
+
+    private func syncEngineState() {
+        scrobbleProgress = engine.progress(rules: rules)
+        didScrobbleCurrent = engine.didScrobbleCurrent
+    }
+
+    private func canScrobble(_ track: SystemNowPlaying) -> Bool {
+        isEnabled && isConnectorEnabled(for: track.sourceBundleId)
     }
 
     // MARK: - Retry Timer
@@ -201,28 +161,6 @@ class SystemScrobbleService: ObservableObject {
                 }
             }
         }
-    }
-
-    // MARK: - Scrobble Rules
-
-    /// Returns the number of seconds of play time required before scrobbling.
-    ///
-    /// Rules (matching Last.fm/Web Scrobbler):
-    /// - Known duration: scrobble at `scrobbleThresholdPercent`% of duration, capped at 4 min
-    /// - Unknown duration (YouTube etc): scrobble at 60 seconds
-    /// - Either way, never scrobble before `minTrackDuration` seconds (default 30s)
-    private func scrobbleThreshold(for track: SystemNowPlaying) -> TimeInterval {
-        let pct = settings.scrobbleThresholdPercent / 100.0 // default 50%
-        let maxSeconds: TimeInterval = 240 // 4 minutes cap
-        let minSeconds = TimeInterval(settings.minTrackDuration) // default 30s
-
-        if track.duration > 0 {
-            let pctThreshold = track.duration * pct
-            return max(minSeconds, min(pctThreshold, maxSeconds))
-        }
-
-        // Unknown duration — use 60 seconds (reasonable middle ground)
-        return max(minSeconds, 60)
     }
 
     // MARK: - Artwork Fetching
@@ -348,26 +286,9 @@ class SystemScrobbleService: ObservableObject {
 
     // MARK: - Scrobble Submission
 
-    private func checkAndScrobble(track: SystemNowPlaying, force: Bool) {
-        guard isEnabled else { return }
-        guard isConnectorEnabled(for: track.sourceBundleId) else { return }
-
-        // Minimum duration filter
-        if track.duration > 0 && track.duration < Double(settings.minTrackDuration) { return }
-
-        // Check threshold
-        let threshold = scrobbleThreshold(for: track)
-        guard force || accumulatedPlayTime >= threshold else { return }
-
-        // Prevent double scrobble
-        let key = "\(track.artist)|\(track.title)"
-        guard key != lastScrobbledTrack else { return }
-
-        // Submit!
-        lastScrobbledTrack = key
-        didScrobbleCurrent = true
-
-        let timestamp = Int(Date().timeIntervalSince1970)
+    private func submit(_ scrobble: PendingScrobble) {
+        let track = scrobble.track
+        let timestamp = scrobble.timestamp
         Task {
             let entry = ScrobbleCacheEntry(artist: track.artist, track: track.title, album: track.album, timestamp: timestamp)
             do {
