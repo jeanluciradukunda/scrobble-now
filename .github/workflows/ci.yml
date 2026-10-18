@@ -19,10 +19,13 @@ jobs:
         run: cp ScrobbleNow/Resources/Secrets.example.plist ScrobbleNow/Resources/Secrets.plist
       - name: Build
         run: |
-          xcodebuild -scheme ScrobbleNow -configuration Debug -destination 'platform=macOS' CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO build
+          xcodebuild -scheme ScrobbleNow -configuration Debug -destination 'platform=macOS' -derivedDataPath build CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO build
+      - name: Check the menu-bar app has no Dock icon
+        run: |
+          test "$(/usr/libexec/PlistBuddy -c 'Print :LSUIElement' 'build/Build/Products/Debug/Scrobble Now.app/Contents/Info.plist')" = true
       - name: Test
         run: |
-          xcodebuild test -scheme ScrobbleNow -destination 'platform=macOS' CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO
+          xcodebuild test -scheme ScrobbleNow -destination 'platform=macOS' -derivedDataPath build CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO
       - name: Build iOS
         env:
           DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
