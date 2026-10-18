@@ -9,6 +9,7 @@ class SettingsManager: ObservableObject {
 
     // MARK: - General
     @AppStorage("showTitleInMenuBar") var showTitleInMenuBar: Bool = false
+    @AppStorage("showAudioVisualizer") var showAudioVisualizer: Bool = false
 
     // MARK: - Last.fm
     @AppStorage("lastfmUsername") var lastfmUsername: String = ""
