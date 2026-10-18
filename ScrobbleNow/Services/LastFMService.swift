@@ -61,7 +61,7 @@ actor LastFMService {
             return []
         }
 
-        return albums.compactMap { dict -> TopAlbumEntry? in
+        let entries = albums.compactMap { dict -> TopAlbumEntry? in
             guard let name = dict["name"] as? String,
                   let artist = (dict["artist"] as? [String: Any])?["name"] as? String else { return nil }
             let playcount = Int((dict["playcount"] as? String) ?? "0") ?? 0
@@ -69,6 +69,7 @@ actor LastFMService {
             let url = URL(string: (dict["url"] as? String) ?? "")
             return TopAlbumEntry(albumName: name, artistName: artist, playcount: playcount, artworkURL: imageURL, lastfmURL: url)
         }
+        return AlbumNormalisation.mergingDuplicates(entries)
     }
 
     // MARK: - Top Artists
