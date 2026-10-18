@@ -12,6 +12,7 @@ struct ScrobbleNowApp: App {
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
         KeychainService.bootstrapDefaults()
         MediaRemoteBridge.shared.startListening()
+        AppUpdater.shared.start()
 
         // Refresh history feed immediately after a successful scrobble
         let vm = viewModel
@@ -37,10 +38,11 @@ struct MenuBarLabel: View {
     @ObservedObject var viewModel: NowPlayingViewModel
     @ObservedObject var settings: SettingsManager
     @ObservedObject var bridge: MediaRemoteBridge
+    @ObservedObject var updater = AppUpdater.shared
 
     var body: some View {
         HStack(spacing: 4) {
-            Image(systemName: bridge.isPlaying ? "waveform" : "waveform")
+            Image(systemName: updater.updateAvailable ? "waveform.badge.exclamationmark" : "waveform")
                 .renderingMode(.template)
                 .symbolEffect(.variableColor.iterative, isActive: bridge.isPlaying)
             if settings.showTitleInMenuBar {

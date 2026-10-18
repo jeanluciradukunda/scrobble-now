@@ -145,6 +145,8 @@ struct SettingsView: View {
             Spacer(minLength: 8)
 
             #if os(macOS)
+            UpdatesSection()
+
             // Quit
             HStack {
                 Spacer()

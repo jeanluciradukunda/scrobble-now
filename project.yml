@@ -11,6 +11,11 @@ settings:
   base:
     SWIFT_VERSION: "5.9"
 
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    exactVersion: 2.10.0
+
 targets:
   ScrobbleNow:
     type: application
@@ -22,8 +27,11 @@ targets:
       - path: ScrobbleNow
         excludes:
           - "**/.DS_Store"
+          - "Resources/Sparkle-Info.plist"
       - path: Vendor/MediaRemoteAdapter/bin/mediaremote-adapter.pl
         buildPhase: resources
+    dependencies:
+      - package: Sparkle
     postCompileScripts:
       - name: Build MediaRemoteAdapter
         script: |
@@ -34,6 +42,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.personal.ScrobbleNow
         ENABLE_USER_SCRIPT_SANDBOXING: NO
         GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: ScrobbleNow/Resources/Sparkle-Info.plist
+        SPARKLE_PUBLIC_ED_KEY: ""
         INFOPLIST_KEY_LSUIElement: YES
         INFOPLIST_KEY_NSAppleEventsUsageDescription: "Scrobble Now reads the current tab in Safari and Chrome, and the artwork in Spotify, to scrobble what is playing."
         INFOPLIST_KEY_CFBundleDisplayName: "Scrobble Now"
@@ -73,6 +83,9 @@ targets:
           - "Services/MetricsService.swift"
           - "Services/MediaRemoteAdapterSource.swift"
           - "Views/AdapterSettingsRow.swift"
+          - "Services/AppUpdater.swift"
+          - "Views/UpdatesSection.swift"
+          - "Resources/Sparkle-Info.plist"
           - "**/.DS_Store"
       - path: ScrobbleNowiOS
     settings:
