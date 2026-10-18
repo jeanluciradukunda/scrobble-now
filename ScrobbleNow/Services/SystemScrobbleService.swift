@@ -31,7 +31,8 @@ class SystemScrobbleService: ObservableObject {
 
     // MARK: - Tracking State
 
-    private var engine = ScrobbleEngine()
+    private var engine = ScrobbleEngine(lastScrobbled: SystemScrobbleService.loadLastScrobble())
+    private var persistedLastScrobble = SystemScrobbleService.loadLastScrobble()
     private var progressTimer: Timer?
     private var rules: ScrobbleRules {
         ScrobbleRules(thresholdPercent: settings.scrobbleThresholdPercent,
@@ -111,15 +112,18 @@ class SystemScrobbleService: ObservableObject {
 
     private func tick() {
         isPlaying = bridge.isPlaying
-        let counting = currentTrack != nil && isPlaying && !didScrobbleCurrent
-        let scrobbles = engine.tick(isPlaying: isPlaying, now: Date(), rules: rules, isAllowed: canScrobble)
+        let source = engine.current.flatMap { bridge.activeSources[$0.sourceBundleId] }
+        let playing = Self.countsPlayTime(bridgeIsPlaying: isPlaying, source: source)
+        let canRepeat = Self.canDetectRepeats(bundleId: engine.current?.sourceBundleId ?? "")
+        let scrobbles = engine.tick(isPlaying: playing, canRepeat: canRepeat, now: Date(), rules: rules,
+                                    isAllowed: canScrobble)
 
         // Update the track's elapsed time for the UI progress bar
-        if counting, let track = currentTrack, track.duration > 0 {
+        if playing, let track = currentTrack, track.duration > 0 {
             let updatedTrack = SystemNowPlaying(
                 title: track.title, artist: track.artist, album: track.album,
                 duration: track.duration, elapsed: min(engine.accumulatedPlayTime, track.duration),
-                playbackRate: track.playbackRate, artwork: track.artwork,
+                playbackRate: source?.playbackRate ?? track.playbackRate, artwork: track.artwork,
                 sourceBundleId: track.sourceBundleId, sourceAppName: track.sourceAppName,
                 timestamp: track.timestamp
             )
@@ -135,14 +139,42 @@ class SystemScrobbleService: ObservableObject {
 
         // Also refresh the bridge data periodically for elapsed time updates
         #if os(macOS)
-        if counting { bridge.pollMediaRemote() }
+        if playing { bridge.pollMediaRemote() }
         #endif
     }
 
     private func syncEngineState() {
         scrobbleProgress = engine.progress(rules: rules)
         didScrobbleCurrent = engine.didScrobbleCurrent
+        if let record = engine.lastScrobbled, record != persistedLastScrobble,
+           let data = try? JSONEncoder().encode(record) {
+            UserDefaults.standard.set(data, forKey: Self.lastScrobbleKey)
+            persistedLastScrobble = record
+        }
     }
+
+    private static let lastScrobbleKey = "sn_last_scrobble"
+
+    private static func loadLastScrobble() -> ScrobbleRecord? {
+        guard let data = UserDefaults.standard.data(forKey: lastScrobbleKey) else { return nil }
+        return try? JSONDecoder().decode(ScrobbleRecord.self, from: data)
+    }
+
+    /// bridge.isPlaying covers every source and stays true while another one plays, so play time counts only
+    /// while the play's own source is playing; otherwise a paused track keeps accruing time and repeating.
+    nonisolated static func countsPlayTime(bridgeIsPlaying: Bool, source: SystemNowPlaying?) -> Bool {
+        bridgeIsPlaying && (source?.isPlaying ?? false)
+    }
+
+    /// Browser tabs report playing whenever a music tab is open, so a repeat cannot be told from a paused tab.
+    nonisolated static func canDetectRepeats(bundleId: String) -> Bool {
+        !browserBundleIds.contains(bundleId)
+    }
+
+    private nonisolated static let browserBundleIds: Set<String> = [
+        "com.google.Chrome", "com.apple.Safari", "company.thebrowser.Browser", "com.brave.Browser",
+        "org.mozilla.firefox", "com.microsoft.edgemac"
+    ]
 
     private func canScrobble(_ track: SystemNowPlaying) -> Bool {
         isEnabled && isConnectorEnabled(for: track.sourceBundleId)

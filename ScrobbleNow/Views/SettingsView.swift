@@ -69,11 +69,14 @@ struct SettingsView: View {
             sectionHeader("Scrobble Behavior")
 
             settingsToggle("Enable scrobbling", isOn: $settings.scrobbleEnabled)
-            settingsSlider("Scrobble at", value: $settings.scrobbleThresholdPercent, range: 25...90, step: 5, unit: "%")
+            settingsSlider("Scrobble at", value: Binding(
+                get: { max(50, settings.scrobbleThresholdPercent) },
+                set: { settings.scrobbleThresholdPercent = $0 }
+            ), range: 50...90, step: 5, unit: "%")
             settingsSlider("Min track duration", value: Binding(
-                get: { Double(settings.minTrackDuration) },
+                get: { Double(max(30, settings.minTrackDuration)) },
                 set: { settings.minTrackDuration = Int($0) }
-            ), range: 10...120, step: 10, unit: "s")
+            ), range: 30...120, step: 10, unit: "s")
             settingsToggle("Filter podcasts", isOn: $settings.filterPodcasts)
             settingsToggle("Album guessing", isOn: $settings.albumGuessing)
             settingsToggle("Scrobble notifications", isOn: $settings.scrobbleNotifications)
