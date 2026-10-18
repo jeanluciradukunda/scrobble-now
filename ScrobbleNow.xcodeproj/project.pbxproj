@@ -33,6 +33,7 @@
 		2D8CF4034D649388E7205462 /* CacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB479C6E709FA48840511EBB /* CacheService.swift */; };
 		31B182C7ED234C69123A39AB /* YouTubeMusicFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BF1538A622E83C2C86506E /* YouTubeMusicFilter.swift */; };
 		34F13A0C91351C800524B842 /* RadarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019A647E4552F30A7374FDCC /* RadarChartView.swift */; };
+		3E1C143B78B3232BAE74ACED /* ScrobbleQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B404CD40FB787F537581773 /* ScrobbleQueueTests.swift */; };
 		3EE44B8CD0CE384793B91F81 /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AAB98902C5909700E29F6F7 /* StatisticsView.swift */; };
 		3F547B81768F66BD278BFAEC /* ScrobbleCacheEntryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC5E069331060B9F3116E81 /* ScrobbleCacheEntryTests.swift */; };
 		42B1D520A0213B02A7650386 /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE4230F732B9F8257B84158 /* NowPlayingView.swift */; };
@@ -105,6 +106,7 @@
 		019A647E4552F30A7374FDCC /* RadarChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarChartView.swift; sourceTree = "<group>"; };
 		0DCD2BD832C94BD88F4F7299 /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
 		0EA730E7257F76B5CCDFE472 /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
+		1B404CD40FB787F537581773 /* ScrobbleQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleQueueTests.swift; sourceTree = "<group>"; };
 		254BEDF3534B4D7781A96A81 /* SystemScrobbleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemScrobbleService.swift; sourceTree = "<group>"; };
 		2BE4230F732B9F8257B84158 /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
 		2D9FC698960908EA651FD429 /* ScrobbleNow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScrobbleNow.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -237,6 +239,7 @@
 				F8A2E41BA9585185F71B82EB /* LastFMRequestTests.swift */,
 				F074F1740C761909CC599214 /* LastFMResponseTests.swift */,
 				3CC5E069331060B9F3116E81 /* ScrobbleCacheEntryTests.swift */,
+				1B404CD40FB787F537581773 /* ScrobbleQueueTests.swift */,
 				81A523C699545961956D5CED /* ScrobbleToggleTests.swift */,
 				345CC51A65F8483972FCC5BB /* SecretSeedingTests.swift */,
 				8D24391AC51E6123849D9422 /* YouTubeMusicFilterTests.swift */,
@@ -465,6 +468,7 @@
 				04ADD9F83A79D5A6A494ABBE /* LastFMRequestTests.swift in Sources */,
 				E639095D8ADEFD2DA475E3E7 /* LastFMResponseTests.swift in Sources */,
 				3F547B81768F66BD278BFAEC /* ScrobbleCacheEntryTests.swift in Sources */,
+				3E1C143B78B3232BAE74ACED /* ScrobbleQueueTests.swift in Sources */,
 				CE5C08819E0A5A519F803756 /* ScrobbleToggleTests.swift in Sources */,
 				ECF8E4C59234BF07B8987CCB /* SecretSeedingTests.swift in Sources */,
 				233A7901948160E7633100EE /* YouTubeMusicFilterTests.swift in Sources */,

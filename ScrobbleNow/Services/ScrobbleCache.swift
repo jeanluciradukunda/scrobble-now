@@ -1,5 +1,11 @@
 import Foundation
 
+protocol Scrobbling: Sendable {
+    func scrobble(artist: String, track: String, album: String, timestamp: Int) async throws
+}
+
+extension LastFMService: Scrobbling {}
+
 /// Persists pending scrobbles and retries failed ones.
 /// Stores successful/failed history for the cache view in settings.
 actor ScrobbleCache {
@@ -8,10 +14,16 @@ actor ScrobbleCache {
     private let fileManager = FileManager.default
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+    private let customDirectory: URL?
+    private var isRetrying = false
+
+    init(directory: URL? = nil) {
+        customDirectory = directory
+    }
 
     private var storeDirectory: URL {
-        let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let dir = appSupport.appendingPathComponent("ScrobbleNow", isDirectory: true)
+        let dir = customDirectory ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("ScrobbleNow", isDirectory: true)
         try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
     }
@@ -31,9 +43,12 @@ actor ScrobbleCache {
 
     // MARK: - Retry all pending scrobbles
 
-    func retryPending(using lastfm: LastFMService) async -> (succeeded: Int, failed: Int) {
+    func retryPending(using lastfm: Scrobbling) async -> (succeeded: Int, failed: Int) {
+        guard !isRetrying else { return (0, 0) }
         let pending = loadPending()
         guard !pending.isEmpty else { return (0, 0) }
+        isRetrying = true
+        defer { isRetrying = false }
 
         var succeeded = 0
         var stillFailed: [ScrobbleCacheEntry] = []
@@ -67,7 +82,9 @@ actor ScrobbleCache {
             try? await Task.sleep(for: .milliseconds(200))
         }
 
-        savePending(stillFailed)
+        // The awaits above let queueForRetry run; keep what it added instead of overwriting it.
+        let attempted = Set(pending.map(\.id))
+        savePending(loadPending().filter { !attempted.contains($0.id) } + stillFailed)
         return (succeeded, stillFailed.count)
     }
 
