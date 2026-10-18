@@ -32,7 +32,10 @@ actor YouTubeMusicFilter {
         }
 
         // Fallback: check page category
-        let categoryResult = await checkCategory(videoId: videoId)
+        guard let categoryResult = await checkCategory(videoId: videoId) else {
+            // Not cached: a transient network error must not mark the video as non-music for the whole session.
+            return MusicCheckResult(isMusic: false, artist: nil, track: nil, album: nil, durationSeconds: nil)
+        }
         cache[videoId] = categoryResult
         return categoryResult
     }
@@ -125,11 +128,7 @@ actor YouTubeMusicFilter {
     /// Extract video ID from a YouTube URL
     static func extractVideoId(from url: String) -> String? {
         // youtube.com/watch?v=XXX
-        if let range = url.range(of: "v=") {
-            let start = range.upperBound
-            let rest = url[start...]
-            let end = rest.firstIndex(where: { $0 == "&" || $0 == "#" }) ?? rest.endIndex
-            let videoId = String(rest[..<end])
+        if let videoId = URLComponents(string: url)?.queryItems?.first(where: { $0.name == "v" })?.value {
             return videoId.isEmpty ? nil : videoId
         }
         // youtu.be/XXX
@@ -225,7 +224,7 @@ actor YouTubeMusicFilter {
 
     // MARK: - YouTube Page Category Check
 
-    private func checkCategory(videoId: String) async -> MusicCheckResult {
+    private func checkCategory(videoId: String) async -> MusicCheckResult? {
         let url = URL(string: "https://www.youtube.com/watch?v=\(videoId)")!
         var request = URLRequest(url: url)
         request.timeoutInterval = 5
@@ -246,7 +245,7 @@ actor YouTubeMusicFilter {
                 return MusicCheckResult(isMusic: isMusic, artist: nil, track: nil, album: nil, durationSeconds: nil)
             }
         } catch {
-            // Network error — be permissive, allow scrobble
+            return nil
         }
 
         return MusicCheckResult(isMusic: false, artist: nil, track: nil, album: nil, durationSeconds: nil)
