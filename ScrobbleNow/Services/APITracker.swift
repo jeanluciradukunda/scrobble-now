@@ -38,6 +38,11 @@ class APITracker: ObservableObject {
         serviceTotals[service] = stats
     }
 
+    nonisolated static func isSuccess(statusCode: Int?) -> Bool {
+        guard let statusCode else { return true }
+        return (200..<300).contains(statusCode)
+    }
+
     /// Convenience: wrap an async API call with automatic tracking
     func track<T>(service: String, endpoint: String, call: () async throws -> T) async throws -> T {
         let start = Date()
@@ -84,7 +89,8 @@ extension URLSession {
             let duration = Date().timeIntervalSince(start)
             let statusCode = (response as? HTTPURLResponse)?.statusCode
             await MainActor.run {
-                APITracker.shared.record(service: service, endpoint: endpoint, duration: duration, success: true, statusCode: statusCode)
+                APITracker.shared.record(service: service, endpoint: endpoint, duration: duration,
+                                         success: APITracker.isSuccess(statusCode: statusCode), statusCode: statusCode)
             }
             return (data, response)
         } catch {
@@ -105,7 +111,8 @@ extension URLSession {
             let duration = Date().timeIntervalSince(start)
             let statusCode = (response as? HTTPURLResponse)?.statusCode
             await MainActor.run {
-                APITracker.shared.record(service: service, endpoint: endpoint, duration: duration, success: true, statusCode: statusCode)
+                APITracker.shared.record(service: service, endpoint: endpoint, duration: duration,
+                                         success: APITracker.isSuccess(statusCode: statusCode), statusCode: statusCode)
             }
             return (data, response)
         } catch {
