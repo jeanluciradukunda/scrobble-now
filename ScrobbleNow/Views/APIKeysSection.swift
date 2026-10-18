@@ -23,7 +23,8 @@ struct APIKeysSection: View {
                     keyField("Shared secret", text: $ownSecret)
                     HStack(spacing: 8) {
                         Button("Save") { save(apiKey: ownKey, secret: ownSecret) }
-                            .disabled(ownKey.isEmpty || ownSecret.isEmpty)
+                            .disabled(ownKey.trimmingCharacters(in: .whitespaces).isEmpty
+                                      || ownSecret.trimmingCharacters(in: .whitespaces).isEmpty)
                         Button("Use the app's key", role: .destructive) {
                             ownKey = ""
                             ownSecret = ""
@@ -49,6 +50,8 @@ struct APIKeysSection: View {
 
     private func save(apiKey: String, secret: String) {
         KeychainService.setOwnLastfmCredentials(apiKey: apiKey, secret: secret)
+        // The session lives outside SettingsManager; nudge the account row so it offers Authorize Scrobbling again.
+        SettingsManager.shared.objectWillChange.send()
         usesOwnKey = KeychainService.usesOwnLastfmKey
         hasLastfmKey = !KeychainService.lastfmApiKey.isEmpty
     }
