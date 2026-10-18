@@ -1,8 +1,8 @@
 import Foundation
 
-actor iTunesService {
+actor ITunesService {
 
-    func searchAlbum(album: String, artist: String) async throws -> [iTunesAlbum] {
+    func searchAlbum(album: String, artist: String) async throws -> [ITunesAlbum] {
         let queries = [
             "\(artist) \(album)",
             album
@@ -16,7 +16,7 @@ actor iTunesService {
 
             guard let results = json?["results"] as? [[String: Any]], !results.isEmpty else { continue }
 
-            return results.compactMap { dict -> iTunesAlbum? in
+            return results.compactMap { dict -> ITunesAlbum? in
                 guard let name = dict["collectionName"] as? String,
                       let artistName = dict["artistName"] as? String,
                       let collectionId = dict["collectionId"] as? Int else { return nil }
@@ -31,7 +31,7 @@ actor iTunesService {
                 let viewURL = (dict["collectionViewUrl"] as? String).flatMap { URL(string: $0) }
                 let trackCount = dict["trackCount"] as? Int ?? 0
 
-                return iTunesAlbum(collectionId: collectionId, name: name, artist: artistName, artworkURL: artworkURL, year: year, trackCount: trackCount, viewURL: viewURL)
+                return ITunesAlbum(collectionId: collectionId, name: name, artist: artistName, artworkURL: artworkURL, year: year, trackCount: trackCount, viewURL: viewURL)
             }
         }
         return []
@@ -56,7 +56,7 @@ actor iTunesService {
         }
     }
 
-    struct iTunesAlbum {
+    struct ITunesAlbum {
         let collectionId: Int
         let name: String
         let artist: String

@@ -83,6 +83,7 @@ struct SettingsView: View {
             // Downloads
             sectionHeader("Downloads")
 
+            #if os(macOS)
             HStack {
                 Text("Save artwork to")
                     .font(.system(size: 10))
@@ -111,12 +112,15 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.plain)
             }
+            #endif
 
             Divider().opacity(0.2)
 
             // Appearance
             sectionHeader("Appearance")
+            #if os(macOS)
             settingsToggle("Show track in menu bar", isOn: $settings.showTitleInMenuBar)
+            #endif
 
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 5), spacing: 4) {
                 ForEach(AppAccent.options) { option in
@@ -139,6 +143,7 @@ struct SettingsView: View {
 
             Spacer(minLength: 8)
 
+            #if os(macOS)
             // Quit
             HStack {
                 Spacer()
@@ -150,6 +155,7 @@ struct SettingsView: View {
                 .foregroundStyle(.red)
                 Spacer()
             }
+            #endif
         }
     }
 
@@ -179,6 +185,7 @@ struct SettingsView: View {
             } else {
                 ForEach(SystemScrobbleService.shared.connectors) { connector in
                     HStack(spacing: 8) {
+                        #if os(macOS)
                         if let icon = MediaRemoteBridge.shared.appIcon(for: connector.bundleId) {
                             Image(nsImage: icon)
                                 .resizable()
@@ -189,6 +196,11 @@ struct SettingsView: View {
                                 .fill(.quaternary)
                                 .frame(width: 20, height: 20)
                         }
+                        #else
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(.quaternary)
+                            .frame(width: 20, height: 20)
+                        #endif
                         VStack(alignment: .leading, spacing: 1) {
                             Text(connector.displayName)
                                 .font(.system(size: 10, weight: .medium))
@@ -270,7 +282,9 @@ struct SettingsView: View {
     // MARK: - Developer Tab
     // ═══════════════════════════════════════════
 
+    #if os(macOS)
     @StateObject private var metrics = MetricsService.shared
+    #endif
 
     private var developerTab: some View {
         Group {
@@ -436,6 +450,7 @@ struct SettingsView: View {
 
             Divider().opacity(0.2)
 
+            #if os(macOS)
             // ═══════ App Metrics ═══════
             sectionHeader("App Metrics")
 
@@ -483,6 +498,15 @@ struct SettingsView: View {
                 diagRow("CPU Time", value: metrics.cpuTimeFormatted)
                 diagRow("Threads", value: "\(metrics.threadCount)")
             }
+            #else
+            // ═══════ Diagnostics (iOS) ═══════
+            sectionHeader("Diagnostics")
+
+            VStack(alignment: .leading, spacing: 3) {
+                diagRow("Connectors", value: "\(SystemScrobbleService.shared.connectors.count)")
+                diagRow("Last.fm session", value: KeychainService.lastfmSessionKey != nil ? "● Active" : "○ None")
+            }
+            #endif
 
             Divider().opacity(0.2)
 
@@ -560,6 +584,7 @@ struct SettingsView: View {
         }
     }
 
+    #if os(macOS)
     private func metricGauge(label: String, value: Double, unit: String, max: Double, color: Color) -> some View {
         VStack(spacing: 3) {
             ZStack {
@@ -587,6 +612,7 @@ struct SettingsView: View {
         }
         .frame(maxWidth: .infinity)
     }
+    #endif
 
     private func diagRow(_ label: String, value: String) -> some View {
         HStack {
@@ -723,7 +749,13 @@ struct SettingsView: View {
         do {
             let token = try await lastfmService.getAuthToken()
             let authURL = await lastfmService.authURL + "&token=\(token)"
-            if let url = URL(string: authURL) { NSWorkspace.shared.open(url) }
+            if let url = URL(string: authURL) {
+                #if os(macOS)
+                NSWorkspace.shared.open(url)
+                #else
+                await UIApplication.shared.open(url)
+                #endif
+            }
             try await Task.sleep(for: .seconds(15))
             let (sessionKey, username) = try await lastfmService.getSession(token: token)
             KeychainService.set(.lastfmSessionKey, value: sessionKey)

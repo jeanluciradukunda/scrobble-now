@@ -49,8 +49,8 @@ class StatisticsViewModel: ObservableObject {
             // Top artists (7 day) for bar chart
             let artists = try await lastfm.getTopArtists(user: username, period: "7day", limit: 10)
             let maxPlays = artists.first?.playcount ?? 1
-            topArtistBars = artists.map { a in
-                ArtistBar(name: a.name, playcount: a.playcount, fraction: Double(a.playcount) / Double(max(1, maxPlays)))
+            topArtistBars = artists.map { artist in
+                ArtistBar(name: artist.name, playcount: artist.playcount, fraction: Double(artist.playcount) / Double(max(1, maxPlays)))
             }
 
             // Top albums for genre extraction (use tags from Last.fm)

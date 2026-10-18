@@ -1,3 +1,4 @@
+#if os(macOS)
 import Foundation
 import AppKit
 
@@ -184,14 +185,15 @@ class MetricsService: ObservableObject {
     // MARK: - Formatted
 
     var uptimeFormatted: String {
-        let h = Int(uptime) / 3600
-        let m = (Int(uptime) % 3600) / 60
-        let s = Int(uptime) % 60
-        if h > 0 { return "\(h)h \(m)m" }
-        return "\(m)m \(s)s"
+        let hours = Int(uptime) / 3600
+        let minutes = (Int(uptime) % 3600) / 60
+        let seconds = Int(uptime) % 60
+        if hours > 0 { return "\(hours)h \(minutes)m" }
+        return "\(minutes)m \(seconds)s"
     }
 
     var cpuTimeFormatted: String {
         String(format: "%.2fs", cpuTimeSec)
     }
 }
+#endif

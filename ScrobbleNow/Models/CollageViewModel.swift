@@ -1,4 +1,9 @@
 import SwiftUI
+#if os(macOS)
+import AppKit
+#elseif os(iOS)
+import UIKit
+#endif
 
 struct GridSize: Equatable {
     let label: String
@@ -19,7 +24,7 @@ class CollageViewModel: ObservableObject {
     @Published var exportMessage: String?
 
     /// Pre-downloaded artwork keyed by URL string
-    private var downloadedImages: [String: NSImage] = [:]
+    private var downloadedImages: [String: PlatformImage] = [:]
 
     static let gridSizes: [GridSize] = [
         GridSize(label: "3×3", cols: 3, rows: 3),
@@ -50,7 +55,7 @@ class CollageViewModel: ObservableObject {
     }
 
     private func predownloadArtwork() async {
-        await withTaskGroup(of: (String, NSImage?).self) { group in
+        await withTaskGroup(of: (String, PlatformImage?).self) { group in
             for album in albums.prefix(gridSize.total) {
                 guard let url = album.artworkURL else { continue }
                 let key = url.absoluteString
@@ -59,7 +64,7 @@ class CollageViewModel: ObservableObject {
                 group.addTask {
                     do {
                         let (data, _) = try await URLSession.shared.data(from: url)
-                        return (key, NSImage(data: data))
+                        return (key, PlatformImage(data: data))
                     } catch {
                         return (key, nil)
                     }
@@ -74,6 +79,7 @@ class CollageViewModel: ObservableObject {
 
     // MARK: - Export as Image
 
+    #if os(macOS)
     func exportCollage() {
         guard let pngData = renderCollagePNG() else {
             exportMessage = "Render failed"
@@ -111,6 +117,28 @@ class CollageViewModel: ObservableObject {
             exportMessage = nil
         }
     }
+    #endif
+
+    #if os(iOS)
+    func shareCollage() -> Data? {
+        return renderCollagePNG()
+    }
+
+    func copyToClipboard() {
+        guard let pngData = renderCollagePNG(),
+              let image = UIImage(data: pngData) else {
+            exportMessage = "Render failed"
+            return
+        }
+
+        UIPasteboard.general.image = image
+        exportMessage = "Copied!"
+        Task {
+            try? await Task.sleep(for: .seconds(2))
+            exportMessage = nil
+        }
+    }
+    #endif
 
     // MARK: - Render to PNG Data
 
@@ -123,6 +151,7 @@ class CollageViewModel: ObservableObject {
 
         guard width > 0, height > 0 else { return nil }
 
+        #if os(macOS)
         let bitmap = NSBitmapImageRep(
             bitmapDataPlanes: nil,
             pixelsWide: width, pixelsHigh: height,
@@ -198,5 +227,68 @@ class CollageViewModel: ObservableObject {
         NSGraphicsContext.restoreGraphicsState()
 
         return bitmap.representation(using: .png, properties: [.compressionFactor: 0.9])
+
+        #elseif os(iOS)
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height))
+        let image = renderer.image { ctx in
+            // Black background
+            UIColor.black.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
+
+            let subset = Array(albums.prefix(gridSize.total))
+            for (i, album) in subset.enumerated() {
+                let col = i % cols
+                let row = i / cols
+                let x = col * cellSize
+                let y = row * cellSize
+
+                let rect = CGRect(x: x, y: y, width: cellSize, height: cellSize)
+
+                // Use pre-downloaded image
+                if let artURL = album.artworkURL,
+                   let albumImage = downloadedImages[artURL.absoluteString] {
+                    albumImage.draw(in: rect)
+                } else {
+                    UIColor(white: 0.1, alpha: 1).setFill()
+                    ctx.fill(rect)
+
+                    // Draw initials
+                    let initials = String(album.albumName.prefix(2)).uppercased()
+                    let attrs: [NSAttributedString.Key: Any] = [
+                        .font: UIFont.boldSystemFont(ofSize: 24),
+                        .foregroundColor: UIColor(white: 0.3, alpha: 1),
+                    ]
+                    let str = NSAttributedString(string: initials, attributes: attrs)
+                    let strSize = str.size()
+                    str.draw(at: CGPoint(x: CGFloat(x) + (CGFloat(cellSize) - strSize.width) / 2,
+                                         y: CGFloat(y) + (CGFloat(cellSize) - strSize.height) / 2))
+                }
+
+                // Title overlay
+                if showTitles {
+                    let barHeight: CGFloat = 36
+                    let barRect = CGRect(x: x, y: y + cellSize - Int(barHeight), width: cellSize, height: Int(barHeight))
+                    UIColor(white: 0, alpha: 0.65).setFill()
+                    ctx.fill(barRect)
+
+                    let titleAttr: [NSAttributedString.Key: Any] = [
+                        .font: UIFont.systemFont(ofSize: 11, weight: .bold),
+                        .foregroundColor: UIColor.white,
+                    ]
+                    let artistAttr: [NSAttributedString.Key: Any] = [
+                        .font: UIFont.systemFont(ofSize: 9),
+                        .foregroundColor: UIColor(white: 1, alpha: 0.8),
+                    ]
+
+                    NSAttributedString(string: album.albumName, attributes: titleAttr)
+                        .draw(at: CGPoint(x: CGFloat(x) + 6, y: CGFloat(y + cellSize) - barHeight + 4))
+                    NSAttributedString(string: album.artistName, attributes: artistAttr)
+                        .draw(at: CGPoint(x: CGFloat(x) + 6, y: CGFloat(y + cellSize) - barHeight + 20))
+                }
+            }
+        }
+
+        return image.pngData()
+        #endif
     }
 }

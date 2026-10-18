@@ -426,7 +426,11 @@ struct AlbumDetailView: View {
 
     private func linkButton(label: String, color: Color, url: URL) -> some View {
         Button {
+            #if os(macOS)
             NSWorkspace.shared.open(url)
+            #else
+            UIApplication.shared.open(url)
+            #endif
         } label: {
             Text(label)
                 .font(.system(size: 8, weight: .medium))
@@ -481,17 +485,17 @@ struct AlbumDetailView: View {
 
     // MARK: - Helpers
 
-    private func formatNumber(_ n: Int) -> String {
-        if n >= 1_000_000 { return String(format: "%.1fM", Double(n) / 1_000_000) }
-        if n >= 1_000 { return String(format: "%.0fK", Double(n) / 1_000) }
-        return "\(n)"
+    private func formatNumber(_ number: Int) -> String {
+        if number >= 1_000_000 { return String(format: "%.1fM", Double(number) / 1_000_000) }
+        if number >= 1_000 { return String(format: "%.0fK", Double(number) / 1_000) }
+        return "\(number)"
     }
 
     private func formatDuration(_ ms: Int) -> String {
         let totalSec = ms / 1000
-        let h = totalSec / 3600
-        let m = (totalSec % 3600) / 60
-        if h > 0 { return "\(h)h \(m)m" }
-        return "\(m) min"
+        let hours = totalSec / 3600
+        let minutes = (totalSec % 3600) / 60
+        if hours > 0 { return "\(hours)h \(minutes)m" }
+        return "\(minutes) min"
     }
 }

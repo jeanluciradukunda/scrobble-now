@@ -18,7 +18,11 @@ class SystemScrobbleService: ObservableObject {
 
     // MARK: - Dependencies
 
+    #if os(macOS)
     private let bridge = MediaRemoteBridge.shared
+    #elseif os(iOS)
+    private let bridge = MPNowPlayingBridge.shared
+    #endif
     private let lastfm = LastFMService()
     private var settings: SettingsManager { SettingsManager.shared }
 
@@ -178,7 +182,9 @@ class SystemScrobbleService: ObservableObject {
         }
 
         // Also refresh the bridge data periodically for elapsed time updates
+        #if os(macOS)
         bridge.pollMediaRemote()
+        #endif
     }
 
     // MARK: - Retry Timer
@@ -235,7 +241,7 @@ class SystemScrobbleService: ObservableObject {
                        let urlStr = img["#text"] as? String, !urlStr.isEmpty,
                        let url = URL(string: urlStr) {
                         let (data, _) = try await URLSession.shared.data(from: url)
-                        if let image = NSImage(data: data) {
+                        if let image = PlatformImage(data: data) {
                             // Update the track in the bridge with artwork
                             let updated = track.withArtwork(image)
                             bridge.activeSources[track.sourceBundleId] = updated
@@ -261,7 +267,7 @@ class SystemScrobbleService: ObservableObject {
                        let urlStr = img["#text"] as? String, !urlStr.isEmpty,
                        let url = URL(string: urlStr) {
                         let (data, _) = try await URLSession.shared.data(from: url)
-                        if let image = NSImage(data: data) {
+                        if let image = PlatformImage(data: data) {
                             let updated = track.withArtwork(image)
                             bridge.activeSources[track.sourceBundleId] = updated
                             if bridge.currentTrack?.sourceBundleId == track.sourceBundleId {
@@ -279,18 +285,11 @@ class SystemScrobbleService: ObservableObject {
 
         // Fallback: YouTube thumbnail if it's a YouTube source
         if track.sourceBundleId == "com.google.Chrome" || track.sourceAppName.contains("YouTube") {
-            // Extract video ID from the browser's last known URL and use YouTube thumbnail
             await fetchYouTubeThumbnail(for: track)
         }
     }
 
     private func fetchYouTubeThumbnail(for track: SystemNowPlaying) async {
-        // Use the YouTube Music API to get thumbnail — we need the video ID
-        // Search by title + artist to find it
-        let query = "\(track.artist) \(track.title)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        // Try the high-quality thumbnail via YouTube oEmbed
-        let oembedURL = URL(string: "https://www.youtube.com/oembed?url=https://www.youtube.com/results?search_query=\(query)&format=json")
-
         // Simpler: use Last.fm artist image as fallback
         let artistURL = URL(string: "https://ws.audioscrobbler.com/2.0/?method=artist.getInfo&api_key=\(KeychainService.lastfmApiKey)&artist=\(track.artist.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&format=json")!
 
@@ -304,7 +303,7 @@ class SystemScrobbleService: ObservableObject {
                        let urlStr = img["#text"] as? String, !urlStr.isEmpty,
                        let url = URL(string: urlStr) {
                         let (imgData, _) = try await URLSession.shared.data(from: url)
-                        if let image = NSImage(data: imgData) {
+                        if let image = PlatformImage(data: imgData) {
                             let updated = track.withArtwork(image)
                             bridge.activeSources[track.sourceBundleId] = updated
                             if bridge.currentTrack?.sourceBundleId == track.sourceBundleId {
@@ -319,13 +318,11 @@ class SystemScrobbleService: ObservableObject {
         } catch {}
 
         // Last resort: YouTube video thumbnail directly
-        // Most YouTube video IDs are in the sourceAppName from the filter
-        // Use a generic high-quality thumbnail pattern
         if let videoId = findCurrentYouTubeVideoId() {
             let thumbURL = URL(string: "https://img.youtube.com/vi/\(videoId)/hqdefault.jpg")!
             do {
                 let (data, _) = try await URLSession.shared.data(from: thumbURL)
-                if let image = NSImage(data: data) {
+                if let image = PlatformImage(data: data) {
                     let updated = track.withArtwork(image)
                     bridge.activeSources[track.sourceBundleId] = updated
                     if bridge.currentTrack?.sourceBundleId == track.sourceBundleId {
@@ -338,11 +335,15 @@ class SystemScrobbleService: ObservableObject {
     }
 
     private func findCurrentYouTubeVideoId() -> String? {
+        #if os(macOS)
         // Check the last browser title key for a YouTube URL
         let lastTitle = bridge.lastBrowserTitle
         // The bridge stores "bundleId:title" — we need to find the URL from the last poll
         // For now, return nil — we'll improve this later
         return nil
+        #else
+        return nil
+        #endif
     }
 
     // MARK: - Scrobble Submission
