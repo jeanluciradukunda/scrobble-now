@@ -195,7 +195,7 @@ struct CollageView: View {
         .sensoryFeedback(.impact(weight: .heavy), trigger: vm.albums.count) { old, new in
             new > 0 && old == 0
         }
-        .sensoryFeedback(.success, trigger: vm.exportMessage) { _, new in new != nil }
+        .sensoryFeedback(.success, trigger: vm.exportSuccesses)
     }
 
     // MARK: - Collage Grid
