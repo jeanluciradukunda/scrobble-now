@@ -14,3 +14,19 @@ struct AppUpdaterTests {
         #expect(!AppUpdater.shared.isConfigured)
     }
 }
+
+struct UpdateReminderTests {
+    @Test func menuBarAppOptsIntoGentleReminders() {
+        #expect(UpdateReminderDelegate().supportsGentleScheduledUpdateReminders)
+    }
+}
+
+#if os(macOS)
+import AppKit
+
+struct UpdateBadgeSymbolTests {
+    @Test func badgeSymbolExists() {
+        #expect(NSImage(systemSymbolName: "waveform.badge.exclamationmark", accessibilityDescription: nil) != nil)
+    }
+}
+#endif
