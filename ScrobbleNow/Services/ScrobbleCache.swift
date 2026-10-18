@@ -32,13 +32,13 @@ actor ScrobbleCache {
     // MARK: - Retry all pending scrobbles
 
     func retryPending(using lastfm: LastFMService) async -> (succeeded: Int, failed: Int) {
-        var pending = loadPending()
+        let pending = loadPending()
         guard !pending.isEmpty else { return (0, 0) }
 
         var succeeded = 0
         var stillFailed: [ScrobbleCacheEntry] = []
 
-        for entry in pending {
+        for (index, entry) in pending.enumerated() {
             do {
                 try await lastfm.scrobble(
                     artist: entry.artist,
@@ -48,6 +48,11 @@ actor ScrobbleCache {
                 )
                 succeeded += 1
                 logHistory(entry, success: true)
+            } catch let error as LastFMService.LastFMError where error.disposition == .keepUntilFixed {
+                stillFailed.append(contentsOf: pending[index...])
+                break
+            } catch let error as LastFMService.LastFMError where error.disposition == .drop {
+                logHistory(entry, success: false)
             } catch {
                 var failed = entry
                 failed.retryCount += 1
