@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CollageView: View {
     @StateObject private var vm = CollageViewModel()
+
     #if os(iOS)
     @State private var collageShareImage: Image?
     @State private var showShareSheet = false
@@ -22,56 +23,77 @@ struct CollageView: View {
             }
             .padding(.horizontal, 16)
 
-            // Grid size selector
-            HStack(spacing: 4) {
-                ForEach(CollageViewModel.gridSizes, id: \.label) { size in
-                    Button {
-                        vm.gridSize = size
-                        Task { await vm.generate() }
-                    } label: {
-                        Text(size.label)
-                            .font(.system(size: 8, weight: vm.gridSize.label == size.label ? .bold : .medium))
-                            .foregroundStyle(vm.gridSize.label == size.label ? .white : .secondary)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 3)
-                            .background {
-                                if vm.gridSize.label == size.label {
-                                    Capsule().fill(AppAccent.current.opacity(0.7))
-                                } else {
-                                    Capsule().fill(Color.white.opacity(0.05))
-                                }
-                            }
-                    }
-                    .buttonStyle(.plain)
-                }
+            HStack(spacing: 8) {
+                Text("\(vm.gridDimension)×\(vm.gridDimension)")
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .foregroundStyle(AppAccent.current)
+                    .frame(width: 38)
+                    .contentTransition(.numericText(value: Double(vm.gridDimension)))
+                    .animation(.snappy(duration: 0.15), value: vm.gridDimension)
 
-                Spacer()
+                Slider(
+                    value: Binding(
+                        get: { Double(vm.gridDimension) },
+                        set: { vm.gridDimension = Int($0) }
+                    ),
+                    in: 2...10,
+                    step: 1
+                )
+                .frame(maxWidth: .infinity)
+                #if os(iOS)
+                .controlSize(.mini)
+                #endif
+                .accessibilityLabel("Grid size")
+                .accessibilityValue("\(vm.gridDimension) by \(vm.gridDimension)")
+                .sensoryFeedback(.selection, trigger: vm.gridDimension)
 
-                // Period
-                Menu {
+                Text("\(vm.gridDimension * vm.gridDimension)")
+                    .font(.system(size: 8, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.quaternary)
+                    .frame(width: 28, alignment: .trailing)
+                    .contentTransition(.numericText(value: Double(vm.gridDimension * vm.gridDimension)))
+                    .animation(.snappy(duration: 0.15), value: vm.gridDimension)
+            }
+            .padding(.horizontal, 16)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 4) {
                     ForEach(LibraryViewModel.periods, id: \.value) { period in
-                        Button(period.label) {
+                        Button {
                             vm.period = period.value
                             Task { await vm.generate() }
+                        } label: {
+                            Text(period.label)
+                                .font(.system(size: 9, weight: vm.period == period.value ? .bold : .medium))
+                                .foregroundStyle(vm.period == period.value ? .white : .secondary)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background {
+                                    if vm.period == period.value {
+                                        Capsule().fill(AppAccent.current.opacity(0.7))
+                                    } else {
+                                        Capsule().fill(Color.white.opacity(0.05))
+                                    }
+                                }
                         }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(period.label)
+                        .accessibilityAddTraits(vm.period == period.value ? .isSelected : [])
                     }
-                } label: {
-                    HStack(spacing: 2) {
-                        Text(vm.periodLabel)
-                            .font(.system(size: 8, weight: .medium))
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 6))
-                    }
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 3)
-                    .background(Color.white.opacity(0.05), in: Capsule())
                 }
-                #if os(macOS)
-                .menuStyle(.borderlessButton)
-                #endif
-                .fixedSize()
+                .padding(.horizontal, 16)
             }
+            .sensoryFeedback(.selection, trigger: vm.period)
+
+            // Toggles row
+            HStack(spacing: 14) {
+                Toggle("Titles", isOn: $vm.showTitles)
+                Toggle("Hide no-cover", isOn: $vm.hideAlbumsWithoutCovers)
+                Spacer()
+            }
+            .toggleStyle(.switch)
+            .controlSize(.mini)
+            .font(.system(size: 9))
             .padding(.horizontal, 16)
 
             // Collage grid
@@ -87,7 +109,7 @@ struct CollageView: View {
                     Task { await vm.generate() }
                 }
                 .buttonStyle(.plain)
-                .font(.system(size: 10, weight: .medium))
+                .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(AppAccent.current)
                 .padding(.top, 4)
                 Spacer()
@@ -159,13 +181,6 @@ struct CollageView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 4)
-
-                // Show titles toggle
-                Toggle("Show titles", isOn: $vm.showTitles)
-                    .font(.system(size: 9))
-                    .toggleStyle(.switch)
-                    .controlSize(.mini)
-                    .padding(.horizontal, 16)
             }
 
             Spacer(minLength: 4)
@@ -177,13 +192,17 @@ struct CollageView: View {
             }
         }
         #endif
+        .sensoryFeedback(.impact(weight: .heavy), trigger: vm.albums.count) { old, new in
+            new > 0 && old == 0
+        }
+        .sensoryFeedback(.success, trigger: vm.exportMessage) { _, new in new != nil }
     }
 
     // MARK: - Collage Grid
 
     private var collageGrid: some View {
         let cols = vm.gridSize.cols
-        let albums = Array(vm.albums.prefix(vm.gridSize.total))
+        let albums = Array(vm.filteredAlbums.prefix(vm.gridSize.total))
 
         return LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: cols), spacing: 2) {
             ForEach(Array(albums.enumerated()), id: \.element.id) { _, album in

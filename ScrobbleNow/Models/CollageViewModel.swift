@@ -18,20 +18,22 @@ struct GridSize: Equatable {
 class CollageViewModel: ObservableObject {
     @Published var albums: [TopAlbumEntry] = []
     @Published var isLoading = false
-    @Published var gridSize: GridSize = GridSize(label: "3×3", cols: 3, rows: 3)
+    @Published var gridDimension: Int = 3
     @Published var period: String = "7day"
-    @Published var showTitles: Bool = true
+    @Published var showTitles: Bool = false
+    @Published var hideAlbumsWithoutCovers: Bool = false
     @Published var exportMessage: String?
 
     /// Pre-downloaded artwork keyed by URL string
     private var downloadedImages: [String: PlatformImage] = [:]
 
-    static let gridSizes: [GridSize] = [
-        GridSize(label: "3×3", cols: 3, rows: 3),
-        GridSize(label: "4×4", cols: 4, rows: 4),
-        GridSize(label: "5×5", cols: 5, rows: 5),
-        GridSize(label: "10×10", cols: 10, rows: 10),
-    ]
+    var gridSize: GridSize {
+        GridSize(label: "\(gridDimension)×\(gridDimension)", cols: gridDimension, rows: gridDimension)
+    }
+
+    var filteredAlbums: [TopAlbumEntry] {
+        hideAlbumsWithoutCovers ? albums.filter { $0.artworkURL != nil } : albums
+    }
 
     var periodLabel: String {
         LibraryViewModel.periods.first(where: { $0.value == period })?.label ?? period
@@ -45,7 +47,9 @@ class CollageViewModel: ObservableObject {
 
         isLoading = true
         do {
-            albums = try await lastfm.getTopAlbums(user: username, period: period, limit: gridSize.total)
+            // The slider resizes without refetching, and export draws only downloaded covers, so fetch the 10×10 maximum.
+            let fetchLimit = max(100, gridSize.total)
+            albums = try await lastfm.getTopAlbums(user: username, period: period, limit: fetchLimit)
             // Pre-download all artwork so export doesn't block
             await predownloadArtwork()
         } catch {
@@ -56,7 +60,7 @@ class CollageViewModel: ObservableObject {
 
     private func predownloadArtwork() async {
         await withTaskGroup(of: (String, PlatformImage?).self) { group in
-            for album in albums.prefix(gridSize.total) {
+            for album in albums {
                 guard let url = album.artworkURL else { continue }
                 let key = url.absoluteString
                 if downloadedImages[key] != nil { continue }
@@ -145,7 +149,8 @@ class CollageViewModel: ObservableObject {
     private func renderCollagePNG() -> Data? {
         let cellSize = 300
         let cols = gridSize.cols
-        let rows = min(gridSize.rows, (albums.count + cols - 1) / cols)
+        let visibleCount = filteredAlbums.prefix(gridSize.total).count
+        let rows = min(gridSize.rows, (visibleCount + cols - 1) / cols)
         let width = cols * cellSize
         let height = rows * cellSize
 
@@ -172,7 +177,7 @@ class CollageViewModel: ObservableObject {
         NSColor.black.setFill()
         NSRect(x: 0, y: 0, width: width, height: height).fill()
 
-        let subset = Array(albums.prefix(gridSize.total))
+        let subset = Array(filteredAlbums.prefix(gridSize.total))
         for (i, album) in subset.enumerated() {
             let col = i % cols
             let row = i / cols
@@ -235,7 +240,7 @@ class CollageViewModel: ObservableObject {
             UIColor.black.setFill()
             ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
 
-            let subset = Array(albums.prefix(gridSize.total))
+            let subset = Array(filteredAlbums.prefix(gridSize.total))
             for (i, album) in subset.enumerated() {
                 let col = i % cols
                 let row = i / cols
