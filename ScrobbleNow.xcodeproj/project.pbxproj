@@ -68,6 +68,7 @@
 		8FAECCD67931F57234F4F61D /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */; };
 		946BD53FD4FFDE08673F91A2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475214BADE0D94B22F53D601 /* SettingsView.swift */; };
 		95C52601CE30BA78852058F8 /* AlbumDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */; };
+		98916A9893E2FC76FF52183D /* BridgeAnnounceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1433EF6AAB086474129AD51 /* BridgeAnnounceTests.swift */; };
 		98B24A70524A5C518EF27421 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCD2BD832C94BD88F4F7299 /* HistoryViewModel.swift */; };
 		9AAB082D4C52B0BB2986EC91 /* StatisticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A3650658D9721D4060B6A6 /* StatisticsViewModel.swift */; };
 		A06110905BCE6E1233B27F1A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475214BADE0D94B22F53D601 /* SettingsView.swift */; };
@@ -158,6 +159,7 @@
 		BCB2BB2F20879D5AA4800774 /* LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewModel.swift; sourceTree = "<group>"; };
 		BF9BDB1C50EA86588165F202 /* ScrobbleCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleCache.swift; sourceTree = "<group>"; };
 		C962FA640E5DCB09F0AA1FFA /* PlatformImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformImage.swift; sourceTree = "<group>"; };
+		D1433EF6AAB086474129AD51 /* BridgeAnnounceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeAnnounceTests.swift; sourceTree = "<group>"; };
 		D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		D8C98113A7ABDD5E7BDF1F23 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		DB67D6E70719959ED127C567 /* iTunesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iTunesService.swift; sourceTree = "<group>"; };
@@ -266,6 +268,7 @@
 			children = (
 				7380D7C9C6C6CECE85339D18 /* AlbumNormaliseTests.swift */,
 				195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */,
+				D1433EF6AAB086474129AD51 /* BridgeAnnounceTests.swift */,
 				6606687BCF9E1498E0A1CE79 /* CacheServiceTests.swift */,
 				F8A2E41BA9585185F71B82EB /* LastFMRequestTests.swift */,
 				F074F1740C761909CC599214 /* LastFMResponseTests.swift */,
@@ -528,6 +531,7 @@
 			files = (
 				659A439E391453E04A706FF1 /* APITrackerTests.swift in Sources */,
 				5D863AFCF53A06DEBC27F78F /* AlbumNormaliseTests.swift in Sources */,
+				98916A9893E2FC76FF52183D /* BridgeAnnounceTests.swift in Sources */,
 				5471BDD6A041D659CC3B7555 /* CacheServiceTests.swift in Sources */,
 				04ADD9F83A79D5A6A494ABBE /* LastFMRequestTests.swift in Sources */,
 				E639095D8ADEFD2DA475E3E7 /* LastFMResponseTests.swift in Sources */,
