@@ -51,6 +51,7 @@
 		659A439E391453E04A706FF1 /* APITrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */; };
 		699BE5E7825946678B4120EE /* PlatformImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C962FA640E5DCB09F0AA1FFA /* PlatformImage.swift */; };
 		6A4C549A6B7F29C31553C055 /* DiscogsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */; };
+		6B2B61EE009C8848E813AC73 /* AlbumNormalisation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCC8D91322CB2BF8D994B12 /* AlbumNormalisation.swift */; };
 		6CFF6CD9103720A4B84760BA /* WikidataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */; };
 		6E256F60E0DA83541A6ACBC0 /* MPNowPlayingBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6CF26C04EC1F288F7BF407 /* MPNowPlayingBridge.swift */; };
 		72211E1C53163C98A5AC00C9 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */; };
@@ -92,6 +93,7 @@
 		D9643C658E5F4D823638ED9A /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD12B4CB16C74BEFCD7E7473 /* Track.swift */; };
 		DD135A1C4DAF72925830D6F7 /* MetricsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F6052BE4C62C9BBD87485D /* MetricsService.swift */; };
 		DF35F5B9EE37C276DC9F5710 /* ScrobbleNowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36C5EFF085D5F70BD16C3644 /* ScrobbleNowApp.swift */; };
+		DFAE68C13FF092F59EA2C1D9 /* AlbumNormalisation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCC8D91322CB2BF8D994B12 /* AlbumNormalisation.swift */; };
 		E1FD89349690CCE755E3E772 /* SparklineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD1B44005A77903F50E51973 /* SparklineView.swift */; };
 		E24C3C4AF9925E1A11F4E6AD /* ScrobbleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0977F9C959BD74B3EA1A2458 /* ScrobbleEngine.swift */; };
 		E3DF95B2154AFCE503186E97 /* PodcastFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06298860519D35054AB31DE9 /* PodcastFilterTests.swift */; };
@@ -158,6 +160,7 @@
 		8F0C55D55CA394E6FF2818F9 /* SystemNowPlaying.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNowPlaying.swift; sourceTree = "<group>"; };
 		922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingViewModel.swift; sourceTree = "<group>"; };
 		AB479C6E709FA48840511EBB /* CacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheService.swift; sourceTree = "<group>"; };
+		ABCC8D91322CB2BF8D994B12 /* AlbumNormalisation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumNormalisation.swift; sourceTree = "<group>"; };
 		AD6CF26C04EC1F288F7BF407 /* MPNowPlayingBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MPNowPlayingBridge.swift; sourceTree = "<group>"; };
 		BCB2BB2F20879D5AA4800774 /* LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewModel.swift; sourceTree = "<group>"; };
 		BF9BDB1C50EA86588165F202 /* ScrobbleCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleCache.swift; sourceTree = "<group>"; };
@@ -226,6 +229,7 @@
 		3DFA6566359A02711AFDEB82 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				ABCC8D91322CB2BF8D994B12 /* AlbumNormalisation.swift */,
 				C962FA640E5DCB09F0AA1FFA /* PlatformImage.swift */,
 				E2A662AF3CBAFD3B72A35836 /* QueryEncoding.swift */,
 			);
@@ -497,6 +501,7 @@
 				752BE5B3D2722A9D1A68EF13 /* Album.swift in Sources */,
 				04631386DFDB792CA8ED03F8 /* AlbumDetailView.swift in Sources */,
 				95C52601CE30BA78852058F8 /* AlbumDiscoveryService.swift in Sources */,
+				DFAE68C13FF092F59EA2C1D9 /* AlbumNormalisation.swift in Sources */,
 				2D8CF4034D649388E7205462 /* CacheService.swift in Sources */,
 				B31F0CA9754B15949A380E5D /* CollageView.swift in Sources */,
 				FE6EB7BCD3CB3413049A8DA6 /* CollageViewModel.swift in Sources */,
@@ -564,6 +569,7 @@
 				292661EC3FD2C9201A251D7C /* Album.swift in Sources */,
 				05BA47968FBBFEC344CF9800 /* AlbumDetailView.swift in Sources */,
 				A3BCFFCFA5E125BF09C74B4E /* AlbumDiscoveryService.swift in Sources */,
+				6B2B61EE009C8848E813AC73 /* AlbumNormalisation.swift in Sources */,
 				77A86A4F46081352DA4AA51F /* CacheService.swift in Sources */,
 				ACB62FE43B215150A9B93041 /* CollageView.swift in Sources */,
 				CF56914916AA5B8CC433D86F /* CollageViewModel.swift in Sources */,
