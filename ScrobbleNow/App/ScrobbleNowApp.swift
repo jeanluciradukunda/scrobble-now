@@ -12,6 +12,7 @@ struct ScrobbleNowApp: App {
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
         KeychainService.bootstrapDefaults()
         MediaRemoteBridge.shared.startListening()
+        AppUpdater.shared.start()
 
         // Refresh history feed immediately after a successful scrobble
         let vm = viewModel
