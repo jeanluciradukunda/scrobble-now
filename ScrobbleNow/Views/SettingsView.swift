@@ -14,7 +14,25 @@ struct SettingsView: View {
     @State private var isAuthenticating = false
     @State private var authError: String?
 
+    @State private var showDisconnectConfirm = false
+
     private let lastfmService = LastFMService()
+
+    #if os(macOS)
+    /// An app-modal alert rather than a SwiftUI dialog: a dialog attached to the menu-bar panel can close with
+    /// the panel before Quit is pressed, and with no Dock icon there is no other way to quit.
+    private func confirmQuit() {
+        let alert = NSAlert()
+        alert.messageText = "Quit Scrobble Now?"
+        alert.informativeText = "Scrobbling stops until you open it again."
+        alert.addButton(withTitle: "Quit")
+        alert.addButton(withTitle: "Cancel")
+        NSApp.activate(ignoringOtherApps: true)
+        if alert.runModal() == .alertFirstButtonReturn {
+            NSApplication.shared.terminate(nil)
+        }
+    }
+    #endif
 
     var body: some View {
         VStack(spacing: 0) {
@@ -50,6 +68,15 @@ struct SettingsView: View {
                 }
                 .padding(16)
             }
+        }
+        .confirmationDialog("Disconnect from Last.fm?", isPresented: $showDisconnectConfirm, titleVisibility: .visible) {
+            Button("Disconnect", role: .destructive) {
+                settings.lastfmUsername = ""
+                KeychainService.delete(.lastfmSessionKey)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Scrobble Now will stop submitting scrobbles. Your history on Last.fm is kept.")
         }
     }
 
@@ -123,21 +150,25 @@ struct SettingsView: View {
             settingsToggle("Show track in menu bar", isOn: $settings.showTitleInMenuBar)
             #endif
 
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 5), spacing: 4) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 5), spacing: 0) {
                 ForEach(AppAccent.options) { option in
                     Button {
                         settings.accentColorName = option.id
                     } label: {
                         Circle()
                             .fill(option.color)
-                            .frame(width: 20, height: 20)
+                            .frame(width: 22, height: 22)
                             .overlay {
                                 if settings.accentColorName == option.id {
                                     Circle().strokeBorder(.white, lineWidth: 2)
                                 }
                             }
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(option.name)
+                    .accessibilityAddTraits(settings.accentColorName == option.id ? .isSelected : [])
                     .help(option.name)
                 }
             }
@@ -149,7 +180,7 @@ struct SettingsView: View {
             HStack {
                 Spacer()
                 Button("Quit Scrobble Now") {
-                    NSApplication.shared.terminate(nil)
+                    confirmQuit()
                 }
                 .buttonStyle(.plain)
                 .font(.system(size: 9, weight: .medium))
@@ -702,8 +733,7 @@ struct SettingsView: View {
                 }
                 Spacer()
                 Button("Disconnect") {
-                    settings.lastfmUsername = ""
-                    KeychainService.delete(.lastfmSessionKey)
+                    showDisconnectConfirm = true
                 }
                 .buttonStyle(.plain)
                 .font(.system(size: 8, weight: .medium))
