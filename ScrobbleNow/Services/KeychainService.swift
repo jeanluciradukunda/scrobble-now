@@ -44,14 +44,24 @@ struct KeychainService {
     }
 
     static func bootstrapDefaults() {
-        let defaults: [(Key, String)] = loadSecretsFromPlist()
-        for (key, value) in defaults where !value.isEmpty {
-            // Always overwrite from Secrets.plist — the plist is the source of truth
-            let existing = get(key) ?? ""
-            if existing.isEmpty || existing != value {
-                set(key, value: value)
+        seed(loadSecretsFromPlist(), into: defaults)
+    }
+
+    /// Real values from Secrets.plist win; the template's `YOUR_..._HERE` placeholders are never stored,
+    /// and a placeholder already stored (by v1.1.0) is removed so Settings reports the key as missing.
+    static func seed(_ values: [(Key, String)], into store: UserDefaults) {
+        for (key, value) in values {
+            let storeKey = prefix + key.rawValue
+            if isPlaceholder(store.string(forKey: storeKey) ?? "") {
+                store.removeObject(forKey: storeKey)
             }
+            guard !value.isEmpty, !isPlaceholder(value) else { continue }
+            store.set(value, forKey: storeKey)
         }
+    }
+
+    static func isPlaceholder(_ value: String) -> Bool {
+        value.hasPrefix("YOUR_") && value.hasSuffix("_HERE")
     }
 
     // MARK: - Convenience
