@@ -20,6 +20,12 @@ jobs:
       - name: Build
         run: |
           xcodebuild -scheme ScrobbleNow -configuration Debug -destination 'platform=macOS' CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO build
+      - name: Diagnose iOS toolchain
+        run: |
+          ls /Applications | grep Xcode
+          xcrun simctl list runtimes
+          xcrun --sdk iphonesimulator --show-sdk-version
+          xcodebuild -showsdks | grep -i simulator
       - name: Build iOS
         run: |
           xcodebuild -scheme ScrobbleNowiOS -configuration Debug -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
