@@ -60,6 +60,14 @@ class SystemScrobbleService: ObservableObject {
                 self?.handleTrackChange(track)
             }
         }
+        #if os(macOS)
+        bridge.onArtworkLoaded = { [weak self] track in
+            Task { @MainActor in
+                guard let self, self.currentTrack == track, let artwork = track.artwork else { return }
+                self.currentTrack = self.currentTrack?.withArtwork(artwork)
+            }
+        }
+        #endif
 
         // Sync initial state
         if let track = bridge.currentTrack {

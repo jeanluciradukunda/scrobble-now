@@ -16,6 +16,7 @@ class MediaRemoteBridge: ObservableObject {
     @Published var isPlaying: Bool = false
 
     var onTrackChange: ((SystemNowPlaying?) -> Void)?
+    var onArtworkLoaded: ((SystemNowPlaying) -> Void)?
 
     @Published private(set) var adapterStatus: AdapterStatus = .off
 
@@ -172,19 +173,23 @@ class MediaRemoteBridge: ObservableObject {
 
         guard !title.isEmpty else { return }
 
-        var track = SystemNowPlaying(
+        let track = SystemNowPlaying(
             title: title, artist: artist, album: album,
             duration: duration, elapsed: 0, playbackRate: 1.0,
             artwork: nil, sourceBundleId: "com.spotify.client",
             sourceAppName: "Spotify", timestamp: Date()
         )
+        updateSource(track)
 
-        // Load artwork async
+        // Artwork arrives later; applying it only to the still-current track keeps a slow fetch for an
+        // earlier track from making that track current again.
         Task {
-            if let artwork = await loadSpotifyArtwork() {
-                track = track.withArtwork(artwork)
-            }
-            self.updateSource(track)
+            guard let artwork = await loadSpotifyArtwork(),
+                  let latest = activeSources[track.sourceBundleId], latest == track else { return }
+            let withArtwork = latest.withArtwork(artwork)
+            activeSources[track.sourceBundleId] = withArtwork
+            if currentTrack == track { currentTrack = withArtwork }
+            onArtworkLoaded?(withArtwork)
         }
     }
 
@@ -636,8 +641,8 @@ class MediaRemoteBridge: ObservableObject {
     // MARK: - Multi-source Management
 
     private func updateSource(_ track: SystemNowPlaying) {
-        let isNew = activeSources[track.sourceBundleId]?.title != track.title
-                 || activeSources[track.sourceBundleId]?.artist != track.artist
+        let announce = Self.shouldAnnounce(existing: activeSources[track.sourceBundleId], incoming: track,
+                                           currentSource: currentTrack?.sourceBundleId)
 
         activeSources[track.sourceBundleId] = track
 
@@ -647,10 +652,20 @@ class MediaRemoteBridge: ObservableObject {
             isPlaying = true
         }
 
-        if isNew && track.isPlaying {
+        if announce {
             print("[NowPlaying] 🎵 \(track.artist) — \(track.title) (via \(track.sourceAppName))")
             onTrackChange?(track)
         }
+    }
+
+    /// A new title on a source is a track change; so is a paused source starting again while another source
+    /// is current (switching back to it), or the scrobbler keeps counting time against the other track.
+    nonisolated static func shouldAnnounce(existing: SystemNowPlaying?, incoming: SystemNowPlaying,
+                                           currentSource: String?) -> Bool {
+        guard incoming.isPlaying else { return false }
+        guard let existing else { return true }
+        if existing.title != incoming.title || existing.artist != incoming.artist { return true }
+        return !existing.isPlaying && currentSource != incoming.sourceBundleId
     }
 
     private func markPaused(_ bundleId: String) {
