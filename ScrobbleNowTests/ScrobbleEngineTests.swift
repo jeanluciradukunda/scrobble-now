@@ -121,6 +121,65 @@ struct ScrobbleEngineTests {
         #expect(first.count == 1)
         #expect(onResume.isEmpty)
         #expect(afterResume.isEmpty)
+        #expect(engine.didScrobbleCurrent)
+        #expect(engine.accumulatedPlayTime == 180)
+    }
+
+    @Test func resumingWithAReportedPositionKeepsThatPosition() {
+        var engine = ScrobbleEngine()
+        _ = engine.trackChanged(to: track("a"), now: start, rules: rules, isAllowed: allowAll)
+        let (_, mid) = play(&engine, seconds: 50, from: start)
+        _ = engine.trackChanged(to: nil, now: mid, rules: rules, isAllowed: allowAll)
+        _ = engine.trackChanged(to: track("a", elapsed: 52), now: mid.addingTimeInterval(30), rules: rules, isAllowed: allowAll)
+        #expect(engine.accumulatedPlayTime == 52)
+    }
+
+    @Test func goingBackToTheStartIsANewPlay() {
+        var engine = ScrobbleEngine()
+        _ = engine.trackChanged(to: track("a"), now: start, rules: rules, isAllowed: allowAll)
+        let (_, mid) = play(&engine, seconds: 120, from: start)
+        _ = engine.trackChanged(to: nil, now: mid, rules: rules, isAllowed: allowAll)
+        _ = engine.trackChanged(to: track("a", elapsed: 3), now: mid.addingTimeInterval(10), rules: rules, isAllowed: allowAll)
+        #expect(!engine.didScrobbleCurrent)
+        #expect(engine.accumulatedPlayTime == 3)
+    }
+
+    @Test func aLongTrackPausedForAgesStillScrobblesOnce() {
+        var engine = ScrobbleEngine()
+        _ = engine.trackChanged(to: track("mix", duration: 1200), now: start, rules: rules, isAllowed: allowAll)
+        let (first, mid) = play(&engine, seconds: 300, from: start)
+        _ = engine.trackChanged(to: nil, now: mid, rules: rules, isAllowed: allowAll)
+        let resumedAt = mid.addingTimeInterval(3600)
+        _ = engine.trackChanged(to: track("mix", duration: 1200), now: resumedAt, rules: rules, isAllowed: allowAll)
+        let (afterResume, _) = play(&engine, seconds: 600, from: resumedAt)
+        #expect(first.count == 1)
+        #expect(afterResume.isEmpty)
+    }
+
+    @Test func noRepeatsWhenRepeatDetectionIsOff() {
+        var engine = ScrobbleEngine()
+        _ = engine.trackChanged(to: track("tab", duration: 120), now: start, rules: rules, isAllowed: allowAll)
+        var now = start
+        var scrobbles: [PendingScrobble] = []
+        for _ in 0..<3600 {
+            now = now.addingTimeInterval(1)
+            scrobbles += engine.tick(isPlaying: true, canRepeat: false, now: now, rules: rules, isAllowed: allowAll)
+        }
+        #expect(scrobbles.count == 1)
+    }
+
+    @Test func pausedSourceAccruesNothingAfterTheScrobble() {
+        var engine = ScrobbleEngine()
+        _ = engine.trackChanged(to: track("a"), now: start, rules: rules, isAllowed: allowAll)
+        let (first, mid) = play(&engine, seconds: 110, from: start)
+        var now = mid
+        var later: [PendingScrobble] = []
+        for _ in 0..<3600 {
+            now = now.addingTimeInterval(1)
+            later += engine.tick(isPlaying: false, now: now, rules: rules, isAllowed: allowAll)
+        }
+        #expect(first.count == 1)
+        #expect(later.isEmpty)
     }
 
     @Test func restartingMidTrackDoesNotScrobbleAgain() {

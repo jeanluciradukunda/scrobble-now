@@ -85,7 +85,8 @@ struct ScrobbleEngine {
     }
 
     mutating func tick(
-        isPlaying: Bool, now: Date, rules: ScrobbleRules, isAllowed: (SystemNowPlaying) -> Bool
+        isPlaying: Bool, canRepeat: Bool = true, now: Date, rules: ScrobbleRules,
+        isAllowed: (SystemNowPlaying) -> Bool
     ) -> [PendingScrobble] {
         defer { lastTick = now }
         guard isPlaying, var current = play else { return [] }
@@ -98,7 +99,7 @@ struct ScrobbleEngine {
 
         // Playing on past the end of the track means it started again (repeat or loop).
         let duration = current.track.duration
-        if duration > 0, current.accumulated >= duration + 2 {
+        if canRepeat, duration > 0, current.accumulated >= duration + 2 {
             let intoRepeat = current.accumulated - duration
             current = Play(track: current.track, startedAt: now.addingTimeInterval(-intoRepeat),
                            accumulated: intoRepeat, didScrobble: false, lastHeard: now)
@@ -109,8 +110,10 @@ struct ScrobbleEngine {
 
     private func resumedPlay(of track: SystemNowPlaying, now: Date) -> Play? {
         guard var earlier = previous, earlier.track == track,
-              now.timeIntervalSince(earlier.lastHeard) < Self.resumeWindow,
               track.elapsed <= 0 || track.elapsed >= earlier.accumulated - 5 else { return nil }
+        // A scrobbled track that never reached its end is still the same listen, however long the pause.
+        let unfinished = earlier.didScrobble && earlier.track.duration > 0 && earlier.accumulated < earlier.track.duration
+        guard unfinished || now.timeIntervalSince(earlier.lastHeard) < Self.resumeWindow else { return nil }
         if track.elapsed > 0 { earlier.accumulated = track.elapsed }
         earlier.lastHeard = now
         return earlier

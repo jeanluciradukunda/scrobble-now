@@ -112,15 +112,20 @@ class SystemScrobbleService: ObservableObject {
 
     private func tick() {
         isPlaying = bridge.isPlaying
-        let playing = currentTrack != nil && isPlaying
-        let scrobbles = engine.tick(isPlaying: isPlaying, now: Date(), rules: rules, isAllowed: canScrobble)
+        // bridge.isPlaying covers every source and stays true while another one plays, so count only while
+        // the play's own source is playing, or a paused track keeps accruing time and repeating.
+        let source = engine.current.flatMap { bridge.activeSources[$0.sourceBundleId] }
+        let playing = isPlaying && (source?.isPlaying ?? false)
+        let canRepeat = !Self.browserBundleIds.contains(engine.current?.sourceBundleId ?? "")
+        let scrobbles = engine.tick(isPlaying: playing, canRepeat: canRepeat, now: Date(), rules: rules,
+                                    isAllowed: canScrobble)
 
         // Update the track's elapsed time for the UI progress bar
         if playing, let track = currentTrack, track.duration > 0 {
             let updatedTrack = SystemNowPlaying(
                 title: track.title, artist: track.artist, album: track.album,
                 duration: track.duration, elapsed: min(engine.accumulatedPlayTime, track.duration),
-                playbackRate: track.playbackRate, artwork: track.artwork,
+                playbackRate: source?.playbackRate ?? track.playbackRate, artwork: track.artwork,
                 sourceBundleId: track.sourceBundleId, sourceAppName: track.sourceAppName,
                 timestamp: track.timestamp
             )
@@ -156,6 +161,12 @@ class SystemScrobbleService: ObservableObject {
         guard let data = UserDefaults.standard.data(forKey: lastScrobbleKey) else { return nil }
         return try? JSONDecoder().decode(ScrobbleRecord.self, from: data)
     }
+
+    /// Browser tabs report playing whenever a music tab is open, so a repeat cannot be told from a paused tab.
+    private static let browserBundleIds: Set<String> = [
+        "com.google.Chrome", "com.apple.Safari", "company.thebrowser.Browser", "com.brave.Browser",
+        "org.mozilla.firefox", "com.microsoft.edgemac"
+    ]
 
     private func canScrobble(_ track: SystemNowPlaying) -> Bool {
         isEnabled && isConnectorEnabled(for: track.sourceBundleId)
