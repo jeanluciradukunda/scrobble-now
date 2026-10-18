@@ -106,13 +106,7 @@ jobs:
           APP_PATH="${{ runner.temp }}/export/Scrobble Now.app"
           SIGN_ID="Developer ID Application"
 
-          cat > "${{ runner.temp }}/release.entitlements" << 'ENTITLEMENTS'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0"><dict>
-            <key>com.apple.security.app-sandbox</key><false/>
-          </dict></plist>
-          ENTITLEMENTS
+          cp ScrobbleNow/Resources/ScrobbleNow.entitlements "${{ runner.temp }}/release.entitlements"
 
           find "$APP_PATH" -type f -print0 | while IFS= read -r -d '' f; do
             if file "$f" | grep -q "Mach-O"; then
