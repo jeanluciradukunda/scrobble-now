@@ -33,6 +33,7 @@
 		25D07AA16642575B11FCD564 /* WikidataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F556D31BB2BA17C92DBE8A80 /* WikidataService.swift */; };
 		26EF427488E4AB61974433F2 /* ScrobbleCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF9BDB1C50EA86588165F202 /* ScrobbleCache.swift */; };
 		292661EC3FD2C9201A251D7C /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA730E7257F76B5CCDFE472 /* Album.swift */; };
+		29FEE60F07551D96FD61600E /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 8EBFCF92CB06FC178F9CC8B3 /* Sparkle */; };
 		2C8948207946A3152F3A7A1E /* AdapterSettingsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A322D42DACEDAB25ED1D4F /* AdapterSettingsRow.swift */; };
 		2D2B5386EB0355DB8D1D2DA7 /* SystemScrobbleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254BEDF3534B4D7781A96A81 /* SystemScrobbleService.swift */; };
 		2D8CF4034D649388E7205462 /* CacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB479C6E709FA48840511EBB /* CacheService.swift */; };
@@ -55,6 +56,7 @@
 		622B2F7D6067897C79067854 /* AudioVisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF54E44F6AEFC8D36975682 /* AudioVisualizerView.swift */; };
 		63C5793D3E0BCDBE450F898E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E00961C407B21D13CF45EB9E /* Assets.xcassets */; };
 		64F761903CAB1C49500BC502 /* ScratchDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26CC09130A9FE26412EECC86 /* ScratchDefaultsTests.swift */; };
+		65090A8368542839D3814CC4 /* AppUpdaterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0AF73E1FF5791114012C97D /* AppUpdaterTests.swift */; };
 		659A439E391453E04A706FF1 /* APITrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */; };
 		65A83E5D0DBB65F3C132C732 /* FailedScrobblesRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80BEC293BC588A9BF54A0683 /* FailedScrobblesRow.swift */; };
 		66E01F35F81C6237DC3A3FEF /* ArtworkSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C741F6BBF59669CF69856B6 /* ArtworkSaver.swift */; };
@@ -74,6 +76,7 @@
 		78C6A2A7C4454084919B997E /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AAB98902C5909700E29F6F7 /* StatisticsView.swift */; };
 		794BF6F6EB95B2631952669F /* DiscogsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */; };
 		7AC847C1CC26873D42E13F78 /* SystemNowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F0C55D55CA394E6FF2818F9 /* SystemNowPlaying.swift */; };
+		7BB396BF78E52DA428A6B064 /* UpdatesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16CBD9934179E0099600CB1D /* UpdatesSection.swift */; };
 		7E3866BF78CCBAED5C9CBC00 /* DiscogsPageURLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE941B3BDB293D03E7FAAF14 /* DiscogsPageURLTests.swift */; };
 		7F898C5AA1FE6904631D66EE /* APITracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FC4A8F0FE421C4A49FDEFB0 /* APITracker.swift */; };
 		838D457CB4833F9EA3B31F14 /* SystemScrobbleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254BEDF3534B4D7781A96A81 /* SystemScrobbleService.swift */; };
@@ -95,6 +98,7 @@
 		A7A3A8106E40084102DE1EE1 /* AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF8BCCC3383C5BF531F7999 /* AccentColor.swift */; };
 		ACB62FE43B215150A9B93041 /* CollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A424FB0DA92E827E33FDB9 /* CollageView.swift */; };
 		B31F0CA9754B15949A380E5D /* CollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A424FB0DA92E827E33FDB9 /* CollageView.swift */; };
+		B3ADC57FEF4C693D0747319E /* AppUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA43F6CECB8827C355CDA1D8 /* AppUpdater.swift */; };
 		B5172DDDFBE9FD9323CBEB54 /* Secrets.example.plist in Resources */ = {isa = PBXBuildFile; fileRef = 599193E3C13DA0BF15B628B4 /* Secrets.example.plist */; };
 		B603E5860627DB04FC9B84EC /* ErrorLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF9E5D5CE60ADBE938BDABD /* ErrorLog.swift */; };
 		BDF75E9C680BDA459A81ABFF /* SystemNowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F0C55D55CA394E6FF2818F9 /* SystemNowPlaying.swift */; };
@@ -149,6 +153,7 @@
 		0EA730E7257F76B5CCDFE472 /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
 		0F789ADEA6E8720D2FB427A3 /* MediaRemoteAvailabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaRemoteAvailabilityTests.swift; sourceTree = "<group>"; };
 		0FF9E5D5CE60ADBE938BDABD /* ErrorLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorLog.swift; sourceTree = "<group>"; };
+		16CBD9934179E0099600CB1D /* UpdatesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatesSection.swift; sourceTree = "<group>"; };
 		195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITrackerTests.swift; sourceTree = "<group>"; };
 		1B404CD40FB787F537581773 /* ScrobbleQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleQueueTests.swift; sourceTree = "<group>"; };
 		1E87055202EAE742C59628D3 /* ScratchDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScratchDefaults.swift; sourceTree = "<group>"; };
@@ -197,6 +202,8 @@
 		8D24391AC51E6123849D9422 /* YouTubeMusicFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeMusicFilterTests.swift; sourceTree = "<group>"; };
 		8F0C55D55CA394E6FF2818F9 /* SystemNowPlaying.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNowPlaying.swift; sourceTree = "<group>"; };
 		922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingViewModel.swift; sourceTree = "<group>"; };
+		A0AF73E1FF5791114012C97D /* AppUpdaterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdaterTests.swift; sourceTree = "<group>"; };
+		AA43F6CECB8827C355CDA1D8 /* AppUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdater.swift; sourceTree = "<group>"; };
 		AB479C6E709FA48840511EBB /* CacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheService.swift; sourceTree = "<group>"; };
 		ABCC8D91322CB2BF8D994B12 /* AlbumNormalisation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumNormalisation.swift; sourceTree = "<group>"; };
 		AD6CF26C04EC1F288F7BF407 /* MPNowPlayingBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MPNowPlayingBridge.swift; sourceTree = "<group>"; };
@@ -223,6 +230,17 @@
 		FD12B4CB16C74BEFCD7E7473 /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
 		FD1B44005A77903F50E51973 /* SparklineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparklineView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CF01CCBF5E2C5C616F43875F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				29FEE60F07551D96FD61600E /* Sparkle in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		15F92CD74F6AABC86282D8FD /* ScrobbleNowiOS */ = {
@@ -263,6 +281,7 @@
 				475214BADE0D94B22F53D601 /* SettingsView.swift */,
 				FD1B44005A77903F50E51973 /* SparklineView.swift */,
 				6AAB98902C5909700E29F6F7 /* StatisticsView.swift */,
+				16CBD9934179E0099600CB1D /* UpdatesSection.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -319,6 +338,7 @@
 			children = (
 				7380D7C9C6C6CECE85339D18 /* AlbumNormaliseTests.swift */,
 				195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */,
+				A0AF73E1FF5791114012C97D /* AppUpdaterTests.swift */,
 				06573730D87C4509F87BFAB7 /* ArtworkSaverTests.swift */,
 				D1433EF6AAB086474129AD51 /* BridgeAnnounceTests.swift */,
 				6606687BCF9E1498E0A1CE79 /* CacheServiceTests.swift */,
@@ -383,6 +403,7 @@
 			children = (
 				402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */,
 				4FC4A8F0FE421C4A49FDEFB0 /* APITracker.swift */,
+				AA43F6CECB8827C355CDA1D8 /* AppUpdater.swift */,
 				4C741F6BBF59669CF69856B6 /* ArtworkSaver.swift */,
 				AB479C6E709FA48840511EBB /* CacheService.swift */,
 				5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */,
@@ -430,6 +451,7 @@
 				605740C98EEDA1C50C1330AC /* Sources */,
 				BE93A4D8CC660D7B55738AC9 /* Build MediaRemoteAdapter */,
 				1F95BCBDEEA05A7CFCACB166 /* Resources */,
+				CF01CCBF5E2C5C616F43875F /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -437,6 +459,7 @@
 			);
 			name = ScrobbleNow;
 			packageProductDependencies = (
+				8EBFCF92CB06FC178F9CC8B3 /* Sparkle */,
 			);
 			productName = ScrobbleNow;
 			productReference = 2D9FC698960908EA651FD429 /* ScrobbleNow.app */;
@@ -491,6 +514,9 @@
 			);
 			mainGroup = A6619675D0217DC5EF5B66B1;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2F0031449F3668EB4A8886A7 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BB00A2E5D0BEC7BD2220E4D7 /* Products */;
 			projectDirPath = "";
@@ -603,6 +629,7 @@
 			files = (
 				659A439E391453E04A706FF1 /* APITrackerTests.swift in Sources */,
 				5D863AFCF53A06DEBC27F78F /* AlbumNormaliseTests.swift in Sources */,
+				65090A8368542839D3814CC4 /* AppUpdaterTests.swift in Sources */,
 				D68B8C4F99C057093349C2C0 /* ArtworkSaverTests.swift in Sources */,
 				98916A9893E2FC76FF52183D /* BridgeAnnounceTests.swift in Sources */,
 				5471BDD6A041D659CC3B7555 /* CacheServiceTests.swift in Sources */,
@@ -643,6 +670,7 @@
 				05BA47968FBBFEC344CF9800 /* AlbumDetailView.swift in Sources */,
 				A3BCFFCFA5E125BF09C74B4E /* AlbumDiscoveryService.swift in Sources */,
 				6B2B61EE009C8848E813AC73 /* AlbumNormalisation.swift in Sources */,
+				B3ADC57FEF4C693D0747319E /* AppUpdater.swift in Sources */,
 				66E01F35F81C6237DC3A3FEF /* ArtworkSaver.swift in Sources */,
 				622B2F7D6067897C79067854 /* AudioVisualizerView.swift in Sources */,
 				77A86A4F46081352DA4AA51F /* CacheService.swift in Sources */,
@@ -678,6 +706,7 @@
 				BDF75E9C680BDA459A81ABFF /* SystemNowPlaying.swift in Sources */,
 				838D457CB4833F9EA3B31F14 /* SystemScrobbleService.swift in Sources */,
 				D9643C658E5F4D823638ED9A /* Track.swift in Sources */,
+				7BB396BF78E52DA428A6B064 /* UpdatesSection.swift in Sources */,
 				6CFF6CD9103720A4B84760BA /* WikidataService.swift in Sources */,
 				31B182C7ED234C69123A39AB /* YouTubeMusicFilter.swift in Sources */,
 				1E021E9EEABAEAE687AC87A6 /* iTunesService.swift in Sources */,
@@ -724,6 +753,7 @@
 				DEVELOPMENT_TEAM = YNB3ADRMFC;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "ScrobbleNow/Resources/Sparkle-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Scrobble Now";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Scrobble Now reads the artwork in Spotify to show what is playing.";
@@ -736,6 +766,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.personal.ScrobbleNow;
 				PRODUCT_NAME = "Scrobble Now";
 				SDKROOT = macosx;
+				SPARKLE_PUBLIC_ED_KEY = "";
 			};
 			name = Debug;
 		};
@@ -887,6 +918,7 @@
 				DEVELOPMENT_TEAM = YNB3ADRMFC;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "ScrobbleNow/Resources/Sparkle-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Scrobble Now";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Scrobble Now reads the artwork in Spotify to show what is playing.";
@@ -899,6 +931,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.personal.ScrobbleNow;
 				PRODUCT_NAME = "Scrobble Now";
 				SDKROOT = macosx;
+				SPARKLE_PUBLIC_ED_KEY = "";
 			};
 			name = Release;
 		};
@@ -996,6 +1029,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2F0031449F3668EB4A8886A7 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = exactVersion;
+				version = 2.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8EBFCF92CB06FC178F9CC8B3 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2F0031449F3668EB4A8886A7 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 07D6FE1B4C2977F693A8D456 /* Project object */;
 }
