@@ -366,7 +366,6 @@ class SystemScrobbleService: ObservableObject {
         // Submit!
         lastScrobbledTrack = key
         didScrobbleCurrent = true
-        totalScrobbled += 1
 
         let timestamp = Int(Date().timeIntervalSince1970)
         Task {
@@ -380,7 +379,13 @@ class SystemScrobbleService: ObservableObject {
                 )
                 print("[Scrobble] ✓ \(track.artist) — \(track.title) (via \(track.sourceAppName))")
                 await ScrobbleCache.shared.logSuccess(artist: track.artist, track: track.title, album: track.album, timestamp: timestamp)
-                await MainActor.run { onScrobbleSuccess?() }
+                await MainActor.run {
+                    totalScrobbled += 1
+                    onScrobbleSuccess?()
+                }
+            } catch let error as LastFMService.LastFMError where error.disposition == .drop {
+                print("[Scrobble] ✗ Not scrobbled: \(error.localizedDescription)")
+                await ScrobbleCache.shared.logHistory(entry, success: false)
             } catch {
                 print("[Scrobble] ✗ Failed, queued for retry: \(error.localizedDescription)")
                 await ScrobbleCache.shared.queueForRetry(entry)

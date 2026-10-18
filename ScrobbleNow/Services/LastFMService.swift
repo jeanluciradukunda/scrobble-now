@@ -5,6 +5,11 @@ actor LastFMService {
     private let baseURL = "https://ws.audioscrobbler.com/2.0/"
     private var apiKey: String { KeychainService.lastfmApiKey }
     private var sharedSecret: String { KeychainService.lastfmSharedSecret }
+    private let sessionKey: @Sendable () -> String?
+
+    init(sessionKey: @escaping @Sendable () -> String? = { KeychainService.lastfmSessionKey }) {
+        self.sessionKey = sessionKey
+    }
 
     // MARK: - Recent Tracks (live feed)
 
@@ -115,7 +120,7 @@ actor LastFMService {
     // MARK: - Scrobble / Now Playing
 
     func updateNowPlaying(artist: String, track: String, album: String) async throws {
-        guard let sk = KeychainService.lastfmSessionKey else { return }
+        guard let sk = sessionKey() else { throw LastFMError.notAuthenticated }
         let params: [String: String] = [
             "method": "track.updateNowPlaying",
             "artist": artist, "track": track, "album": album,
@@ -125,14 +130,15 @@ actor LastFMService {
     }
 
     func scrobble(artist: String, track: String, album: String, timestamp: Int) async throws {
-        guard let sk = KeychainService.lastfmSessionKey else { return }
+        guard let sk = sessionKey() else { throw LastFMError.notAuthenticated }
         let params: [String: String] = [
             "method": "track.scrobble",
             "artist": artist, "track": track, "album": album,
             "timestamp": String(timestamp),
             "api_key": apiKey, "sk": sk
         ]
-        try await signedPost(params: params)
+        let data = try await signedPost(params: params)
+        try Self.checkScrobbleAccepted(data)
     }
 
     // MARK: - Helpers
@@ -189,7 +195,8 @@ actor LastFMService {
         return url
     }
 
-    private func signedPost(params: [String: String]) async throws {
+    @discardableResult
+    private func signedPost(params: [String: String]) async throws -> Data {
         var allParams = params
         allParams["api_sig"] = Self.signature(params: params, secret: sharedSecret)
         allParams["format"] = "json"
@@ -200,25 +207,67 @@ actor LastFMService {
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         request.httpBody = Data(Self.formBody(allParams).utf8)
 
-        let (_, response) = try await URLSession.shared.trackedData(for: request, service: "Last.fm")
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw LastFMError.requestFailed
-        }
+        let (data, response) = try await URLSession.shared.trackedData(for: request, service: "Last.fm")
+        try Self.checkResponse(data: data, statusCode: (response as? HTTPURLResponse)?.statusCode ?? 0)
+        return data
     }
 
-    enum LastFMError: LocalizedError {
+    enum LastFMError: LocalizedError, Equatable {
         case authFailed
         case requestFailed
+        case notAuthenticated
+        case api(code: Int, message: String)
+        case ignored(code: Int)
+
+        enum Disposition { case retry, keepUntilAuthorised, drop }
+
+        /// Per https://www.last.fm/api/errorcodes: 11, 16 and 29 are temporary; 9 means the session must be renewed.
+        var disposition: Disposition {
+            switch self {
+            case .requestFailed: return .retry
+            case .api(let code, _) where [11, 16, 29].contains(code): return .retry
+            case .notAuthenticated, .api(9, _): return .keepUntilAuthorised
+            case .authFailed, .api, .ignored: return .drop
+            }
+        }
+
         var errorDescription: String? {
             switch self {
             case .authFailed: return "Last.fm authentication failed"
             case .requestFailed: return "Last.fm request failed"
+            case .notAuthenticated: return "Not signed in to Last.fm"
+            case let .api(code, message): return "Last.fm error \(code): \(message)"
+            case .ignored(let code): return "Last.fm ignored the scrobble (code \(code))"
             }
         }
     }
 }
 
 extension LastFMService {
+    /// Last.fm reports API errors in the body, sometimes with HTTP 200, so the body is checked before the status.
+    static func checkResponse(data: Data, statusCode: Int) throws {
+        let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+        if let code = json?["error"] as? Int {
+            throw LastFMError.api(code: code, message: json?["message"] as? String ?? "")
+        }
+        guard statusCode == 200 else { throw LastFMError.requestFailed }
+    }
+
+    static func checkScrobbleAccepted(_ data: Data) throws {
+        guard let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+              let scrobbles = json["scrobbles"] as? [String: Any],
+              let attr = scrobbles["@attr"] as? [String: Any] else { return }
+        guard intValue(attr["ignored"]) > 0 else { return }
+        let scrobble = (scrobbles["scrobble"] as? [String: Any]) ?? (scrobbles["scrobble"] as? [[String: Any]])?.first
+        let ignoredMessage = scrobble?["ignoredMessage"] as? [String: Any]
+        throw LastFMError.ignored(code: intValue(ignoredMessage?["code"]))
+    }
+
+    private static func intValue(_ value: Any?) -> Int {
+        if let int = value as? Int { return int }
+        return Int(value as? String ?? "") ?? 0
+    }
+
     static func formBody(_ params: [String: String]) -> String {
         params.sorted { $0.key < $1.key }
             .map { "\($0.key.queryValueEncoded)=\($0.value.queryValueEncoded)" }
