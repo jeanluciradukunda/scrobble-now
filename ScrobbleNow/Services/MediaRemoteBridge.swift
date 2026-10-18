@@ -554,7 +554,7 @@ class MediaRemoteBridge: ObservableObject {
     }
 
     func pollMediaRemote() {
-        guard !adapterIsHealthy, let getInfo = _getNowPlayingInfo else { return }
+        guard !adapterIsHealthy, !mediaRemoteBlocked, let getInfo = _getNowPlayingInfo else { return }
 
         getInfo(DispatchQueue.main) { [weak self] cfDict in
             guard let info = cfDict as NSDictionary as? [String: Any] else { return }
@@ -566,9 +566,22 @@ class MediaRemoteBridge: ObservableObject {
 
     private var hasLoggedKeys = false
 
+    /// Set once MediaRemote has refused us on a macOS that restricts it, so it is not asked again this session.
+    private var mediaRemoteBlocked = false
+
+    /// macOS 15.4 stopped returning now-playing data to third-party apps; before that, an empty reply only
+    /// meant nothing was playing.
+    nonisolated static func restrictsMediaRemote(_ version: OperatingSystemVersion) -> Bool {
+        (version.majorVersion, version.minorVersion) >= (15, 4)
+    }
+
     private func processMediaRemoteInfo(_ info: [String: Any]) {
         guard !info.isEmpty else {
             mediaRemoteIsActive = false
+            if !mediaRemoteBlocked, Self.restrictsMediaRemote(ProcessInfo.processInfo.operatingSystemVersion) {
+                mediaRemoteBlocked = true
+                print("[MediaRemote] Not available to this app on this macOS; using notifications and browser scanning.")
+            }
             return
         }
 
