@@ -49,6 +49,7 @@
 		5FC806B86E3F3A0C152DE9BA /* QueryEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A662AF3CBAFD3B72A35836 /* QueryEncoding.swift */; };
 		63C5793D3E0BCDBE450F898E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E00961C407B21D13CF45EB9E /* Assets.xcassets */; };
 		659A439E391453E04A706FF1 /* APITrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */; };
+		66E01F35F81C6237DC3A3FEF /* ArtworkSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C741F6BBF59669CF69856B6 /* ArtworkSaver.swift */; };
 		699BE5E7825946678B4120EE /* PlatformImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C962FA640E5DCB09F0AA1FFA /* PlatformImage.swift */; };
 		6A4C549A6B7F29C31553C055 /* DiscogsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */; };
 		6B2B61EE009C8848E813AC73 /* AlbumNormalisation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCC8D91322CB2BF8D994B12 /* AlbumNormalisation.swift */; };
@@ -74,6 +75,7 @@
 		98B24A70524A5C518EF27421 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCD2BD832C94BD88F4F7299 /* HistoryViewModel.swift */; };
 		9AAB082D4C52B0BB2986EC91 /* StatisticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A3650658D9721D4060B6A6 /* StatisticsViewModel.swift */; };
 		A06110905BCE6E1233B27F1A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475214BADE0D94B22F53D601 /* SettingsView.swift */; };
+		A39C0B73286554CC861E5268 /* ArtworkSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C741F6BBF59669CF69856B6 /* ArtworkSaver.swift */; };
 		A3BCFFCFA5E125BF09C74B4E /* AlbumDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */; };
 		A4B345FC24488FDF1EB2DDCA /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56AD0226D56AC9B449D3CBE4 /* HistoryView.swift */; };
 		A78C2813884ABDE0883B8163 /* LastFMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB4C530B436DAC304D43681 /* LastFMService.swift */; };
@@ -88,6 +90,7 @@
 		CB9DE65E77A6A9920250F8D7 /* RadarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019A647E4552F30A7374FDCC /* RadarChartView.swift */; };
 		CE5C08819E0A5A519F803756 /* ScrobbleToggleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A523C699545961956D5CED /* ScrobbleToggleTests.swift */; };
 		CF56914916AA5B8CC433D86F /* CollageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B7933EA834B896C87C1F7BA /* CollageViewModel.swift */; };
+		D68B8C4F99C057093349C2C0 /* ArtworkSaverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06573730D87C4509F87BFAB7 /* ArtworkSaverTests.swift */; };
 		D71A9DB3E05F1807BE21160C /* MediaRemoteBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73E507B8BC0D0152B1CB879A /* MediaRemoteBridge.swift */; };
 		D7E86D3F78C3042B40B90ED3 /* iTunesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB67D6E70719959ED127C567 /* iTunesService.swift */; };
 		D9643C658E5F4D823638ED9A /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD12B4CB16C74BEFCD7E7473 /* Track.swift */; };
@@ -120,6 +123,7 @@
 /* Begin PBXFileReference section */
 		019A647E4552F30A7374FDCC /* RadarChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarChartView.swift; sourceTree = "<group>"; };
 		06298860519D35054AB31DE9 /* PodcastFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastFilterTests.swift; sourceTree = "<group>"; };
+		06573730D87C4509F87BFAB7 /* ArtworkSaverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkSaverTests.swift; sourceTree = "<group>"; };
 		0977F9C959BD74B3EA1A2458 /* ScrobbleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleEngine.swift; sourceTree = "<group>"; };
 		0DCD2BD832C94BD88F4F7299 /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
 		0EA730E7257F76B5CCDFE472 /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
@@ -138,6 +142,7 @@
 		402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDiscoveryService.swift; sourceTree = "<group>"; };
 		475214BADE0D94B22F53D601 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		4835A1860F5ACC8A6948705E /* ScrobbleNowiOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ScrobbleNowiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C741F6BBF59669CF69856B6 /* ArtworkSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkSaver.swift; sourceTree = "<group>"; };
 		4F96D950C7C4D1627BA1BDE8 /* ScrobbleNow.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScrobbleNow.entitlements; sourceTree = "<group>"; };
 		4FC4A8F0FE421C4A49FDEFB0 /* APITracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITracker.swift; sourceTree = "<group>"; };
 		54BF1538A622E83C2C86506E /* YouTubeMusicFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeMusicFilter.swift; sourceTree = "<group>"; };
@@ -276,6 +281,7 @@
 			children = (
 				7380D7C9C6C6CECE85339D18 /* AlbumNormaliseTests.swift */,
 				195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */,
+				06573730D87C4509F87BFAB7 /* ArtworkSaverTests.swift */,
 				D1433EF6AAB086474129AD51 /* BridgeAnnounceTests.swift */,
 				6606687BCF9E1498E0A1CE79 /* CacheServiceTests.swift */,
 				FC004379850AB0044CFC78A0 /* LastFMLoveTests.swift */,
@@ -328,6 +334,7 @@
 			children = (
 				402CDC8AE6CD24F04BFFC71B /* AlbumDiscoveryService.swift */,
 				4FC4A8F0FE421C4A49FDEFB0 /* APITracker.swift */,
+				4C741F6BBF59669CF69856B6 /* ArtworkSaver.swift */,
 				AB479C6E709FA48840511EBB /* CacheService.swift */,
 				5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */,
 				DB67D6E70719959ED127C567 /* iTunesService.swift */,
@@ -502,6 +509,7 @@
 				04631386DFDB792CA8ED03F8 /* AlbumDetailView.swift in Sources */,
 				95C52601CE30BA78852058F8 /* AlbumDiscoveryService.swift in Sources */,
 				DFAE68C13FF092F59EA2C1D9 /* AlbumNormalisation.swift in Sources */,
+				A39C0B73286554CC861E5268 /* ArtworkSaver.swift in Sources */,
 				2D8CF4034D649388E7205462 /* CacheService.swift in Sources */,
 				B31F0CA9754B15949A380E5D /* CollageView.swift in Sources */,
 				FE6EB7BCD3CB3413049A8DA6 /* CollageViewModel.swift in Sources */,
@@ -542,6 +550,7 @@
 			files = (
 				659A439E391453E04A706FF1 /* APITrackerTests.swift in Sources */,
 				5D863AFCF53A06DEBC27F78F /* AlbumNormaliseTests.swift in Sources */,
+				D68B8C4F99C057093349C2C0 /* ArtworkSaverTests.swift in Sources */,
 				98916A9893E2FC76FF52183D /* BridgeAnnounceTests.swift in Sources */,
 				5471BDD6A041D659CC3B7555 /* CacheServiceTests.swift in Sources */,
 				FD71D4BAFD749D48EAC23B4C /* LastFMLoveTests.swift in Sources */,
@@ -570,6 +579,7 @@
 				05BA47968FBBFEC344CF9800 /* AlbumDetailView.swift in Sources */,
 				A3BCFFCFA5E125BF09C74B4E /* AlbumDiscoveryService.swift in Sources */,
 				6B2B61EE009C8848E813AC73 /* AlbumNormalisation.swift in Sources */,
+				66E01F35F81C6237DC3A3FEF /* ArtworkSaver.swift in Sources */,
 				77A86A4F46081352DA4AA51F /* CacheService.swift in Sources */,
 				ACB62FE43B215150A9B93041 /* CollageView.swift in Sources */,
 				CF56914916AA5B8CC433D86F /* CollageViewModel.swift in Sources */,
@@ -836,7 +846,7 @@
 				INFOPLIST_FILE = "";
 				INFOPLIST_KEY_CFBundleDisplayName = "Scrobble Now";
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "Scrobble Now reads what is playing in Apple Music to scrobble it to Last.fm.";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Scrobble Now saves collages you share to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Scrobble Now saves images you share, such as album artwork and collages, to your photo library.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -863,7 +873,7 @@
 				INFOPLIST_FILE = "";
 				INFOPLIST_KEY_CFBundleDisplayName = "Scrobble Now";
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "Scrobble Now reads what is playing in Apple Music to scrobble it to Last.fm.";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Scrobble Now saves collages you share to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Scrobble Now saves images you share, such as album artwork and collages, to your photo library.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (

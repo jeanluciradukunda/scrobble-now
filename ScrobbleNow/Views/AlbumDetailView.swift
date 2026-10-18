@@ -239,38 +239,32 @@ struct AlbumDetailView: View {
     // MARK: - Download Artwork
 
     private func downloadArtwork(url: URL, name: String) {
+        downloadAllArtwork(urls: [url], name: name)
+    }
+
+    private func downloadAllArtwork(urls: [URL], name: String) {
         Task {
-            guard let (data, _) = try? await URLSession.shared.data(from: url) else {
-                downloadMessage = "Failed"
-                return
+            var images: [Data] = []
+            for url in urls {
+                if let (data, _) = try? await URLSession.shared.data(from: url) { images.append(data) }
             }
-            let folder = SettingsManager.shared.artworkDownloadURL
-            let sanitized = name.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")
-            let savePath = folder.appendingPathComponent("\(sanitized).jpg")
-            try? data.write(to: savePath)
-            downloadMessage = "Saved to \(folder.lastPathComponent)/"
+            downloadMessage = await saveArtwork(images, name: name)
             try? await Task.sleep(for: .seconds(2))
             downloadMessage = nil
         }
     }
 
-    private func downloadAllArtwork(urls: [URL], name: String) {
-        Task {
-            let folder = SettingsManager.shared.artworkDownloadURL
-            let sanitized = name.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")
-            var saved = 0
-            for (i, url) in urls.enumerated() {
-                if let (data, _) = try? await URLSession.shared.data(from: url) {
-                    let ext = url.pathExtension.isEmpty ? "jpg" : url.pathExtension
-                    let savePath = folder.appendingPathComponent("\(sanitized) - \(i + 1).\(ext)")
-                    try? data.write(to: savePath)
-                    saved += 1
-                }
-            }
-            downloadMessage = "Saved \(saved) covers to \(folder.lastPathComponent)/"
-            try? await Task.sleep(for: .seconds(2))
-            downloadMessage = nil
-        }
+    private func saveArtwork(_ images: [Data], name: String) async -> String {
+        guard !images.isEmpty else { return "Download failed" }
+        #if os(iOS)
+        return await ArtworkSaver.saveToPhotos(images)
+        #else
+        let folder = SettingsManager.shared.artworkDownloadURL
+        let saved = ArtworkSaver.save(images, named: name, in: folder)
+        guard saved > 0 else { return "Could not save to \(folder.lastPathComponent)/" }
+        let what = saved == 1 ? "Saved" : "Saved \(saved) covers"
+        return "\(what) to \(folder.lastPathComponent)/"
+        #endif
     }
 
     // MARK: - Album Info
