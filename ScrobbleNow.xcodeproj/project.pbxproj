@@ -621,6 +621,8 @@
 				INFOPLIST_FILE = "";
 				INFOPLIST_KEY_CFBundleDisplayName = "Scrobble Now";
 				INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads = YES;
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "Scrobble Now reads what is playing in Apple Music to scrobble it to Last.fm.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Scrobble Now saves collages you share to your photo library.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -647,6 +649,8 @@
 				INFOPLIST_FILE = "";
 				INFOPLIST_KEY_CFBundleDisplayName = "Scrobble Now";
 				INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads = YES;
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "Scrobble Now reads what is playing in Apple Music to scrobble it to Last.fm.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Scrobble Now saves collages you share to your photo library.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (

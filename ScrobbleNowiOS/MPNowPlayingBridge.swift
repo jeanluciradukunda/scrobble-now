@@ -2,7 +2,7 @@
 import Foundation
 import MediaPlayer
 
-/// iOS Now Playing detection via MPNowPlayingInfoCenter.
+/// iOS Now Playing detection via the system Music player (Apple Music only).
 @MainActor
 class MPNowPlayingBridge: ObservableObject {
     static let shared = MPNowPlayingBridge()
@@ -23,6 +23,16 @@ class MPNowPlayingBridge: ObservableObject {
     func startListening() {
         guard !isListening else { return }
         isListening = true
+
+        MPMediaLibrary.requestAuthorization { [weak self] status in
+            Task { @MainActor in
+                guard status == .authorized else { return }
+                self?.beginObserving()
+            }
+        }
+    }
+
+    private func beginObserving() {
 
         NotificationCenter.default.addObserver(
             self,
