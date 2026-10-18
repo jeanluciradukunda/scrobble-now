@@ -112,11 +112,9 @@ class SystemScrobbleService: ObservableObject {
 
     private func tick() {
         isPlaying = bridge.isPlaying
-        // bridge.isPlaying covers every source and stays true while another one plays, so count only while
-        // the play's own source is playing, or a paused track keeps accruing time and repeating.
         let source = engine.current.flatMap { bridge.activeSources[$0.sourceBundleId] }
-        let playing = isPlaying && (source?.isPlaying ?? false)
-        let canRepeat = !Self.browserBundleIds.contains(engine.current?.sourceBundleId ?? "")
+        let playing = Self.countsPlayTime(bridgeIsPlaying: isPlaying, source: source)
+        let canRepeat = Self.canDetectRepeats(bundleId: engine.current?.sourceBundleId ?? "")
         let scrobbles = engine.tick(isPlaying: playing, canRepeat: canRepeat, now: Date(), rules: rules,
                                     isAllowed: canScrobble)
 
@@ -162,8 +160,18 @@ class SystemScrobbleService: ObservableObject {
         return try? JSONDecoder().decode(ScrobbleRecord.self, from: data)
     }
 
+    /// bridge.isPlaying covers every source and stays true while another one plays, so play time counts only
+    /// while the play's own source is playing; otherwise a paused track keeps accruing time and repeating.
+    nonisolated static func countsPlayTime(bridgeIsPlaying: Bool, source: SystemNowPlaying?) -> Bool {
+        bridgeIsPlaying && (source?.isPlaying ?? false)
+    }
+
     /// Browser tabs report playing whenever a music tab is open, so a repeat cannot be told from a paused tab.
-    private static let browserBundleIds: Set<String> = [
+    nonisolated static func canDetectRepeats(bundleId: String) -> Bool {
+        !browserBundleIds.contains(bundleId)
+    }
+
+    private nonisolated static let browserBundleIds: Set<String> = [
         "com.google.Chrome", "com.apple.Safari", "company.thebrowser.Browser", "com.brave.Browser",
         "org.mozilla.firefox", "com.microsoft.edgemac"
     ]

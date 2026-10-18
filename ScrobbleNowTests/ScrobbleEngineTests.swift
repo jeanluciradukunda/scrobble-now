@@ -207,3 +207,23 @@ struct ScrobbleEngineTests {
         #expect(!lax.isLongEnough(track("a", duration: 20)))
     }
 }
+
+struct ScrobblePlayStateTests {
+    private func source(rate: Double) -> SystemNowPlaying {
+        SystemNowPlaying(title: "a", artist: "b", album: "", duration: 200, elapsed: 0, playbackRate: rate,
+                         artwork: nil, sourceBundleId: "com.spotify.client", sourceAppName: "Spotify", timestamp: start)
+    }
+
+    @Test func pausedSourceDoesNotCountWhileAnotherSourcePlays() {
+        #expect(!SystemScrobbleService.countsPlayTime(bridgeIsPlaying: true, source: source(rate: 0)))
+        #expect(!SystemScrobbleService.countsPlayTime(bridgeIsPlaying: true, source: nil))
+        #expect(SystemScrobbleService.countsPlayTime(bridgeIsPlaying: true, source: source(rate: 1)))
+        #expect(!SystemScrobbleService.countsPlayTime(bridgeIsPlaying: false, source: source(rate: 1)))
+    }
+
+    @Test func browserTabsNeverRepeat() {
+        #expect(!SystemScrobbleService.canDetectRepeats(bundleId: "com.google.Chrome"))
+        #expect(!SystemScrobbleService.canDetectRepeats(bundleId: "com.apple.Safari"))
+        #expect(SystemScrobbleService.canDetectRepeats(bundleId: "com.spotify.client"))
+    }
+}
