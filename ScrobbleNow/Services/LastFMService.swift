@@ -18,8 +18,8 @@ actor LastFMService {
 
     // MARK: - Recent Tracks (live feed)
 
-    func getRecentTracks(user: String, limit: Int = 30) async throws -> [ScrobbledTrack] {
-        let url = try requestURL(["method": "user.getRecentTracks", "user": user, "limit": String(limit), "extended": "1"])
+    func getRecentTracks(user: String, limit: Int = 30, from start: Date? = nil, to end: Date? = nil) async throws -> [ScrobbledTrack] {
+        let url = try requestURL(Self.recentTracksParams(user: user, limit: limit, from: start, to: end))
         let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
@@ -92,6 +92,28 @@ actor LastFMService {
         }
     }
 
+    // MARK: - Top Tracks
+
+    func getTopTracks(user: String, period: String = "overall", limit: Int = 50) async throws -> [TopTrackEntry] {
+        let url = try requestURL(["method": "user.getTopTracks", "user": user, "period": period, "limit": String(limit)])
+        let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+        guard let topTracks = json?["toptracks"] as? [String: Any],
+              let tracks = topTracks["track"] as? [[String: Any]] else {
+            return []
+        }
+
+        return tracks.compactMap { dict -> TopTrackEntry? in
+            guard let name = dict["name"] as? String else { return nil }
+            let artist = (dict["artist"] as? [String: Any])?["name"] as? String ?? ""
+            let playcount = Int((dict["playcount"] as? String) ?? "0") ?? 0
+            let imageURL = extractImageURL(from: dict)
+            let url = URL(string: (dict["url"] as? String) ?? "")
+            return TopTrackEntry(name: name, artistName: artist, playcount: playcount, imageURL: imageURL, lastfmURL: url)
+        }
+    }
+
     // MARK: - Auth
 
     func getAuthToken() async throws -> String {
@@ -144,6 +166,25 @@ actor LastFMService {
         ]
         let data = try await signedPost(params: params)
         try Self.checkScrobbleAccepted(data)
+    }
+
+    // MARK: - Love / Unlove
+
+    func loveTrack(artist: String, track: String) async throws {
+        try await setLoved(true, artist: artist, track: track)
+    }
+
+    func unloveTrack(artist: String, track: String) async throws {
+        try await setLoved(false, artist: artist, track: track)
+    }
+
+    private func setLoved(_ loved: Bool, artist: String, track: String) async throws {
+        guard let session = sessionKey() else { throw LastFMError.notAuthenticated }
+        try await signedPost(params: [
+            "method": loved ? "track.love" : "track.unlove",
+            "artist": artist, "track": track,
+            "api_key": apiKey, "sk": session
+        ])
     }
 
     // MARK: - Helpers
@@ -258,6 +299,13 @@ actor LastFMService {
 }
 
 extension LastFMService {
+    static func recentTracksParams(user: String, limit: Int, from start: Date?, to end: Date?) -> [String: String] {
+        var params = ["method": "user.getRecentTracks", "user": user, "limit": String(limit), "extended": "1"]
+        if let start { params["from"] = String(Int(start.timeIntervalSince1970)) }
+        if let end { params["to"] = String(Int(end.timeIntervalSince1970)) }
+        return params
+    }
+
     /// Last.fm reports API errors in the body, sometimes with HTTP 200, so the body is checked before the status.
     static func checkResponse(data: Data, statusCode: Int) throws {
         let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
