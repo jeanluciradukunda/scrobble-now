@@ -528,10 +528,14 @@ struct SettingsView: View {
             HStack {
                 Text("Discovery cache").font(.system(size: 10))
                 Spacer()
-                Button("Clear") { }
+                Button("Clear") { Task { await CacheService.shared.clear() } }
                     .buttonStyle(.plain).font(.system(size: 8, weight: .medium)).foregroundStyle(.red)
             }
         }
+        #if os(macOS)
+        .onAppear { metrics.startMonitoring() }
+        .onDisappear { metrics.stopMonitoring() }
+        #endif
     }
 
     private func statCard(value: String, label: String, color: Color) -> some View {
