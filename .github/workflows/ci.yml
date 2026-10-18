@@ -22,4 +22,4 @@ jobs:
           xcodebuild -scheme ScrobbleNow -configuration Debug -destination 'platform=macOS' CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO build
       - name: Build iOS
         run: |
-          xcodebuild -scheme ScrobbleNowiOS -configuration Debug -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
+          xcodebuild -scheme ScrobbleNowiOS -configuration Debug -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO ASSETCATALOG_COMPILER_APPICON_NAME= build
