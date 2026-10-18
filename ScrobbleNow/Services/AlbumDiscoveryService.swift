@@ -52,7 +52,7 @@ actor AlbumDiscoveryService {
         // Deduplicate by normalized album name
         var deduped: [String: AlbumCandidate] = [:]
         for candidate in passing {
-            let key = normalize(candidate.album.albumName)
+            let key = Self.normalize(candidate.album.albumName)
             if let existing = deduped[key] {
                 if candidate.score > existing.score { deduped[key] = candidate }
             } else {
@@ -232,10 +232,10 @@ actor AlbumDiscoveryService {
         var scored = candidate
         var total: Double = 0
 
-        let albumNorm = normalize(scored.album.albumName)
-        let targetNorm = normalize(ctx.albumName)
-        let artistNorm = normalize(scored.album.artistName)
-        let targetArtist = normalize(ctx.artistName)
+        let albumNorm = Self.normalize(scored.album.albumName)
+        let targetNorm = Self.normalize(ctx.albumName)
+        let artistNorm = Self.normalize(scored.album.artistName)
+        let targetArtist = Self.normalize(ctx.artistName)
 
         // 1. Title match (35%)
         let titleSim = levenshteinSimilarity(albumNorm, targetNorm)
@@ -281,10 +281,10 @@ actor AlbumDiscoveryService {
 
     // MARK: - Helpers
 
-    private func normalize(_ str: String) -> String {
+    static func normalize(_ str: String) -> String {
         str.lowercased()
-            .folding(options: .diacriticInsensitive, locale: .current)
-            .replacingOccurrences(of: "[^a-z0-9 ]", with: "", options: .regularExpression)
+            .folding(options: .diacriticInsensitive, locale: nil)
+            .replacingOccurrences(of: "[^\\p{L}\\p{N} ]", with: "", options: .regularExpression)
             .trimmingCharacters(in: .whitespaces)
     }
 
