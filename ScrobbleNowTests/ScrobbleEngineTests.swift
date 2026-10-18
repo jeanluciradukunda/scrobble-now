@@ -227,3 +227,11 @@ struct ScrobblePlayStateTests {
         #expect(SystemScrobbleService.canDetectRepeats(bundleId: "com.spotify.client"))
     }
 }
+
+struct BrowserSourceTests {
+    @Test func browsersAreRecognised() {
+        #expect(SystemScrobbleService.isBrowser("com.google.Chrome"))
+        #expect(SystemScrobbleService.isBrowser("com.apple.Safari"))
+        #expect(!SystemScrobbleService.isBrowser("com.spotify.client"))
+    }
+}
