@@ -24,7 +24,9 @@ actor LastFMService {
         var params = Self.recentTracksParams(user: user, limit: limit, from: start, to: end)
         if page > 1 { params["page"] = String(page) }
         let url = try requestURL(params)
-        let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
+        let (data, response) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
+        // An error reply would otherwise read as an empty page and end month paging early.
+        try Self.checkResponse(data: data, statusCode: (response as? HTTPURLResponse)?.statusCode ?? 0)
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
         guard let recentTracks = json?["recenttracks"] as? [String: Any],

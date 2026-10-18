@@ -19,6 +19,23 @@ private func track(_ name: String, _ time: String, artist: String = "A") -> Scro
 }
 
 struct HistoryGroupingTests {
+    @Test func aFullPageDropsItsPartialOldestDay() {
+        let tracks = [track("a", "2026-10-18T10:00:00Z"), track("b", "2026-10-17T10:00:00Z")]
+        let full = HistoryGrouping.completeDays(from: tracks, pageWasFull: true, calendar: capeTown)
+        #expect(full.map(\.id) == ["2026-10-18"])
+        let partial = HistoryGrouping.completeDays(from: tracks, pageWasFull: false, calendar: capeTown)
+        #expect(partial.count == 2)
+    }
+
+    @Test func mergingAPartialDayNoLongerShrinksACompleteOne() {
+        let month = HistoryGrouping.days((0..<40).map { track("t\($0)", "2026-10-14T0\($0 % 10):0\($0 % 6):00Z") }
+                                         + [track("x", "2026-10-15T10:00:00Z")], calendar: capeTown)
+        let latest = HistoryGrouping.completeDays(
+            from: [track("x", "2026-10-15T10:00:00Z"), track("t1", "2026-10-14T05:00:00Z")], pageWasFull: true, calendar: capeTown)
+        let merged = HistoryGrouping.merging(month, with: latest)
+        #expect(merged.first { $0.id == "2026-10-14" }?.tracks.count == 40)
+    }
+
     @Test func dayKeysFollowTheLocalCalendarDay() {
         // 23:30 UTC on the 17th is 01:30 on the 18th in Cape Town.
         #expect(HistoryGrouping.dayKey(at("2026-10-17T23:30:00Z"), calendar: capeTown) == "2026-10-18")

@@ -147,6 +147,13 @@ enum HistoryGrouping {
         return count
     }
 
+    /// A full page of the latest scrobbles usually starts part-way through its oldest day; merging that partial
+    /// day would replace a complete one loaded by month, so it is dropped.
+    static func completeDays(from tracks: [ScrobbledTrack], pageWasFull: Bool, calendar: Calendar = .current) -> [DayGroup] {
+        let groups = days(tracks, calendar: calendar)
+        return pageWasFull && groups.count > 1 ? Array(groups.dropLast()) : groups
+    }
+
     static func merging(_ existing: [DayGroup], with fresh: [DayGroup]) -> [DayGroup] {
         var byID = Dictionary(existing.map { ($0.id, $0) }, uniquingKeysWith: { _, new in new })
         for group in fresh { byID[group.id] = group }
@@ -186,10 +193,24 @@ class HistoryViewModel: ObservableObject {
         defer { isLoading = false }
         do {
             let tracks = try await lastfm.getRecentTracks(user: username, limit: 200)
-            apply(HistoryGrouping.days(tracks.filter { !$0.isNowPlaying }), replacing: true)
+            let pageWasFull = tracks.filter { !$0.isNowPlaying }.count >= 200
+            apply(HistoryGrouping.completeDays(from: tracks.filter { !$0.isNowPlaying }, pageWasFull: pageWasFull),
+                  replacing: false)
             errorMessage = nil
+            await loadStreakWindow(latestPageWasFull: pageWasFull)
         } catch {
             if dayGroups.isEmpty { errorMessage = error.localizedDescription }
+        }
+    }
+
+    /// The streak and the calendar need whole months, not just the latest 200 scrobbles.
+    private func loadStreakWindow(latestPageWasFull: Bool) async {
+        let cal = Calendar.current
+        let thisMonth = cal.startOfMonth(for: Date())
+        if latestPageWasFull { await loadMonth(thisMonth) }
+        let daysIntoMonth = (cal.dateComponents([.day], from: thisMonth, to: cal.startOfDay(for: Date())).day ?? 0) + 1
+        if streak >= daysIntoMonth, let previous = cal.date(byAdding: .month, value: -1, to: thisMonth) {
+            await loadMonth(previous)
         }
     }
 
@@ -210,6 +231,7 @@ class HistoryViewModel: ObservableObject {
         do {
             let tracks = try await lastfm.getAllRecentTracks(user: username, from: start, to: end)
             apply(HistoryGrouping.days(tracks), replacing: false)
+            errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription
         }

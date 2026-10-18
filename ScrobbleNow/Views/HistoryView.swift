@@ -62,6 +62,9 @@ struct HistoryView: View {
             .animation(reduceMotion ? nil : .smooth(duration: 0.28), value: vm.viewMode)
         }
         .task { await vm.load() }
+        .task(id: vm.viewMode) {
+            if vm.viewMode == .calendar { await vm.loadMonth(vm.calendarMonth) }
+        }
         #if os(iOS)
         .sheet(item: $albumSheet) { ref in
             NavigationStack {
@@ -297,6 +300,12 @@ struct HistoryView: View {
 
     private var calendarView: some View {
         VStack(spacing: 0) {
+            if let error = vm.errorMessage {
+                Text(error)
+                    .font(.system(size: 9))
+                    .foregroundStyle(.orange)
+                    .padding(.vertical, 4)
+            }
             // Month navigation
             HStack {
                 Button {
