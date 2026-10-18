@@ -15,7 +15,7 @@ struct ScrobbleCacheEntryTests {
         #expect(decoded.id == entry.id)
     }
 
-    @Test func progressClampsAtOne() {
+    @Test func progressClampsAtOneAndDurationFormats() {
         let track = SystemNowPlaying(title: "t", artist: "a", album: "", duration: 100, elapsed: 250, playbackRate: 1,
                                      artwork: nil, sourceBundleId: "b", sourceAppName: "n", timestamp: Date())
         #expect(track.progress == 1)

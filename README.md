@@ -91,9 +91,8 @@ cp ScrobbleNow/Resources/Secrets.example.plist ScrobbleNow/Resources/Secrets.pli
 ```
 
 3. Fill in the values in `ScrobbleNow/Resources/Secrets.plist`.
-4. Open `ScrobbleNow.xcodeproj` in Xcode and run the `ScrobbleNow` target.
-
-If you ever regenerate the Xcode project from `project.yml`, use `xcodegen generate`.
+4. Generate the project with `xcodegen generate` (`brew install xcodegen`), so it picks up your `Secrets.plist`.
+5. Open `ScrobbleNow.xcodeproj` in Xcode and run the `ScrobbleNow` target.
 
 <details>
   <summary><strong>API keys</strong></summary>

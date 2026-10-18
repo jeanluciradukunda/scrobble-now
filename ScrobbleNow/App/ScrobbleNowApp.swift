@@ -8,6 +8,8 @@ struct ScrobbleNowApp: App {
     @StateObject private var scrobbler = SystemScrobbleService.shared
 
     init() {
+        // As the unit-test host it must not overwrite the developer's stored keys or start scrobbling what is playing.
+        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
         KeychainService.bootstrapDefaults()
         MediaRemoteBridge.shared.startListening()
 
