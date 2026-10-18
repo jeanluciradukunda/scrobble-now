@@ -18,9 +18,15 @@ actor LastFMService {
 
     // MARK: - Recent Tracks (live feed)
 
-    func getRecentTracks(user: String, limit: Int = 30, from start: Date? = nil, to end: Date? = nil) async throws -> [ScrobbledTrack] {
-        let url = try requestURL(Self.recentTracksParams(user: user, limit: limit, from: start, to: end))
-        let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
+    func getRecentTracks(
+        user: String, limit: Int = 30, from start: Date? = nil, to end: Date? = nil, page: Int = 1
+    ) async throws -> [ScrobbledTrack] {
+        var params = Self.recentTracksParams(user: user, limit: limit, from: start, to: end)
+        if page > 1 { params["page"] = String(page) }
+        let url = try requestURL(params)
+        let (data, response) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
+        // An error reply would otherwise read as an empty page and end month paging early.
+        try Self.checkResponse(data: data, statusCode: (response as? HTTPURLResponse)?.statusCode ?? 0)
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
         guard let recentTracks = json?["recenttracks"] as? [String: Any],
@@ -29,6 +35,18 @@ actor LastFMService {
         }
 
         return tracks.compactMap { parseTrack($0) }
+    }
+
+    /// Last.fm returns at most 200 tracks a page, so a busy month needs several pages.
+    func getAllRecentTracks(user: String, from start: Date, to end: Date, maxPages: Int = 10) async throws -> [ScrobbledTrack] {
+        var all: [ScrobbledTrack] = []
+        for page in 1...maxPages {
+            let tracks = try await getRecentTracks(user: user, limit: 200, from: start, to: end, page: page)
+                .filter { !$0.isNowPlaying }
+            all += tracks
+            if tracks.count < 200 { break }
+        }
+        return all
     }
 
     // MARK: - Album Info

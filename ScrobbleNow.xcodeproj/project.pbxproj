@@ -68,6 +68,7 @@
 		7AC847C1CC26873D42E13F78 /* SystemNowPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F0C55D55CA394E6FF2818F9 /* SystemNowPlaying.swift */; };
 		7F898C5AA1FE6904631D66EE /* APITracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FC4A8F0FE421C4A49FDEFB0 /* APITracker.swift */; };
 		838D457CB4833F9EA3B31F14 /* SystemScrobbleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254BEDF3534B4D7781A96A81 /* SystemScrobbleService.swift */; };
+		857FB60C96B1B0E8AE3E5AFA /* HistoryGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B14D6430D6A3A618FF01290 /* HistoryGroupingTests.swift */; };
 		8582B339081DFE55C0230AB7 /* LastFMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB4C530B436DAC304D43681 /* LastFMService.swift */; };
 		8F37E48851B0BC2B29ED1BD4 /* StatisticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A3650658D9721D4060B6A6 /* StatisticsViewModel.swift */; };
 		8FAECCD67931F57234F4F61D /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */; };
@@ -96,6 +97,7 @@
 		D71A9DB3E05F1807BE21160C /* MediaRemoteBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73E507B8BC0D0152B1CB879A /* MediaRemoteBridge.swift */; };
 		D7E86D3F78C3042B40B90ED3 /* iTunesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB67D6E70719959ED127C567 /* iTunesService.swift */; };
 		D9643C658E5F4D823638ED9A /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD12B4CB16C74BEFCD7E7473 /* Track.swift */; };
+		DAAF43C76319122BAEF04598 /* RecentTracksPagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A061D020075405639BB4130 /* RecentTracksPagingTests.swift */; };
 		DD135A1C4DAF72925830D6F7 /* MetricsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F6052BE4C62C9BBD87485D /* MetricsService.swift */; };
 		DF35F5B9EE37C276DC9F5710 /* ScrobbleNowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36C5EFF085D5F70BD16C3644 /* ScrobbleNowApp.swift */; };
 		DFAE68C13FF092F59EA2C1D9 /* AlbumNormalisation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCC8D91322CB2BF8D994B12 /* AlbumNormalisation.swift */; };
@@ -155,10 +157,12 @@
 		62A322D42DACEDAB25ED1D4F /* AdapterSettingsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdapterSettingsRow.swift; sourceTree = "<group>"; };
 		6606687BCF9E1498E0A1CE79 /* CacheServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheServiceTests.swift; sourceTree = "<group>"; };
 		6AAB98902C5909700E29F6F7 /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; sourceTree = "<group>"; };
+		6B14D6430D6A3A618FF01290 /* HistoryGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryGroupingTests.swift; sourceTree = "<group>"; };
 		6B7933EA834B896C87C1F7BA /* CollageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageViewModel.swift; sourceTree = "<group>"; };
 		714C7CFE00B62B5BB0005651 /* ScrobbleEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleEngineTests.swift; sourceTree = "<group>"; };
 		7380D7C9C6C6CECE85339D18 /* AlbumNormaliseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumNormaliseTests.swift; sourceTree = "<group>"; };
 		73E507B8BC0D0152B1CB879A /* MediaRemoteBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaRemoteBridge.swift; sourceTree = "<group>"; };
+		7A061D020075405639BB4130 /* RecentTracksPagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTracksPagingTests.swift; sourceTree = "<group>"; };
 		80A4D0E12D8566984319D258 /* ScrobbleNowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScrobbleNowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		81A3650658D9721D4060B6A6 /* StatisticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewModel.swift; sourceTree = "<group>"; };
 		81A523C699545961956D5CED /* ScrobbleToggleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleToggleTests.swift; sourceTree = "<group>"; };
@@ -288,12 +292,14 @@
 				06573730D87C4509F87BFAB7 /* ArtworkSaverTests.swift */,
 				D1433EF6AAB086474129AD51 /* BridgeAnnounceTests.swift */,
 				6606687BCF9E1498E0A1CE79 /* CacheServiceTests.swift */,
+				6B14D6430D6A3A618FF01290 /* HistoryGroupingTests.swift */,
 				FC004379850AB0044CFC78A0 /* LastFMLoveTests.swift */,
 				F8A2E41BA9585185F71B82EB /* LastFMRequestTests.swift */,
 				F074F1740C761909CC599214 /* LastFMResponseTests.swift */,
 				2B7D737271DCE4CAC28CEAA9 /* MediaRemoteAdapterParseTests.swift */,
 				0F789ADEA6E8720D2FB427A3 /* MediaRemoteAvailabilityTests.swift */,
 				06298860519D35054AB31DE9 /* PodcastFilterTests.swift */,
+				7A061D020075405639BB4130 /* RecentTracksPagingTests.swift */,
 				3CC5E069331060B9F3116E81 /* ScrobbleCacheEntryTests.swift */,
 				714C7CFE00B62B5BB0005651 /* ScrobbleEngineTests.swift */,
 				1B404CD40FB787F537581773 /* ScrobbleQueueTests.swift */,
@@ -558,12 +564,14 @@
 				D68B8C4F99C057093349C2C0 /* ArtworkSaverTests.swift in Sources */,
 				98916A9893E2FC76FF52183D /* BridgeAnnounceTests.swift in Sources */,
 				5471BDD6A041D659CC3B7555 /* CacheServiceTests.swift in Sources */,
+				857FB60C96B1B0E8AE3E5AFA /* HistoryGroupingTests.swift in Sources */,
 				FD71D4BAFD749D48EAC23B4C /* LastFMLoveTests.swift in Sources */,
 				04ADD9F83A79D5A6A494ABBE /* LastFMRequestTests.swift in Sources */,
 				E639095D8ADEFD2DA475E3E7 /* LastFMResponseTests.swift in Sources */,
 				4A9B10C411F239377074C60F /* MediaRemoteAdapterParseTests.swift in Sources */,
 				0BA8FFF9C9F48F40D59089E8 /* MediaRemoteAvailabilityTests.swift in Sources */,
 				E3DF95B2154AFCE503186E97 /* PodcastFilterTests.swift in Sources */,
+				DAAF43C76319122BAEF04598 /* RecentTracksPagingTests.swift in Sources */,
 				3F547B81768F66BD278BFAEC /* ScrobbleCacheEntryTests.swift in Sources */,
 				C015AEE9B0C91E32E5BFF56C /* ScrobbleEngineTests.swift in Sources */,
 				3E1C143B78B3232BAE74ACED /* ScrobbleQueueTests.swift in Sources */,
