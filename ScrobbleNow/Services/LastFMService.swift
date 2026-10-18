@@ -9,7 +9,7 @@ actor LastFMService {
     // MARK: - Recent Tracks (live feed)
 
     func getRecentTracks(user: String, limit: Int = 30) async throws -> [ScrobbledTrack] {
-        let url = URL(string: "\(baseURL)?method=user.getRecentTracks&user=\(user)&api_key=\(apiKey)&format=json&limit=\(limit)&extended=1")!
+        let url = try requestURL(["method": "user.getRecentTracks", "user": user, "limit": String(limit), "extended": "1"])
         let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
@@ -24,9 +24,9 @@ actor LastFMService {
     // MARK: - Album Info
 
     func getAlbumInfo(artist: String, album: String, user: String? = nil) async throws -> [String: Any] {
-        var urlString = "\(baseURL)?method=album.getInfo&artist=\(artist.urlEncoded)&album=\(album.urlEncoded)&api_key=\(apiKey)&format=json"
-        if let user = user { urlString += "&username=\(user)" }
-        let url = URL(string: urlString)!
+        var params = ["method": "album.getInfo", "artist": artist, "album": album]
+        if let user = user { params["username"] = user }
+        let url = try requestURL(params)
         let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
         return (try JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
     }
@@ -34,7 +34,7 @@ actor LastFMService {
     // MARK: - User Info
 
     func getUserInfo(user: String) async throws -> [String: Any] {
-        let url = URL(string: "\(baseURL)?method=user.getInfo&user=\(user)&api_key=\(apiKey)&format=json")!
+        let url = try requestURL(["method": "user.getInfo", "user": user])
         let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
         return (try JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
     }
@@ -42,7 +42,7 @@ actor LastFMService {
     // MARK: - Top Albums
 
     func getTopAlbums(user: String, period: String = "overall", limit: Int = 50) async throws -> [TopAlbumEntry] {
-        let url = URL(string: "\(baseURL)?method=user.getTopAlbums&user=\(user)&period=\(period)&api_key=\(apiKey)&format=json&limit=\(limit)")!
+        let url = try requestURL(["method": "user.getTopAlbums", "user": user, "period": period, "limit": String(limit)])
         let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
@@ -64,7 +64,7 @@ actor LastFMService {
     // MARK: - Top Artists
 
     func getTopArtists(user: String, period: String = "overall", limit: Int = 50) async throws -> [TopArtistEntry] {
-        let url = URL(string: "\(baseURL)?method=user.getTopArtists&user=\(user)&period=\(period)&api_key=\(apiKey)&format=json&limit=\(limit)")!
+        let url = try requestURL(["method": "user.getTopArtists", "user": user, "period": period, "limit": String(limit)])
         let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
@@ -85,7 +85,7 @@ actor LastFMService {
     // MARK: - Auth
 
     func getAuthToken() async throws -> String {
-        let url = URL(string: "\(baseURL)?method=auth.getToken&api_key=\(apiKey)&format=json")!
+        let url = try requestURL(["method": "auth.getToken"])
         let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         guard let token = json?["token"] as? String else { throw LastFMError.authFailed }
@@ -93,8 +93,10 @@ actor LastFMService {
     }
 
     func getSession(token: String) async throws -> (sessionKey: String, username: String) {
-        let sig = md5Signature(params: ["api_key": apiKey, "method": "auth.getSession", "token": token])
-        let url = URL(string: "\(baseURL)?method=auth.getSession&api_key=\(apiKey)&token=\(token)&api_sig=\(sig)&format=json")!
+        let params = ["api_key": apiKey, "method": "auth.getSession", "token": token]
+        var query = params
+        query["api_sig"] = Self.signature(params: params, secret: sharedSecret)
+        let url = try requestURL(query)
         let (data, _) = try await URLSession.shared.trackedData(from: url, service: "Last.fm")
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
@@ -107,7 +109,7 @@ actor LastFMService {
     }
 
     var authURL: String {
-        "https://www.last.fm/api/auth/?api_key=\(apiKey)"
+        "https://www.last.fm/api/auth/?api_key=\(apiKey.queryValueEncoded)"
     }
 
     // MARK: - Scrobble / Now Playing
@@ -179,23 +181,24 @@ actor LastFMService {
         return nil
     }
 
-    private func md5Signature(params: [String: String]) -> String {
-        let sorted = params.sorted { $0.key < $1.key }
-        let sigString = sorted.map { "\($0.key)\($0.value)" }.joined() + sharedSecret
-        let digest = Insecure.MD5.hash(data: Data(sigString.utf8))
-        return digest.map { String(format: "%02x", $0) }.joined()
+    private func requestURL(_ params: [String: String]) throws -> URL {
+        var query = params
+        query["api_key"] = query["api_key"] ?? apiKey
+        query["format"] = "json"
+        guard let url = URL(string: baseURL + "?" + Self.formBody(query)) else { throw LastFMError.requestFailed }
+        return url
     }
 
     private func signedPost(params: [String: String]) async throws {
-        let sig = md5Signature(params: params)
         var allParams = params
-        allParams["api_sig"] = sig
+        allParams["api_sig"] = Self.signature(params: params, secret: sharedSecret)
         allParams["format"] = "json"
 
-        var request = URLRequest(url: URL(string: baseURL)!)
+        guard let url = URL(string: baseURL) else { throw LastFMError.requestFailed }
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.httpBody = allParams.map { "\($0.key)=\($0.value.urlEncoded)" }.joined(separator: "&").data(using: .utf8)
+        request.httpBody = Data(Self.formBody(allParams).utf8)
 
         let (_, response) = try await URLSession.shared.trackedData(for: request, service: "Last.fm")
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
@@ -215,8 +218,17 @@ actor LastFMService {
     }
 }
 
-private extension String {
-    var urlEncoded: String {
-        addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? self
+extension LastFMService {
+    static func formBody(_ params: [String: String]) -> String {
+        params.sorted { $0.key < $1.key }
+            .map { "\($0.key.queryValueEncoded)=\($0.value.queryValueEncoded)" }
+            .joined(separator: "&")
+    }
+
+    /// Signed over the raw, unencoded values, as https://www.last.fm/api/authspec specifies.
+    static func signature(params: [String: String], secret: String) -> String {
+        let sigString = params.sorted { $0.key < $1.key }.map { "\($0.key)\($0.value)" }.joined() + secret
+        let digest = Insecure.MD5.hash(data: Data(sigString.utf8))
+        return digest.map { String(format: "%02x", $0) }.joined()
     }
 }

@@ -58,7 +58,7 @@ actor YouTubeMusicFilter {
     }
 
     private static func checkArtistExists(name: String, apiKey: String) async -> Bool {
-        let encoded = name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let encoded = name.queryValueEncoded
         guard let url = URL(string: "https://ws.audioscrobbler.com/2.0/?method=artist.getInfo&artist=\(encoded)&api_key=\(apiKey)&format=json") else { return false }
 
         do {

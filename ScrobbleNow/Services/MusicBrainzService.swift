@@ -6,7 +6,7 @@ actor MusicBrainzService {
     // MARK: - Search Release Groups
 
     func searchAlbum(album: String, artist: String) async throws -> [MBReleaseGroup] {
-        let query = "\(album) AND artist:\(artist)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let query = "\(album) AND artist:\(artist)".queryValueEncoded
         let url = URL(string: "https://musicbrainz.org/ws/2/release-group/?query=\(query)&fmt=json&limit=5")!
 
         var request = URLRequest(url: url)
