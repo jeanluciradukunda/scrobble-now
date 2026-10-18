@@ -13,4 +13,8 @@ actor CacheService {
     func cacheAlbum(key: String, album: AlbumDetail) {
         albumCache[key.lowercased()] = album
     }
+
+    func clear() {
+        albumCache.removeAll()
+    }
 }
