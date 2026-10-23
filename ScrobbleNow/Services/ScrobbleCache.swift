@@ -34,6 +34,7 @@ actor ScrobbleCache {
     // MARK: - Queue a failed scrobble for retry
 
     func queueForRetry(_ entry: ScrobbleCacheEntry) {
+        guard LastFMService.hasArtistAndTitle(artist: entry.artist, title: entry.track) else { return }
         var pending = loadPending()
         pending.append(entry)
         // Cap at 500 pending
