@@ -14,11 +14,12 @@ struct FailedScrobblesRow: View {
                         Text(failed.count == 1 ? "1 scrobble couldn't be sent to Last.fm"
                                                : "\(failed.count) scrobbles couldn't be sent to Last.fm")
                             .font(.system(size: 10, weight: .medium))
-                        Text("Latest: \(latest.artist.isEmpty ? "(no artist)" : latest.artist) - \(latest.track)")
+                        let line = "\(latest.artist.isEmpty ? "(no artist)" : latest.artist) - \(latest.track)"
+                        Text("Latest: \(line)")
                             .font(.system(size: 9))
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
-                            .help("\(latest.artist) - \(latest.track)")
+                            .help(line)
                     }
                     Spacer()
                     Button("Clear") {
