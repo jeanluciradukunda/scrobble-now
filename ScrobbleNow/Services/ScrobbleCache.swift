@@ -115,9 +115,16 @@ actor ScrobbleCache {
     func pendingCount() -> Int { loadPending().count }
     func successCount() -> Int { loadHistory().filter { $0.succeeded == true }.count }
 
+    /// Scrobbles that were given up on (out of retries, or refused by Last.fm), newest first.
+    func failedScrobbles() -> [ScrobbleCacheEntry] {
+        loadHistory().filter { $0.succeeded == false }.reversed()
+    }
+
     // MARK: - Clear
 
     func clearHistory() { saveHistory([]) }
+
+    func clearFailed() { saveHistory(loadHistory().filter { $0.succeeded != false }) }
 
     // MARK: - Persistence
 

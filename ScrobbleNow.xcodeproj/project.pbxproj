@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0017E7B2BE81DCBF6A3A471F /* FailedScrobblesRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80BEC293BC588A9BF54A0683 /* FailedScrobblesRow.swift */; };
 		017C8A218A693DE4F03BEE9B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E00961C407B21D13CF45EB9E /* Assets.xcassets */; };
 		01B7DEA15D85BEA35D7F192A /* MediaRemoteAdapterSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1A949550ADA4678020597F /* MediaRemoteAdapterSource.swift */; };
 		0411D4BD98B0A692B918C738 /* MusicBrainzService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7414E9B734282F6B342C5A /* MusicBrainzService.swift */; };
@@ -52,6 +53,7 @@
 		63C5793D3E0BCDBE450F898E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E00961C407B21D13CF45EB9E /* Assets.xcassets */; };
 		64F761903CAB1C49500BC502 /* ScratchDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26CC09130A9FE26412EECC86 /* ScratchDefaultsTests.swift */; };
 		659A439E391453E04A706FF1 /* APITrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 195F6F9C409D2A54E52F00EA /* APITrackerTests.swift */; };
+		65A83E5D0DBB65F3C132C732 /* FailedScrobblesRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80BEC293BC588A9BF54A0683 /* FailedScrobblesRow.swift */; };
 		66E01F35F81C6237DC3A3FEF /* ArtworkSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C741F6BBF59669CF69856B6 /* ArtworkSaver.swift */; };
 		699BE5E7825946678B4120EE /* PlatformImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C962FA640E5DCB09F0AA1FFA /* PlatformImage.swift */; };
 		6A4C549A6B7F29C31553C055 /* DiscogsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA4359CB5AB70C4E2E2F729 /* DiscogsService.swift */; };
@@ -114,6 +116,7 @@
 		ECF8E4C59234BF07B8987CCB /* SecretSeedingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345CC51A65F8483972FCC5BB /* SecretSeedingTests.swift */; };
 		F308F446FD29717A2B7D0B2C /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCD2BD832C94BD88F4F7299 /* HistoryViewModel.swift */; };
 		F7CB61806C99C01FCB8E9861 /* NowPlayingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922EE3C3F67D7EA943FF2B4F /* NowPlayingViewModel.swift */; };
+		FB0A39381BD3BCA65A477F2B /* FailedScrobblesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A5248889ECFEB9EE3A3D425 /* FailedScrobblesTests.swift */; };
 		FD71D4BAFD749D48EAC23B4C /* LastFMLoveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC004379850AB0044CFC78A0 /* LastFMLoveTests.swift */; };
 		FE6EB7BCD3CB3413049A8DA6 /* CollageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B7933EA834B896C87C1F7BA /* CollageViewModel.swift */; };
 /* End PBXBuildFile section */
@@ -172,9 +175,11 @@
 		73E507B8BC0D0152B1CB879A /* MediaRemoteBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaRemoteBridge.swift; sourceTree = "<group>"; };
 		7A061D020075405639BB4130 /* RecentTracksPagingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentTracksPagingTests.swift; sourceTree = "<group>"; };
 		80A4D0E12D8566984319D258 /* ScrobbleNowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScrobbleNowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		80BEC293BC588A9BF54A0683 /* FailedScrobblesRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailedScrobblesRow.swift; sourceTree = "<group>"; };
 		81A3650658D9721D4060B6A6 /* StatisticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewModel.swift; sourceTree = "<group>"; };
 		81A523C699545961956D5CED /* ScrobbleToggleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleToggleTests.swift; sourceTree = "<group>"; };
 		88F6052BE4C62C9BBD87485D /* MetricsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsService.swift; sourceTree = "<group>"; };
+		8A5248889ECFEB9EE3A3D425 /* FailedScrobblesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailedScrobblesTests.swift; sourceTree = "<group>"; };
 		8CC0CBEE725DC8AF8080E89A /* AlbumDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDetailView.swift; sourceTree = "<group>"; };
 		8D24391AC51E6123849D9422 /* YouTubeMusicFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeMusicFilterTests.swift; sourceTree = "<group>"; };
 		8F0C55D55CA394E6FF2818F9 /* SystemNowPlaying.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNowPlaying.swift; sourceTree = "<group>"; };
@@ -236,6 +241,7 @@
 				8CC0CBEE725DC8AF8080E89A /* AlbumDetailView.swift */,
 				3DF54E44F6AEFC8D36975682 /* AudioVisualizerView.swift */,
 				F3A424FB0DA92E827E33FDB9 /* CollageView.swift */,
+				80BEC293BC588A9BF54A0683 /* FailedScrobblesRow.swift */,
 				56AD0226D56AC9B449D3CBE4 /* HistoryView.swift */,
 				D47FEFBAE226AF02FF9AB976 /* LibraryView.swift */,
 				2BE4230F732B9F8257B84158 /* NowPlayingView.swift */,
@@ -302,6 +308,7 @@
 				6606687BCF9E1498E0A1CE79 /* CacheServiceTests.swift */,
 				6909503BC3289840E8F2406A /* CollageExportTests.swift */,
 				4AA90BB0B77CAE00E5101BAB /* EmptyArtistTests.swift */,
+				8A5248889ECFEB9EE3A3D425 /* FailedScrobblesTests.swift */,
 				6B14D6430D6A3A618FF01290 /* HistoryGroupingTests.swift */,
 				FC004379850AB0044CFC78A0 /* LastFMLoveTests.swift */,
 				F8A2E41BA9585185F71B82EB /* LastFMRequestTests.swift */,
@@ -537,6 +544,7 @@
 				B31F0CA9754B15949A380E5D /* CollageView.swift in Sources */,
 				FE6EB7BCD3CB3413049A8DA6 /* CollageViewModel.swift in Sources */,
 				794BF6F6EB95B2631952669F /* DiscogsService.swift in Sources */,
+				0017E7B2BE81DCBF6A3A471F /* FailedScrobblesRow.swift in Sources */,
 				A4B345FC24488FDF1EB2DDCA /* HistoryView.swift in Sources */,
 				98B24A70524A5C518EF27421 /* HistoryViewModel.swift in Sources */,
 				1E5216179E621B10E341322D /* KeychainService.swift in Sources */,
@@ -578,6 +586,7 @@
 				5471BDD6A041D659CC3B7555 /* CacheServiceTests.swift in Sources */,
 				97DECF0AF8844A3ABD0438A8 /* CollageExportTests.swift in Sources */,
 				6D69E2D8773F934AD251C23F /* EmptyArtistTests.swift in Sources */,
+				FB0A39381BD3BCA65A477F2B /* FailedScrobblesTests.swift in Sources */,
 				857FB60C96B1B0E8AE3E5AFA /* HistoryGroupingTests.swift in Sources */,
 				FD71D4BAFD749D48EAC23B4C /* LastFMLoveTests.swift in Sources */,
 				04ADD9F83A79D5A6A494ABBE /* LastFMRequestTests.swift in Sources */,
@@ -614,6 +623,7 @@
 				ACB62FE43B215150A9B93041 /* CollageView.swift in Sources */,
 				CF56914916AA5B8CC433D86F /* CollageViewModel.swift in Sources */,
 				6A4C549A6B7F29C31553C055 /* DiscogsService.swift in Sources */,
+				65A83E5D0DBB65F3C132C732 /* FailedScrobblesRow.swift in Sources */,
 				11BE473C0BFB47723DEDF381 /* HistoryView.swift in Sources */,
 				F308F446FD29717A2B7D0B2C /* HistoryViewModel.swift in Sources */,
 				06B92F41D3E2566A2F416070 /* KeychainService.swift in Sources */,

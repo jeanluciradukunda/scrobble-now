@@ -105,6 +105,7 @@ struct SettingsView: View {
                 set: { settings.minTrackDuration = Int($0) }
             ), range: 30...120, step: 10, unit: "s")
             settingsToggle("Filter podcasts", isOn: $settings.filterPodcasts)
+            FailedScrobblesRow()
 
             Divider().opacity(0.2)
 
