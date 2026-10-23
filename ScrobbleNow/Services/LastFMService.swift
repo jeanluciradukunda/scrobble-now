@@ -322,8 +322,6 @@ actor LastFMService {
 }
 
 extension LastFMService {
-    /// A browser tab whose title could not be split has no artist; Last.fm records it as a track
-    /// called "YouTube" by nobody, so it is never sent.
     static func hasArtistAndTitle(artist: String, title: String) -> Bool {
         !artist.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
