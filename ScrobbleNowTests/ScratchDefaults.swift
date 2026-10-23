@@ -1,21 +1,20 @@
 import Foundation
 
-/// A throwaway UserDefaults suite. Removing the domain empties it but leaves its plist in
-/// ~/Library/Preferences, so the file is deleted too when the suite is released.
+/// A UserDefaults suite for tests under a fixed name. A fresh UUID-named suite per test left a new plist
+/// in ~/Library/Preferences on every run: cfprefsd writes the file after the test has finished, so deleting
+/// it does not help. Reusing one name per test suite keeps it to a single file that is emptied before and
+/// after use; suites that use it must be `.serialized`.
 final class ScratchDefaults {
-    let name = "ScrobbleNowTests.\(UUID().uuidString)"
+    let name: String
     let store: UserDefaults
 
-    init() {
+    init(_ suite: String) {
+        name = "ScrobbleNowTests.\(suite)"
         store = UserDefaults(suiteName: name)!
-    }
-
-    var fileURL: URL {
-        FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Preferences/\(name).plist")
+        store.removePersistentDomain(forName: name)
     }
 
     deinit {
         store.removePersistentDomain(forName: name)
-        try? FileManager.default.removeItem(at: fileURL)
     }
 }

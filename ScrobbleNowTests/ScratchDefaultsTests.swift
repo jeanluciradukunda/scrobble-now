@@ -2,12 +2,11 @@ import Foundation
 import Testing
 
 struct ScratchDefaultsTests {
-    @Test func releasingTheSuiteLeavesNoPlistBehind() {
-        var defaults: ScratchDefaults? = ScratchDefaults()
+    @Test func aScratchSuiteStartsEmptyAndIsEmptiedWhenReleased() {
+        var defaults: ScratchDefaults? = ScratchDefaults("ScratchDefaultsTests")
         defaults?.store.set("x", forKey: "k")
-        defaults?.store.synchronize()
-        let url = defaults!.fileURL
         defaults = nil
-        #expect(!FileManager.default.fileExists(atPath: url.path))
+        let reopened = ScratchDefaults("ScratchDefaultsTests")
+        #expect(reopened.store.string(forKey: "k") == nil)
     }
 }
