@@ -166,6 +166,7 @@ actor LastFMService {
     // MARK: - Scrobble / Now Playing
 
     func updateNowPlaying(artist: String, track: String, album: String) async throws {
+        guard Self.hasArtistAndTitle(artist: artist, title: track) else { throw LastFMError.missingArtistOrTitle }
         guard let sk = sessionKey() else { throw LastFMError.notAuthenticated }
         let params: [String: String] = [
             "method": "track.updateNowPlaying",
@@ -176,6 +177,7 @@ actor LastFMService {
     }
 
     func scrobble(artist: String, track: String, album: String, timestamp: Int) async throws {
+        guard Self.hasArtistAndTitle(artist: artist, title: track) else { throw LastFMError.missingArtistOrTitle }
         guard let sk = sessionKey() else { throw LastFMError.notAuthenticated }
         let params: [String: String] = [
             "method": "track.scrobble",
@@ -288,6 +290,7 @@ actor LastFMService {
         case notAuthenticated
         case api(code: Int, message: String)
         case ignored(code: Int)
+        case missingArtistOrTitle
 
         enum Disposition { case retry, keepUntilFixed, drop }
 
@@ -301,7 +304,7 @@ actor LastFMService {
             case .ignored(5): return .retry
             case .notAuthenticated: return .keepUntilFixed
             case .api(let code, _) where [4, 9, 10, 13, 26].contains(code): return .keepUntilFixed
-            case .api, .ignored: return .drop
+            case .api, .ignored, .missingArtistOrTitle: return .drop
             }
         }
 
@@ -312,12 +315,18 @@ actor LastFMService {
             case .notAuthenticated: return "Not signed in to Last.fm"
             case let .api(code, message): return "Last.fm error \(code): \(message)"
             case .ignored(let code): return "Last.fm ignored the scrobble (code \(code))"
+            case .missingArtistOrTitle: return "No artist or title to scrobble"
             }
         }
     }
 }
 
 extension LastFMService {
+    static func hasArtistAndTitle(artist: String, title: String) -> Bool {
+        !artist.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     static func recentTracksParams(user: String, limit: Int, from start: Date?, to end: Date?) -> [String: String] {
         var params = ["method": "user.getRecentTracks", "user": user, "limit": String(limit), "extended": "1"]
         if let start { params["from"] = String(Int(start.timeIntervalSince1970)) }

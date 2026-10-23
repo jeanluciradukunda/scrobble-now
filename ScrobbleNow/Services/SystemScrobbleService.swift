@@ -202,6 +202,7 @@ class SystemScrobbleService: ObservableObject {
     private func canScrobble(_ track: SystemNowPlaying) -> Bool {
         isEnabled && isConnectorEnabled(for: track.sourceBundleId)
             && !(settings.filterPodcasts && Self.isPodcastApp(track.sourceBundleId))
+            && LastFMService.hasArtistAndTitle(artist: track.artist, title: track.title)
     }
 
     nonisolated static func isPodcastApp(_ bundleId: String) -> Bool {

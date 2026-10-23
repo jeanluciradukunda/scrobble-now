@@ -125,6 +125,7 @@ struct ScrobbleEngine {
         guard var current = play, !current.didScrobble,
               current.accumulated >= rules.threshold(for: current.track),
               rules.isLongEnough(current.track),
+              LastFMService.hasArtistAndTitle(artist: current.track.artist, title: current.track.title),
               isAllowed(current.track) else { return [] }
         current.didScrobble = true
         play = current
