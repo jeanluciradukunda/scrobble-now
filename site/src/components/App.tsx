@@ -26,19 +26,46 @@ export function App() {
       onCleanup(() => navObs.disconnect());
     }
 
-    // Parallax
+    // Parallax + rainbow river
     if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       const onScroll = () => {
         const scrollY = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollProgress = scrollY / docHeight; // 0 to 1
+
+        // Cover layers
         document.querySelectorAll<HTMLElement>(".cover-layer").forEach((el) => {
           const speed = parseFloat(el.dataset.parallax || "0.1");
           el.style.transform = `translateY(${scrollY * speed}px) scale(${1 + Math.abs(speed) * 0.3})`;
         });
+
+        // Floating images in report
         document.querySelectorAll<HTMLElement>(".float-img").forEach((el) => {
           const rect = el.getBoundingClientRect();
           const progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
-          el.style.transform = `translateY(${(progress - 0.5) * -30}px)`;
+          el.style.transform = `translateY(${(progress - 0.5) * -40}px)`;
         });
+
+        // Parallax scenes — bg moves slow, fg moves fast
+        document.querySelectorAll<HTMLElement>(".parallax-scene").forEach((scene) => {
+          const rect = scene.getBoundingClientRect();
+          const progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
+          const offset = (progress - 0.5);
+
+          const back = scene.querySelector<HTMLElement>(".scene-back");
+          const front = scene.querySelector<HTMLElement>(".scene-front");
+
+          if (back) back.style.transform = `translateY(${offset * -30}px) scale(1.05)`;
+          if (front) front.style.transform = `translateY(${offset * -80}px) scale(1.02)`;
+        });
+
+        // Rainbow river — parallax at 0.6x scroll speed + subtle sway
+        const river = document.querySelector<HTMLElement>(".rainbow-river");
+        if (river) {
+          const sway = Math.sin(scrollProgress * Math.PI * 3) * 30;
+          river.style.transform = `translateY(${-scrollY * 0.35}px) translateX(${sway}px)`;
+        }
+
         // Gallery scroll-jack
         const gs = document.querySelector<HTMLElement>(".gallery-bleed");
         const g = document.querySelector<HTMLElement>(".gallery-scroll");
@@ -55,6 +82,78 @@ export function App() {
 
   return (
     <main>
+      {/* ═══════ RAINBOW RIVER — flows from top, narrows into footer stripe ═══════ */}
+      <div class="rainbow-river" aria-hidden="true">
+        <svg viewBox="0 0 600 6000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="rainbow" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#d4302b" />
+              <stop offset="14%" stop-color="#e67a30" />
+              <stop offset="28%" stop-color="#d4a843" />
+              <stop offset="42%" stop-color="#e8d44a" />
+              <stop offset="57%" stop-color="#5d9e4a" />
+              <stop offset="71%" stop-color="#3a9e8f" />
+              <stop offset="85%" stop-color="#3a6fb5" />
+              <stop offset="100%" stop-color="#3a3f8f" />
+            </linearGradient>
+            <filter id="river-blur">
+              <feGaussianBlur stdDeviation="8" />
+            </filter>
+          </defs>
+          {/* Wide blurred wash — the ambient glow, very visible */}
+          <path
+            d={`
+              M 300 0
+              C 400 300, 500 500, 300 800
+              C 100 1100, 50 1300, 250 1600
+              C 450 1900, 500 2100, 300 2400
+              C 100 2700, 50 2900, 350 3200
+              C 550 3500, 400 3700, 200 4000
+              C 50 4300, 150 4500, 350 4800
+              C 450 5000, 350 5300, 300 5600
+              C 300 5800, 300 5900, 300 6000
+            `}
+            stroke="url(#rainbow)"
+            stroke-width="300"
+            fill="none"
+            stroke-linecap="round"
+            filter="url(#river-blur)"
+            opacity="0.35"
+          />
+          {/* Core — the visible bright river */}
+          <path
+            d={`
+              M 300 0
+              C 400 300, 500 500, 300 800
+              C 100 1100, 50 1300, 250 1600
+              C 450 1900, 500 2100, 300 2400
+              C 100 2700, 50 2900, 350 3200
+              C 550 3500, 400 3700, 200 4000
+              C 50 4300, 150 4500, 350 4800
+              C 450 5000, 350 5300, 300 5600
+              C 300 5800, 300 5900, 300 6000
+            `}
+            stroke="url(#rainbow)"
+            stroke-width="80"
+            fill="none"
+            stroke-linecap="round"
+            opacity="0.4"
+          />
+          {/* Narrow thread converging to footer stripe */}
+          <path
+            d={`
+              M 300 5500
+              C 300 5700, 300 5850, 300 6000
+            `}
+            stroke="url(#rainbow)"
+            stroke-width="12"
+            fill="none"
+            stroke-linecap="round"
+            opacity="0.7"
+          />
+        </svg>
+      </div>
+
       <nav class={`sticky-nav ${navVisible() ? "visible" : ""}`}>
         <a href="#report">Report</a>
         <a href="#gallery">Gallery</a>
@@ -98,10 +197,11 @@ export function App() {
       {/* ═══════ THE REPORT — single flowing document ═══════ */}
       <article class="report" id="report">
 
-        {/* Page 2-3: Introduction */}
+        {/* Page 2-3: Introduction — parallax layered */}
         <section class="report-spread reveal">
-          <div class="report-page page-left">
-            <img src={img("te-zamrock-studio.jpg")} alt="" class="page-full-img float-img" />
+          <div class="report-page page-left parallax-scene">
+            <img src={img("layers/zamrock-bg-planes.png")} alt="" class="scene-back" />
+            <img src={img("layers/zamrock-fg-objects.png")} alt="" class="scene-front" />
           </div>
           <div class="report-page page-right">
             <h2>On the Threshold of Listening</h2>
@@ -345,8 +445,9 @@ export function App() {
 
       {/* ═══════ FOOTER — minimal, like report back cover ═══════ */}
       <footer class="back-cover">
-        <div class="condec-stripe-h" style="justify-content:center">
-          <For each={STRIPE_COLORS}>{(c) => <span style={`background:${c};height:120px`} />}</For>
+        {/* The stripe the river flows into */}
+        <div class="river-terminus">
+          <For each={STRIPE_COLORS}>{(c) => <span style={`background:${c}`} />}</For>
         </div>
         <p class="back-cover-text">
           Scrobble Now / {year}<br />
