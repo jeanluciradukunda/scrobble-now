@@ -235,3 +235,16 @@ struct BrowserSourceTests {
         #expect(!SystemScrobbleService.isBrowser("com.spotify.client"))
     }
 }
+
+#if os(macOS)
+struct BrowserTabsNeedTheAdapterTests {
+    @Test func nothingIsPolledWhenTheAdapterIsOffAndMediaRemoteIsBlocked() {
+        #expect(!MediaRemoteBridge.pollsMediaRemote(adapterRunning: false, mediaRemoteActive: false))
+    }
+
+    @Test func theAdapterReplacesThePolls() {
+        #expect(!MediaRemoteBridge.pollsMediaRemote(adapterRunning: true, mediaRemoteActive: true))
+        #expect(MediaRemoteBridge.pollsMediaRemote(adapterRunning: false, mediaRemoteActive: true))
+    }
+}
+#endif

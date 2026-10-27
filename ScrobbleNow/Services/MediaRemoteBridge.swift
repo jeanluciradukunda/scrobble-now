@@ -92,20 +92,14 @@ class MediaRemoteBridge: ObservableObject {
         pollTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self else { return }
-                if self.adapterIsHealthy {
-                    // The adapter streams every player; the polls would only duplicate it.
-                } else if self.mediaRemoteIsActive {
-                    // MediaRemote works — use it exclusively
+                if Self.pollsMediaRemote(adapterRunning: self.adapterIsHealthy, mediaRemoteActive: self.mediaRemoteIsActive) {
                     self.pollMediaRemote()
-                } else {
-                    // MediaRemote blocked — use browser scanning
-                    self.pollBrowsers()
                 }
                 self.cleanStaleSources()
             }
         }
 
-        print("[NowPlaying] ✓ Listening (Spotify + Music + \(mediaRemoteIsActive ? "MediaRemote" : "Browser scanning"))")
+        print("[NowPlaying] ✓ Listening (Spotify + Music\(mediaRemoteIsActive ? " + MediaRemote" : ""))")
 
         setUpAdapter()
     }
@@ -220,332 +214,7 @@ class MediaRemoteBridge: ObservableObject {
         updateSource(track)
     }
 
-    // MARK: - Browser Polling (Chrome, Safari, Arc, etc.)
-
-    var lastBrowserTitle: String = ""
-    private var previousBrowserTabs: Set<String> = []
     private var mediaRemoteIsActive: Bool = false
-
-    /// Polls Chrome/Safari/Arc for music tab titles
-    private func pollBrowsers() {
-        // Run browser polling off main thread
-        Task.detached { [weak self] in
-            await self?.pollBrowserAsync()
-        }
-    }
-
-    private func pollBrowserAsync() async {
-        // Check Chrome — return ALL music tabs, not just the first
-        await pollBrowser(
-            appName: "Google Chrome",
-            bundleId: "com.google.Chrome",
-            scriptTemplate: """
-            tell application "Google Chrome"
-                set output to ""
-                repeat with w in windows
-                    repeat with t in tabs of w
-                        set tabURL to URL of t
-                        set tabTitle to title of t
-                        if tabURL contains "youtube.com" or tabURL contains "soundcloud.com" or tabURL contains "bandcamp.com" or tabURL contains "open.spotify.com" or tabURL contains "tidal.com" or tabURL contains "deezer.com" or tabURL contains "music.apple.com" then
-                            set output to output & tabURL & "|||" & tabTitle & "###"
-                        end if
-                    end repeat
-                end repeat
-            end tell
-            return output
-            """
-        )
-
-        // Check Safari
-        await pollBrowser(
-            appName: "Safari",
-            bundleId: "com.apple.Safari",
-            scriptTemplate: """
-            tell application "Safari"
-                set output to ""
-                repeat with w in windows
-                    repeat with t in tabs of w
-                        set tabURL to URL of t
-                        set tabTitle to name of t
-                        if tabURL contains "youtube.com" or tabURL contains "soundcloud.com" or tabURL contains "bandcamp.com" or tabURL contains "open.spotify.com" or tabURL contains "tidal.com" or tabURL contains "deezer.com" or tabURL contains "music.apple.com" then
-                            set output to output & tabURL & "|||" & tabTitle & "###"
-                        end if
-                    end repeat
-                end repeat
-            end tell
-            return output
-            """
-        )
-    }
-
-    private func pollBrowser(appName: String, bundleId: String, scriptTemplate: String) async {
-        // Only poll if the browser is running
-        let isRunning = await MainActor.run {
-            NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == bundleId })
-        }
-        guard isRunning else { return }
-
-        // Run osascript with a 2-second timeout to prevent blocking
-        let raw: String? = await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .utility).async {
-                let process = Process()
-                process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-                process.arguments = ["-e", scriptTemplate]
-
-                let pipe = Pipe()
-                process.standardOutput = pipe
-                process.standardError = FileHandle.nullDevice
-
-                do {
-                    try process.run()
-                } catch {
-                    continuation.resume(returning: nil)
-                    return
-                }
-
-                // Timeout after 2 seconds
-                let deadline = DispatchTime.now() + 2.0
-                DispatchQueue.global().asyncAfter(deadline: deadline) {
-                    if process.isRunning {
-                        process.terminate()
-                    }
-                }
-
-                process.waitUntilExit()
-
-                let data = pipe.fileHandleForReading.readDataToEndOfFile()
-                let result = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
-                continuation.resume(returning: result)
-            }
-        }
-
-        guard let raw, !raw.isEmpty else {
-            // No music tabs found — mark browser source as paused
-            markPaused(bundleId)
-            return
-        }
-
-        // Parse ALL music tabs (separated by ###)
-        let allTabs = raw.components(separatedBy: "###")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-            .compactMap { entry -> (url: String, title: String)? in
-                let parts = entry.components(separatedBy: "|||")
-                guard parts.count == 2 else { return nil }
-                return (parts[0], parts[1])
-            }
-
-        guard !allTabs.isEmpty else {
-            markPaused(bundleId)
-            return
-        }
-
-        let currentTitles = Set(allTabs.map { $0.title })
-
-        // STICKY TAB LOGIC: Don't flicker between tabs.
-        // Only switch when: (1) current tab disappeared, or (2) a brand new tab appeared
-        let lockedTitle = lastBrowserTitle.replacingOccurrences(of: "\(bundleId):", with: "")
-        let lockedStillExists = !lockedTitle.isEmpty && allTabs.contains { $0.title == lockedTitle }
-        let newTabs = allTabs.filter { !previousBrowserTabs.contains($0.title) }
-
-        previousBrowserTabs = currentTitles
-
-        let activeTab: (url: String, title: String)
-        if !newTabs.isEmpty {
-            // A new music tab appeared — switch to it
-            activeTab = newTabs[0]
-        } else if lockedStillExists {
-            // Current tab still there, nothing new — keep it alive (re-mark as playing)
-            if var existing = activeSources[bundleId], !existing.isPlaying {
-                existing = SystemNowPlaying(
-                    title: existing.title, artist: existing.artist, album: existing.album,
-                    duration: existing.duration, elapsed: existing.elapsed, playbackRate: 1.0,
-                    artwork: existing.artwork, sourceBundleId: existing.sourceBundleId,
-                    sourceAppName: existing.sourceAppName, timestamp: existing.timestamp
-                )
-                activeSources[bundleId] = existing
-                if currentTrack?.sourceBundleId == bundleId { currentTrack = existing }
-                isPlaying = true
-            }
-            return
-        } else if let first = allTabs.first {
-            // Current tab gone — pick first available
-            activeTab = first
-        } else {
-            return
-        }
-
-        let url = activeTab.url
-        let title = activeTab.title
-        let key = "\(bundleId):\(title)"
-        guard key != lastBrowserTitle else { return }
-        lastBrowserTitle = key
-
-        // YouTube: check if it's actually music before scrobbling
-        if url.contains("youtube.com") {
-            if let videoId = YouTubeMusicFilter.extractVideoId(from: url) {
-                let result = await YouTubeMusicFilter.shared.check(videoId: videoId)
-                guard result.isMusic else {
-                    print("[Browser] ⏭ Skipping non-music YouTube: \(title.prefix(50))")
-                    return
-                }
-                // If YouTube Music API gave us artist/track, fetch proper album art from Last.fm
-                if let ytArtist = result.artist, let ytTrack = result.track {
-                    var artwork: PlatformImage?
-                    var albumName = result.album ?? ""
-
-                    // Try Last.fm track.getInfo for album art
-                    let apiKey = KeychainService.lastfmApiKey
-                    if !apiKey.isEmpty {
-                        let artistEnc = ytArtist.queryValueEncoded
-                        let trackEnc = ytTrack.queryValueEncoded
-
-                        // Try track.getInfo first — gives us album name + artwork
-                        if let trackURL = URL(string: "https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=\(apiKey)&artist=\(artistEnc)&track=\(trackEnc)&format=json"),
-                           let (trackData, _) = try? await URLSession.shared.trackedData(from: trackURL, service: "Last.fm"),
-                           let trackJson = try? JSONSerialization.jsonObject(with: trackData) as? [String: Any],
-                           let trackInfo = trackJson["track"] as? [String: Any] {
-
-                            // Get album name
-                            if let album = trackInfo["album"] as? [String: Any],
-                               let name = album["title"] as? String {
-                                albumName = name
-
-                                // Get album artwork
-                                if let images = album["image"] as? [[String: Any]] {
-                                    for size in ["extralarge", "large", "medium"] {
-                                        if let img = images.first(where: { ($0["size"] as? String) == size }),
-                                           let urlStr = img["#text"] as? String, !urlStr.isEmpty,
-                                           let imgURL = URL(string: urlStr),
-                                           let (imgData, _) = try? await URLSession.shared.data(from: imgURL) {
-                                            artwork = PlatformImage(data: imgData)
-                                            break
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Fallback: YouTube video thumbnail if no Last.fm art
-                    if artwork == nil {
-                        let thumbURL = URL(string: "https://img.youtube.com/vi/\(videoId)/hqdefault.jpg")!
-                        if let (imgData, _) = try? await URLSession.shared.data(from: thumbURL) {
-                            artwork = PlatformImage(data: imgData)
-                        }
-                    }
-
-                    let track = SystemNowPlaying(
-                        title: ytTrack, artist: ytArtist, album: albumName,
-                        duration: result.durationSeconds ?? 0, elapsed: 0, playbackRate: 1.0,
-                        artwork: artwork, sourceBundleId: bundleId,
-                        sourceAppName: "\(appName) · YouTube", timestamp: Date()
-                    )
-                    await MainActor.run { updateSource(track) }
-                    return
-                }
-            }
-        }
-
-        // Parse track info from tab title
-        let parsed = parseTabTitle(title, url: url)
-        guard !parsed.title.isEmpty else { return }
-
-        let track = SystemNowPlaying(
-            title: parsed.title, artist: parsed.artist, album: "",
-            duration: 0, elapsed: 0, playbackRate: 1.0,
-            artwork: nil, sourceBundleId: bundleId,
-            sourceAppName: "\(appName) · \(parsed.service)", timestamp: Date()
-        )
-
-        await MainActor.run { updateSource(track) }
-    }
-
-    private struct ParsedTab {
-        let title: String
-        let artist: String
-        let service: String
-    }
-
-    private func parseTabTitle(_ title: String, url: String) -> ParsedTab {
-        // YouTube Music: "Song Title - Artist - YouTube Music"
-        if url.contains("music.youtube.com") {
-            let cleaned = title.replacingOccurrences(of: " - YouTube Music", with: "")
-            let parts = cleaned.components(separatedBy: " - ")
-            if parts.count >= 2 {
-                return ParsedTab(title: parts[0].trimmingCharacters(in: .whitespaces),
-                                 artist: parts[1].trimmingCharacters(in: .whitespaces),
-                                 service: "YouTube Music")
-            }
-            return ParsedTab(title: cleaned, artist: "", service: "YouTube Music")
-        }
-
-        // YouTube (regular): "Song Title - Artist - YouTube" or "Video Title - YouTube"
-        if url.contains("youtube.com") {
-            let cleaned = title.replacingOccurrences(of: " - YouTube", with: "")
-            let parts = cleaned.components(separatedBy: " - ")
-            if parts.count >= 2 {
-                // Could be "Artist - Song" or "Song - Artist" — try both
-                return ParsedTab(title: parts[0].trimmingCharacters(in: .whitespaces),
-                                 artist: parts[1].trimmingCharacters(in: .whitespaces),
-                                 service: "YouTube")
-            }
-            // Single title — use as track name, no artist
-            return ParsedTab(title: cleaned.trimmingCharacters(in: .whitespaces),
-                             artist: "", service: "YouTube")
-        }
-
-        // SoundCloud: "Stream Artist - Song Title | Listen online..."
-        if url.contains("soundcloud.com") {
-            let cleaned = title.replacingOccurrences(of: "Stream ", with: "")
-                .components(separatedBy: " | ").first ?? title
-            let parts = cleaned.components(separatedBy: " - ")
-            if parts.count >= 2 {
-                return ParsedTab(title: parts[1].trimmingCharacters(in: .whitespaces),
-                                 artist: parts[0].trimmingCharacters(in: .whitespaces),
-                                 service: "SoundCloud")
-            }
-            return ParsedTab(title: cleaned, artist: "", service: "SoundCloud")
-        }
-
-        // Bandcamp: "Song Title | Artist"
-        if url.contains("bandcamp.com") {
-            let parts = title.components(separatedBy: " | ")
-            if parts.count >= 2 {
-                return ParsedTab(title: parts[0].trimmingCharacters(in: .whitespaces),
-                                 artist: parts[1].trimmingCharacters(in: .whitespaces),
-                                 service: "Bandcamp")
-            }
-        }
-
-        // Spotify Web: "Song Title - song and target by Artist | Spotify"
-        if url.contains("open.spotify.com") {
-            let cleaned = title.components(separatedBy: " | ").first ?? title
-            let parts = cleaned.components(separatedBy: " - song")
-            if let songTitle = parts.first {
-                // Try to extract artist from "and lyrics by Artist"
-                if cleaned.contains(" by "), let byPart = cleaned.components(separatedBy: " by ").last {
-                    return ParsedTab(title: songTitle.trimmingCharacters(in: .whitespaces),
-                                     artist: byPart.trimmingCharacters(in: .whitespaces),
-                                     service: "Spotify Web")
-                }
-                return ParsedTab(title: songTitle.trimmingCharacters(in: .whitespaces), artist: "", service: "Spotify Web")
-            }
-        }
-
-        // Tidal: "Song Title - Artist - Tidal"
-        if url.contains("tidal.com") {
-            let parts = title.components(separatedBy: " - ")
-            if parts.count >= 2 {
-                return ParsedTab(title: parts[0].trimmingCharacters(in: .whitespaces),
-                                 artist: parts[1].trimmingCharacters(in: .whitespaces),
-                                 service: "Tidal")
-            }
-        }
-
-        // Generic fallback
-        return ParsedTab(title: title, artist: "", service: "Browser")
-    }
 
     // MARK: - MediaRemote (fallback for other apps)
 
@@ -569,6 +238,12 @@ class MediaRemoteBridge: ObservableObject {
     /// Set once MediaRemote has refused us on a macOS that restricts it, so it is not asked again this session.
     private var mediaRemoteBlocked = false
 
+    /// There is no browser-tab fallback when both are off: a tab's title gives no play state, so an idle tab
+    /// scrobbled every track (issue #43). Browser tabs come only from the adapter or a working MediaRemote.
+    nonisolated static func pollsMediaRemote(adapterRunning: Bool, mediaRemoteActive: Bool) -> Bool {
+        !adapterRunning && mediaRemoteActive
+    }
+
     /// macOS 15.4 stopped returning now-playing data to third-party apps; before that, an empty reply only
     /// meant nothing was playing.
     nonisolated static func restrictsMediaRemote(_ version: OperatingSystemVersion) -> Bool {
@@ -580,7 +255,7 @@ class MediaRemoteBridge: ObservableObject {
             mediaRemoteIsActive = false
             if !mediaRemoteBlocked, Self.restrictsMediaRemote(ProcessInfo.processInfo.operatingSystemVersion) {
                 mediaRemoteBlocked = true
-                print("[MediaRemote] Not available to this app on this macOS; using notifications and browser scanning.")
+                print("[MediaRemote] Not available to this app on this macOS; using notifications.")
             }
             return
         }

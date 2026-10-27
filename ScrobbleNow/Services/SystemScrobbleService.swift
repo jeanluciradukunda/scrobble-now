@@ -303,21 +303,6 @@ class SystemScrobbleService: ObservableObject {
             }
         } catch {}
 
-        // Last resort: YouTube video thumbnail directly
-        if let videoId = findCurrentYouTubeVideoId() {
-            let thumbURL = URL(string: "https://img.youtube.com/vi/\(videoId)/hqdefault.jpg")!
-            do {
-                let (data, _) = try await URLSession.shared.data(from: thumbURL)
-                if let image = PlatformImage(data: data) {
-                    applyArtwork(image, to: track)
-                }
-            } catch {}
-        }
-    }
-
-    // Always nil until the browser poll keeps the tab URL, so the thumbnail fallback that calls it never runs.
-    private func findCurrentYouTubeVideoId() -> String? {
-        nil
     }
 
     // MARK: - Scrobble Submission
