@@ -238,14 +238,14 @@ class MediaRemoteBridge: ObservableObject {
     /// Set once MediaRemote has refused us on a macOS that restricts it, so it is not asked again this session.
     private var mediaRemoteBlocked = false
 
-    /// macOS 15.4 stopped returning now-playing data to third-party apps; before that, an empty reply only
-    /// meant nothing was playing.
     /// There is no browser-tab fallback when both are off: a tab's title gives no play state, so an idle tab
     /// scrobbled every track (issue #43). Browser tabs come only from the adapter or a working MediaRemote.
     nonisolated static func pollsMediaRemote(adapterRunning: Bool, mediaRemoteActive: Bool) -> Bool {
         !adapterRunning && mediaRemoteActive
     }
 
+    /// macOS 15.4 stopped returning now-playing data to third-party apps; before that, an empty reply only
+    /// meant nothing was playing.
     nonisolated static func restrictsMediaRemote(_ version: OperatingSystemVersion) -> Bool {
         (version.majorVersion, version.minorVersion) >= (15, 4)
     }

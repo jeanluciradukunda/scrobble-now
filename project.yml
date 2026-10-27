@@ -35,7 +35,7 @@ targets:
         ENABLE_USER_SCRIPT_SANDBOXING: NO
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_LSUIElement: YES
-        INFOPLIST_KEY_NSAppleEventsUsageDescription: "Scrobble Now reads the current tab in Safari and Chrome, and the artwork in Spotify, to scrobble what is playing."
+        INFOPLIST_KEY_NSAppleEventsUsageDescription: "Scrobble Now reads the artwork in Spotify to show what is playing."
         INFOPLIST_KEY_CFBundleDisplayName: "Scrobble Now"
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"

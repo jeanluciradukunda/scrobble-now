@@ -244,7 +244,8 @@ struct SettingsView: View {
                                 .foregroundStyle(.quaternary)
                                 .lineLimit(1)
                             #if os(macOS)
-                            if SystemScrobbleService.isBrowser(connector.bundleId) && !settings.useMediaRemoteAdapter {
+                            if SystemScrobbleService.isBrowser(connector.bundleId) && !settings.useMediaRemoteAdapter
+                                && MediaRemoteBridge.restrictsMediaRemote(ProcessInfo.processInfo.operatingSystemVersion) {
                                 Text("Inactive: browser tabs scrobble only with Detect any player on, which can tell a paused tab from a playing one.")
                                     .font(.system(size: 8))
                                     .foregroundStyle(.orange)
