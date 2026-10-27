@@ -245,7 +245,7 @@ struct SettingsView: View {
                                 .lineLimit(1)
                             #if os(macOS)
                             if SystemScrobbleService.isBrowser(connector.bundleId) && !settings.useMediaRemoteAdapter {
-                                Text("Pausing a tab isn't detected. Turn on Detect any player below for accurate pauses.")
+                                Text("Inactive: browser tabs scrobble only with Detect any player on, which can tell a paused tab from a playing one.")
                                     .font(.system(size: 8))
                                     .foregroundStyle(.orange)
                                     .fixedSize(horizontal: false, vertical: true)
