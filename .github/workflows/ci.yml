@@ -4,17 +4,28 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+env:
+  DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+  XCODEGEN_VERSION: 2.45.3
+  XCODEGEN_SHA256: 0c90f4d28ca57335f9fa78cf5bf6dabfe20a232036dabe36de2eef79cb7c0878
 jobs:
   build:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-      - name: Generate Xcode project
+      - name: Install XcodeGen
         run: |
-          brew install xcodegen || true
+          curl -sSL -o "$RUNNER_TEMP/xcodegen.zip" "https://github.com/yonaskolb/XcodeGen/releases/download/$XCODEGEN_VERSION/xcodegen.zip"
+          echo "$XCODEGEN_SHA256  $RUNNER_TEMP/xcodegen.zip" | shasum -a 256 -c -
+          unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/xcodegen/bin" >> "$GITHUB_PATH"
+      - name: Check the committed project matches project.yml
+        run: |
           xcodegen generate
+          git diff --exit-code ScrobbleNow.xcodeproj
       - name: Create dummy Secrets.plist
         run: cp ScrobbleNow/Resources/Secrets.example.plist ScrobbleNow/Resources/Secrets.plist
       - name: Build
@@ -27,7 +38,5 @@ jobs:
         run: |
           xcodebuild test -scheme ScrobbleNow -destination 'platform=macOS' -derivedDataPath build CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO
       - name: Build iOS
-        env:
-          DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
         run: |
           xcodebuild -scheme ScrobbleNowiOS -configuration Debug -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
