@@ -38,22 +38,22 @@ a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 main { overflow-x: clip; position: relative; }
 
-/* Rainbow stripe watermark flowing through entire page */
-main::before {
-  content: "";
-  position: fixed;
+/* Rainbow river — flows between spreads, behind images, never over text */
+.rainbow-river {
+  position: absolute;
+  top: 0;
   left: 50%;
-  top: 0; bottom: 0;
-  width: 40px;
-  transform: translateX(-20px);
-  z-index: 50;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600vh;
+  z-index: 0; /* behind all content */
   pointer-events: none;
-  opacity: 0.07;
-  background: linear-gradient(to right,
-    #d4302b 0%, #d4302b 12.5%, #e67a30 12.5%, #e67a30 25%,
-    #d4a843 25%, #d4a843 37.5%, #e8d44a 37.5%, #e8d44a 50%,
-    #5d9e4a 50%, #5d9e4a 62.5%, #3a9e8f 62.5%, #3a9e8f 75%,
-    #3a6fb5 75%, #3a6fb5 87.5%, #3a3f8f 87.5%, #3a3f8f 100%);
+  will-change: transform;
+}
+
+.rainbow-river svg {
+  width: 100%;
+  height: 100%;
 }
 
 /* ═══════ TYPOGRAPHY ═══════ */
@@ -89,6 +89,7 @@ p + p { text-indent: 1.5em; }
   grid-template-columns: 1fr 400px;
   min-height: 100vh;
   position: relative;
+  z-index: 2;
   align-items: center;
 }
 
@@ -224,6 +225,8 @@ p + p { text-indent: 1.5em; }
 .report {
   max-width: 1100px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 /* Two-page spread */
@@ -231,17 +234,28 @@ p + p { text-indent: 1.5em; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 80vh;
-  border-bottom: 1px solid var(--light-line);
+  margin-bottom: 5rem;
+  overflow: visible;
+  /* NO z-index, NO box-shadow on layered spreads — let layers interleave with river */
+}
+
+/* Only non-layered spreads get the paper card look */
+.report-spread:not(:has(.layered-img)) {
+  box-shadow: 0 12px 50px rgba(28, 24, 21, 0.1);
 }
 
 /* Single centered page */
 .report-single {
-  border-bottom: 1px solid var(--light-line);
+  margin-bottom: 4rem;
+  box-shadow: 0 8px 40px rgba(28, 24, 21, 0.08);
+  background: var(--cream);
 }
 
 .report-page {
   padding: 3rem;
   position: relative;
+  z-index: 4;
+  background: var(--cream); /* solid — text must be legible */
 }
 
 .page-left {
@@ -254,20 +268,97 @@ p + p { text-indent: 1.5em; }
   padding: 3rem 4rem;
 }
 
-/* Full-page image */
+/* Full-page image — breaks out of container to merge with river */
 .page-full-img {
-  width: 100%;
-  height: 100%;
+  width: 115%;
+  height: 110%;
   object-fit: cover;
   position: absolute;
-  inset: 0;
+  top: -5%;
+  left: -8%;
   will-change: transform;
+  z-index: 2;
+}
+
+/* Mirror for right-side pages */
+.page-right .page-full-img {
+  left: auto;
+  right: -8%;
 }
 
 /* When a page has a full image, remove padding */
 .report-page:has(.page-full-img) {
   padding: 0;
+  overflow: visible;
+  position: relative;
+}
+
+/* ═══════ PARALLAX SCENE — AI-generated bg/fg layers ═══════ */
+.parallax-scene {
+  padding: 0 !important;
+  position: relative;
   overflow: hidden;
+  background: var(--cream);
+}
+
+.scene-back, .scene-front {
+  position: absolute;
+  inset: -8%;
+  width: 116%;
+  height: 116%;
+  object-fit: cover;
+  will-change: transform;
+  transition: transform 0.06s linear;
+}
+
+.scene-back {
+  z-index: 0;
+}
+
+.scene-front {
+  z-index: 2;
+}
+
+/* ═══════ LAYERED IMAGE — decomposed color parallax ═══════ */
+/* The rainbow river (z-index: 1) passes BETWEEN back (0) and front (3) */
+.layered-img {
+  padding: 0 !important;
+  overflow: visible !important;
+  position: relative;
+  z-index: auto !important; /* allow children to interleave with river */
+  background: transparent !important;
+  min-height: 500px; /* prevent collapse */
+}
+
+.img-layer {
+  position: absolute;
+  inset: -10%;
+  width: 120%;
+  height: 120%;
+  object-fit: cover;
+  will-change: transform;
+  transition: transform 0.05s linear;
+}
+
+/* Back: warm tones — BEHIND the river */
+.img-back {
+  position: absolute;
+  z-index: -1; /* behind the river */
+  filter: blur(0.5px);
+  opacity: 0.9;
+}
+
+/* Mid: cool tones — ON TOP of river */
+.img-mid {
+  position: absolute;
+  z-index: 2;
+  opacity: 0.95;
+}
+
+/* Front: dark linework — topmost, sharpest */
+.img-front {
+  position: absolute;
+  z-index: 3;
 }
 
 /* Inset image within text flow */
@@ -321,6 +412,7 @@ p + p { text-indent: 1.5em; }
 .gallery-bleed {
   height: 220vh;
   position: relative;
+  z-index: 2;
   background: var(--ink);
 }
 
@@ -354,6 +446,9 @@ p + p { text-indent: 1.5em; }
   margin: 0 auto;
   padding: 3rem;
   border-top: 2px solid var(--ink);
+  position: relative;
+  z-index: 1;
+  background: var(--cream);
 }
 
 .appendix h2 {
@@ -454,6 +549,22 @@ p + p { text-indent: 1.5em; }
   padding: 4rem 2rem;
   background: var(--cream);
   gap: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* River terminus — the stripe the river flows into */
+.river-terminus {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+}
+
+.river-terminus span {
+  display: block;
+  width: 6px;
+  height: 160px;
+  border-radius: 3px 3px 0 0;
 }
 
 .back-cover-text {
