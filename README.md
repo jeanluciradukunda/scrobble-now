@@ -73,7 +73,7 @@ It is built for people who already scrobble everything and want that data to fee
     </td>
     <td width="33%" valign="top">
       <strong>iPhone companion</strong><br>
-      A Last.fm companion for iOS in <code>ScrobbleNowiOS/</code>: history, stats, loved tracks and collages. It does not scrobble.
+      A companion for iOS in <code>ScrobbleNowiOS/</code>: history, stats, loved tracks and collages, plus scrobbling of Apple Music playback from the system Music player.
     </td>
   </tr>
 </table>
