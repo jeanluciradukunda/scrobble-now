@@ -69,7 +69,7 @@ It is built for people who already scrobble everything and want that data to fee
     </td>
     <td width="33%" valign="top">
       <strong>Supported players</strong><br>
-      The Spotify and Apple Music apps, plus music sites in Safari and Chrome tabs: YouTube (music videos only), SoundCloud, Bandcamp, Spotify, Tidal, Deezer and Apple Music on the web. Each app can be switched off individually.
+      The Spotify and Apple Music apps. Other players, including music sites in browser tabs, are picked up through macOS Now Playing, which needs the experimental "Detect any player" setting on macOS 15.4 or later. Each detected app can be switched off individually.
     </td>
     <td width="33%" valign="top">
       <strong>iPhone companion</strong><br>
