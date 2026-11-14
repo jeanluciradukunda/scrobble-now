@@ -50,8 +50,19 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
-          latest=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName 2>/dev/null || true)
-          latest="${latest#v}"
+          if [[ "$VERSION" == *-* ]]; then
+            echo "::error::Pre-release versions are not supported: every release becomes the update feed's latest."
+            exit 1
+          fi
+          if latest=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name 2> "$RUNNER_TEMP/latest.err"); then
+            latest="${latest#v}"
+          elif grep -q "HTTP 404" "$RUNNER_TEMP/latest.err"; then
+            latest=""
+          else
+            cat "$RUNNER_TEMP/latest.err"
+            echo "::error::Could not read the latest release, so the version order cannot be checked."
+            exit 1
+          fi
           if [ -n "$latest" ] && [ "$(printf '%s\n%s\n' "$latest" "$VERSION" | sort -V | tail -1)" != "$VERSION" ]; then
             echo "::error::$VERSION is older than the latest release $latest. Its higher build number would make Sparkle offer it as an update."
             exit 1
