@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Free-text workflow inputs and event fields must reach shell through env:, never as ${{ }} inside a run script.
+# Flags any ${{ inputs.* }} or ${{ github.event.* }} expression that is not the whole value of a key: line (env: or with:),
+# so free-text inputs reach shell through env rather than being pasted into a script.
 set -euo pipefail
 [ $# -gt 0 ] || set -- .github/workflows/*.yml
 status=0
