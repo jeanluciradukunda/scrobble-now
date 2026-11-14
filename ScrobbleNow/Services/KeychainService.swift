@@ -9,22 +9,8 @@ struct KeychainService {
         case lastfmSharedSecret = "lastfm_shared_secret"
         case lastfmSessionKey = "lastfm_session_key"
         case discogsToken = "discogs_token"
-
-        var displayName: String {
-            switch self {
-            case .lastfmApiKey: return "Last.fm API Key"
-            case .lastfmSharedSecret: return "Last.fm Shared Secret"
-            case .lastfmSessionKey: return "Last.fm Session Key"
-            case .discogsToken: return "Discogs Token"
-            }
-        }
-
-        var isUserEditable: Bool {
-            switch self {
-            case .lastfmSessionKey: return false
-            default: return true
-            }
-        }
+        case ownLastfmApiKey = "own_lastfm_api_key"
+        case ownLastfmSharedSecret = "own_lastfm_shared_secret"
     }
 
     static func get(_ key: Key) -> String? {
@@ -50,6 +36,7 @@ struct KeychainService {
     /// Real values from Secrets.plist win; the template's `YOUR_..._HERE` placeholders are never stored,
     /// and a placeholder already stored (by v1.1.0) is removed so Settings reports the key as missing.
     static func seed(_ values: [(Key, String)], into store: UserDefaults) {
+        keepEarlierLastfmPairAsOwn(replacedBy: values, in: store)
         for (key, value) in values {
             let storeKey = prefix + key.rawValue
             if isPlaceholder(store.string(forKey: storeKey) ?? "") {
@@ -60,13 +47,62 @@ struct KeychainService {
         }
     }
 
+    /// A build that had its own key in Secrets.plist signed the user in with it; when a release bundles a
+    /// different key, that pair moves to the own-key slots so the existing session stays valid.
+    private static func keepEarlierLastfmPairAsOwn(replacedBy values: [(Key, String)], in store: UserDefaults) {
+        let incoming = Dictionary(values, uniquingKeysWith: { _, last in last })
+        func stored(_ key: Key) -> String { store.string(forKey: prefix + key.rawValue) ?? "" }
+        func isReal(_ value: String) -> Bool { !value.isEmpty && !isPlaceholder(value) }
+        let earlierKey = stored(.lastfmApiKey), earlierSecret = stored(.lastfmSharedSecret)
+        guard let newKey = incoming[.lastfmApiKey], isReal(newKey), newKey != earlierKey,
+              isReal(earlierKey), isReal(earlierSecret),
+              stored(.ownLastfmApiKey).isEmpty, stored(.ownLastfmSharedSecret).isEmpty
+        else { return }
+        store.set(earlierKey, forKey: prefix + Key.ownLastfmApiKey.rawValue)
+        store.set(earlierSecret, forKey: prefix + Key.ownLastfmSharedSecret.rawValue)
+    }
+
     static func isPlaceholder(_ value: String) -> Bool {
         value.hasPrefix("YOUR_") && value.hasSuffix("_HERE")
     }
 
     // MARK: - Convenience
-    static var lastfmApiKey: String { Self.get(.lastfmApiKey) ?? "" }
-    static var lastfmSharedSecret: String { Self.get(.lastfmSharedSecret) ?? "" }
+    static var lastfmApiKey: String { lastfmCredentials(in: defaults).apiKey }
+    static var lastfmSharedSecret: String { lastfmCredentials(in: defaults).secret }
+    static var usesOwnLastfmKey: Bool { lastfmCredentials(in: defaults).isOwn }
+
+    /// The user's own key and secret are used only as a pair; otherwise the bundled pair from Secrets.plist.
+    static func lastfmCredentials(in store: UserDefaults) -> LastFMCredentials {
+        let ownKey = store.string(forKey: prefix + Key.ownLastfmApiKey.rawValue) ?? ""
+        let ownSecret = store.string(forKey: prefix + Key.ownLastfmSharedSecret.rawValue) ?? ""
+        if !ownKey.isEmpty, !ownSecret.isEmpty {
+            return LastFMCredentials(apiKey: ownKey, secret: ownSecret, isOwn: true)
+        }
+        return LastFMCredentials(
+            apiKey: store.string(forKey: prefix + Key.lastfmApiKey.rawValue) ?? "",
+            secret: store.string(forKey: prefix + Key.lastfmSharedSecret.rawValue) ?? "",
+            isOwn: false
+        )
+    }
+
+    /// A Last.fm session belongs to the API key that created it, so changing the key signs the user out.
+    static func setOwnLastfmCredentials(apiKey: String, secret: String, in store: UserDefaults = defaults) {
+        let before = lastfmCredentials(in: store).apiKey
+
+        let apiKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        let secret = secret.trimmingCharacters(in: .whitespacesAndNewlines)
+        for (key, value) in [(Key.ownLastfmApiKey, apiKey), (.ownLastfmSharedSecret, secret)] {
+            if value.isEmpty {
+                store.removeObject(forKey: prefix + key.rawValue)
+            } else {
+                store.set(value, forKey: prefix + key.rawValue)
+            }
+        }
+        if lastfmCredentials(in: store).apiKey != before {
+            store.removeObject(forKey: prefix + Key.lastfmSessionKey.rawValue)
+        }
+    }
+
     static var lastfmSessionKey: String? { Self.get(.lastfmSessionKey) }
     static var discogsToken: String { Self.get(.discogsToken) ?? "" }
 
@@ -86,4 +122,10 @@ struct KeychainService {
             (.discogsToken, dict["DISCOGS_TOKEN"] ?? ""),
         ]
     }
+}
+
+struct LastFMCredentials {
+    let apiKey: String
+    let secret: String
+    let isOwn: Bool
 }
