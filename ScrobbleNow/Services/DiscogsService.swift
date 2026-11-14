@@ -98,14 +98,8 @@ actor DiscogsService {
 
     /// A release's `uri` is a full page URL or a path; anything that would leave discogs.com is dropped.
     nonisolated static func pageURL(uri: String) -> URL? {
-        if uri.hasPrefix("/") {
-            var components = URLComponents()
-            components.scheme = "https"
-            components.host = "www.discogs.com"
-            components.path = uri
-            return components.url
-        }
-        guard let url = URL(string: uri), url.scheme == "https",
+        let link = uri.hasPrefix("/") ? "https://www.discogs.com" + uri : uri
+        guard let url = URL(string: link), url.scheme == "https",
               let host = url.host, host == "discogs.com" || host == "www.discogs.com" else { return nil }
         return url
     }

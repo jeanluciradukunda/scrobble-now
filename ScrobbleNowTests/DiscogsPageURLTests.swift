@@ -12,6 +12,10 @@ struct DiscogsPageURLTests {
         #expect(DiscogsService.pageURL(uri: "/release/249504")?.absoluteString == "https://www.discogs.com/release/249504")
     }
 
+    @Test func anEncodedSlugIsNotEncodedAgain() {
+        #expect(DiscogsService.pageURL(uri: "/release/1-Bj%C3%B6rk")?.absoluteString == "https://www.discogs.com/release/1-Bj%C3%B6rk")
+    }
+
     @Test func aURIThatLeavesDiscogsIsDropped() {
         for uri in ["@example.com/release/1", "https://example.com/release/1", "http://www.discogs.com/release/1", "file:///etc/hosts"] {
             #expect(DiscogsService.pageURL(uri: uri) == nil, "\(uri)")
