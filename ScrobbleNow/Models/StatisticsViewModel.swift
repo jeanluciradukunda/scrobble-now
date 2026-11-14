@@ -79,7 +79,7 @@ class StatisticsViewModel: ObservableObject {
             scrobblesThisWeek = recent.filter { !$0.isNowPlaying && $0.timestamp >= weekAgo }.count
 
         } catch {
-            print("Stats load error: \(error)")
+            print(ErrorLog.line("Stats load error", error))
         }
         isLoading = false
     }
