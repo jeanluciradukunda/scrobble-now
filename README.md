@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <img src="site/public/assets/illustrations/hero-mid.png" alt="Scrobble Now hero artwork" width="760">
+  <img src="docs/readme/hero.svg" alt="Scrobble Now hero diagram" width="980">
 </p>
 
 ## What it is
@@ -64,12 +64,20 @@ It is built for people who already scrobble everything and want that data to fee
   </tr>
 </table>
 
+<p align="center">
+  <img src="docs/readme/source-mesh.svg" alt="Discovery engine diagram showing five music sources feeding a single scored album view" width="980">
+</p>
+
 ## Why it feels good
 
 - It lives in the menu bar, so your listening data is available without changing your workflow.
 - It merges multiple music databases into one answer instead of forcing you to compare tabs by hand.
 - It stays local to your Mac apart from the API calls needed to fetch music metadata.
 - It includes a companion landing page in `site/` so the app and its presentation can evolve together.
+
+<p align="center">
+  <img src="docs/readme/workflow.svg" alt="Listen, explore, export workflow strip" width="980">
+</p>
 
 ## Quick start
 
