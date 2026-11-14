@@ -2,11 +2,20 @@ import Foundation
 
 actor WikidataService {
 
+    /// Escapes a value for a double-quoted SPARQL literal, so a title with a quote cannot end the string early.
+    nonisolated static func sparqlStringContent(_ value: String) -> String {
+        value
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+            .replacingOccurrences(of: "\n", with: "\\n")
+            .replacingOccurrences(of: "\r", with: "\\r")
+    }
+
     func searchAlbum(album: String, artist: String) async throws -> [WikidataAlbum] {
         // SPARQL: find albums with this title that have a MusicBrainz release group ID
         let sparql = """
         SELECT ?album ?albumLabel ?mbid ?artistLabel WHERE {
-          ?album rdfs:label "\(album)"@en ;
+          ?album rdfs:label "\(Self.sparqlStringContent(album))"@en ;
                  wdt:P31/wdt:P279* wd:Q482994 .
           OPTIONAL { ?album wdt:P436 ?mbid . }
           OPTIONAL { ?album wdt:P175 ?artist . }
