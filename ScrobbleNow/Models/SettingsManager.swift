@@ -62,7 +62,7 @@ class SettingsManager: ObservableObject {
                 try SMAppService.mainApp.unregister()
             }
         } catch {
-            print("Launch at login error: \(error)")
+            print(ErrorLog.line("Launch at login error", error))
         }
     }
     #endif

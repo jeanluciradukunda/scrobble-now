@@ -54,7 +54,7 @@ class CollageViewModel: ObservableObject {
             // Pre-download all artwork so export doesn't block
             await predownloadArtwork()
         } catch {
-            print("Collage generation failed: \(error)")
+            print(ErrorLog.line("Collage generation failed", error))
         }
         isLoading = false
     }
