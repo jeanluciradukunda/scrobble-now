@@ -45,6 +45,18 @@ jobs:
             exit 1
           fi
 
+      - name: Check the version is not older than the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          latest=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName 2>/dev/null || true)
+          latest="${latest#v}"
+          if [ -n "$latest" ] && [ "$(printf '%s\n%s\n' "$latest" "$VERSION" | sort -V | tail -1)" != "$VERSION" ]; then
+            echo "::error::$VERSION is older than the latest release $latest. Its higher build number would make Sparkle offer it as an update."
+            exit 1
+          fi
+
       - name: Create tag (if manual dispatch)
         if: github.event_name == 'workflow_dispatch'
         run: |
@@ -245,7 +257,16 @@ jobs:
             --maximum-deltas 0 \
             -o "$RUNNER_TEMP/appcast.xml" "$RUNNER_TEMP/updates"
           rm -f "$KEY_FILE"
-          grep -q 'sparkle:edSignature' "$RUNNER_TEMP/appcast.xml"
+          SIGNATURE=$(sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p' "$RUNNER_TEMP/appcast.xml" | head -1)
+          if [ -z "$SIGNATURE" ]; then
+            echo "::error::The appcast enclosure is not signed."
+            exit 1
+          fi
+          PUBLIC_KEY=$(/usr/libexec/PlistBuddy -c 'Print :SUPublicEDKey' "$RUNNER_TEMP/export/Scrobble Now.app/Contents/Info.plist")
+          if ! swift .github/scripts/verify-sparkle-signature.swift "$PUBLIC_KEY" "$RUNNER_TEMP/updates/ScrobbleNow-$VERSION.dmg" "$SIGNATURE"; then
+            echo "::error::SPARKLE_PUBLIC_ED_KEY does not match SPARKLE_ED_PRIVATE_KEY; installed copies would reject this update."
+            exit 1
+          fi
 
       # ---------- Cleanup & Release ----------
       - name: Clean up keychain
