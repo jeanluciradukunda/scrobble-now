@@ -419,11 +419,7 @@ struct AlbumDetailView: View {
 
     private func linkButton(label: String, color: Color, url: URL) -> some View {
         Button {
-            #if os(macOS)
-            NSWorkspace.shared.open(url)
-            #else
-            UIApplication.shared.open(url)
-            #endif
+            ExternalLink.open(url)
         } label: {
             Text(label)
                 .font(.system(size: 8, weight: .medium))

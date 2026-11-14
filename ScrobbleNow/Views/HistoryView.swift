@@ -744,11 +744,7 @@ struct HistoryView: View {
     }
 
     private func openURL(_ url: URL) {
-        #if os(iOS)
-        UIApplication.shared.open(url)
-        #else
-        NSWorkspace.shared.open(url)
-        #endif
+        ExternalLink.open(url)
     }
 
     private func copyToClipboard(_ text: String) {
