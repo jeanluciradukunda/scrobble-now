@@ -68,7 +68,7 @@ actor DiscogsService {
         let genres = json["genres"] as? [String] ?? []
         let styles = json["styles"] as? [String] ?? []
         let uri = json["uri"] as? String
-        let discogsURL = uri.flatMap { URL(string: "https://www.discogs.com\($0)") }
+        let discogsURL = uri.flatMap(Self.pageURL(uri:))
 
         // All images
         let images = (json["images"] as? [[String: Any]]) ?? []
@@ -94,5 +94,13 @@ actor DiscogsService {
         if parts.count == 2 { return (parts[0] * 60 + parts[1]) * 1000 }
         if parts.count == 3 { return (parts[0] * 3600 + parts[1] * 60 + parts[2]) * 1000 }
         return 0
+    }
+
+    /// A release's `uri` is a full page URL or a path; anything that would leave discogs.com is dropped.
+    nonisolated static func pageURL(uri: String) -> URL? {
+        let link = uri.hasPrefix("/") ? "https://www.discogs.com" + uri : uri
+        guard let url = URL(string: link), url.scheme == "https",
+              let host = url.host, host == "discogs.com" || host == "www.discogs.com" else { return nil }
+        return url
     }
 }
