@@ -35,6 +35,39 @@ jobs:
             echo "TAG=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Check Sparkle signing key
+        env:
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+          SPARKLE_PUBLIC_ED_KEY: ${{ vars.SPARKLE_PUBLIC_ED_KEY }}
+        run: |
+          if [ -z "$SPARKLE_ED_PRIVATE_KEY" ] || [ -z "$SPARKLE_PUBLIC_ED_KEY" ]; then
+            echo "::error::Secret SPARKLE_ED_PRIVATE_KEY and variable SPARKLE_PUBLIC_ED_KEY are both required, or installed copies can never update."
+            exit 1
+          fi
+
+      - name: Check the version is not older than the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          if [[ "$VERSION" == *-* ]]; then
+            echo "::error::Pre-release versions are not supported: every release becomes the update feed's latest."
+            exit 1
+          fi
+          if latest=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name 2> "$RUNNER_TEMP/latest.err"); then
+            latest="${latest#v}"
+          elif grep -q "HTTP 404" "$RUNNER_TEMP/latest.err"; then
+            latest=""
+          else
+            cat "$RUNNER_TEMP/latest.err"
+            echo "::error::Could not read the latest release, so the version order cannot be checked."
+            exit 1
+          fi
+          if [ -n "$latest" ] && [ "$(printf '%s\n%s\n' "$latest" "$VERSION" | sort -V | tail -1)" != "$VERSION" ]; then
+            echo "::error::$VERSION is older than the latest release $latest. Its higher build number would make Sparkle offer it as an update."
+            exit 1
+          fi
+
       - name: Create tag (if manual dispatch)
         if: github.event_name == 'workflow_dispatch'
         run: |
@@ -59,6 +92,7 @@ jobs:
       - name: Set version in project.yml
         run: |
           sed -i '' "s/MARKETING_VERSION: .*/MARKETING_VERSION: \"${{ steps.version.outputs.VERSION }}\"/" project.yml
+          sed -i '' "s/CURRENT_PROJECT_VERSION: .*/CURRENT_PROJECT_VERSION: \"${{ github.run_number }}\"/" project.yml
           xcodegen generate
 
       # ---------- Code Signing Setup ----------
@@ -90,6 +124,8 @@ jobs:
 
       # ---------- Build & Sign ----------
       - name: Archive
+        env:
+          SPARKLE_PUBLIC_ED_KEY: ${{ vars.SPARKLE_PUBLIC_ED_KEY }}
         run: |
           xcodebuild \
             -scheme ScrobbleNow \
@@ -99,6 +135,7 @@ jobs:
             DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }} \
             CODE_SIGN_STYLE=Manual \
             OTHER_CODE_SIGN_FLAGS="--options runtime" \
+            SPARKLE_PUBLIC_ED_KEY="$SPARKLE_PUBLIC_ED_KEY" \
             archive
 
       - name: Export app
@@ -211,6 +248,37 @@ jobs:
 
           xcrun stapler staple "$DMG_PATH"
 
+      - name: Generate Sparkle appcast
+        env:
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+          SPARKLE_VERSION: 2.10.0
+          SPARKLE_SHA256: c2bf58aa8387266ac179357b1415d6f2635f044da8be41042af32425dae6da0c
+          TAG: ${{ steps.version.outputs.TAG }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          curl -sSL -o "$RUNNER_TEMP/sparkle.tar.xz" "https://github.com/sparkle-project/Sparkle/releases/download/$SPARKLE_VERSION/Sparkle-$SPARKLE_VERSION.tar.xz"
+          echo "$SPARKLE_SHA256  $RUNNER_TEMP/sparkle.tar.xz" | shasum -a 256 -c -
+          mkdir -p "$RUNNER_TEMP/sparkle" "$RUNNER_TEMP/updates"
+          tar -xJf "$RUNNER_TEMP/sparkle.tar.xz" -C "$RUNNER_TEMP/sparkle"
+          cp "$RUNNER_TEMP/ScrobbleNow-$VERSION.dmg" "$RUNNER_TEMP/updates/"
+          KEY_FILE="$RUNNER_TEMP/sparkle_ed_key"
+          ( umask 077; printf '%s' "$SPARKLE_ED_PRIVATE_KEY" > "$KEY_FILE" )
+          "$RUNNER_TEMP/sparkle/bin/generate_appcast" --ed-key-file "$KEY_FILE" \
+            --download-url-prefix "https://github.com/${{ github.repository }}/releases/download/$TAG/" \
+            --maximum-deltas 0 \
+            -o "$RUNNER_TEMP/appcast.xml" "$RUNNER_TEMP/updates"
+          rm -f "$KEY_FILE"
+          SIGNATURE=$(sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p' "$RUNNER_TEMP/appcast.xml" | head -1)
+          if [ -z "$SIGNATURE" ]; then
+            echo "::error::The appcast enclosure is not signed."
+            exit 1
+          fi
+          PUBLIC_KEY=$(/usr/libexec/PlistBuddy -c 'Print :SUPublicEDKey' "$RUNNER_TEMP/export/Scrobble Now.app/Contents/Info.plist")
+          if ! swift .github/scripts/verify-sparkle-signature.swift "$PUBLIC_KEY" "$RUNNER_TEMP/updates/ScrobbleNow-$VERSION.dmg" "$SIGNATURE"; then
+            echo "::error::SPARKLE_PUBLIC_ED_KEY does not match SPARKLE_ED_PRIVATE_KEY; installed copies would reject this update."
+            exit 1
+          fi
+
       # ---------- Cleanup & Release ----------
       - name: Clean up keychain
         if: always()
@@ -234,5 +302,6 @@ jobs:
             **Signed and notarized with Apple Developer ID.** Requires macOS 14.0 Sonoma or later.
           files: |
             ${{ runner.temp }}/ScrobbleNow-${{ steps.version.outputs.VERSION }}.dmg
+            ${{ runner.temp }}/appcast.xml
           draft: false
           prerelease: false
