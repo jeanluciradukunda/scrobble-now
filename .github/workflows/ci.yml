@@ -16,6 +16,8 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - name: Check workflows pass inputs to shell through env
+        run: .github/scripts/check-workflow-expressions.sh
       - name: Install XcodeGen
         run: |
           curl -sSL -o "$RUNNER_TEMP/xcodegen.zip" "https://github.com/yonaskolb/XcodeGen/releases/download/$XCODEGEN_VERSION/xcodegen.zip"
