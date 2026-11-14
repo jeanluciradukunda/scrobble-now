@@ -54,4 +54,24 @@ struct LastFMCredentialsTests {
         #expect(KeychainService.lastfmCredentials(in: defaults.store).apiKey == "bundled-key")
         #expect(defaults.store.string(forKey: "sn_secret_lastfm_session_key") == nil)
     }
+
+    @Test func anUpgradeKeepsTheEarlierKeyAsOwnSoTheSessionStaysValid() {
+        let defaults = scratch(bundledKey: "earlier-key", bundledSecret: "earlier-secret")
+        KeychainService.seed([(.lastfmApiKey, "release-key"), (.lastfmSharedSecret, "release-secret")], into: defaults.store)
+        let credentials = KeychainService.lastfmCredentials(in: defaults.store)
+        #expect(credentials.apiKey == "earlier-key")
+        #expect(credentials.secret == "earlier-secret")
+        #expect(credentials.isOwn)
+        #expect(defaults.store.string(forKey: "sn_secret_lastfm_session_key") == "session")
+    }
+
+    @Test func reseedingTheSameKeyOrAFreshInstallSetsNoOwnKey() {
+        let same = scratch(bundledKey: "release-key", bundledSecret: "release-secret")
+        KeychainService.seed([(.lastfmApiKey, "release-key"), (.lastfmSharedSecret, "release-secret")], into: same.store)
+        #expect(!KeychainService.lastfmCredentials(in: same.store).isOwn)
+
+        let fresh = ScratchDefaults("LastFMCredentials")
+        KeychainService.seed([(.lastfmApiKey, "release-key"), (.lastfmSharedSecret, "release-secret")], into: fresh.store)
+        #expect(!KeychainService.lastfmCredentials(in: fresh.store).isOwn)
+    }
 }

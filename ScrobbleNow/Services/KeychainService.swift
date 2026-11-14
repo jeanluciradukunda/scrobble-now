@@ -36,6 +36,7 @@ struct KeychainService {
     /// Real values from Secrets.plist win; the template's `YOUR_..._HERE` placeholders are never stored,
     /// and a placeholder already stored (by v1.1.0) is removed so Settings reports the key as missing.
     static func seed(_ values: [(Key, String)], into store: UserDefaults) {
+        keepEarlierLastfmPairAsOwn(replacedBy: values, in: store)
         for (key, value) in values {
             let storeKey = prefix + key.rawValue
             if isPlaceholder(store.string(forKey: storeKey) ?? "") {
@@ -44,6 +45,21 @@ struct KeychainService {
             guard !value.isEmpty, !isPlaceholder(value) else { continue }
             store.set(value, forKey: storeKey)
         }
+    }
+
+    /// A build that had its own key in Secrets.plist signed the user in with it; when a release bundles a
+    /// different key, that pair moves to the own-key slots so the existing session stays valid.
+    private static func keepEarlierLastfmPairAsOwn(replacedBy values: [(Key, String)], in store: UserDefaults) {
+        let incoming = Dictionary(values, uniquingKeysWith: { _, last in last })
+        func stored(_ key: Key) -> String { store.string(forKey: prefix + key.rawValue) ?? "" }
+        func isReal(_ value: String) -> Bool { !value.isEmpty && !isPlaceholder(value) }
+        let earlierKey = stored(.lastfmApiKey), earlierSecret = stored(.lastfmSharedSecret)
+        guard let newKey = incoming[.lastfmApiKey], isReal(newKey), newKey != earlierKey,
+              isReal(earlierKey), isReal(earlierSecret),
+              stored(.ownLastfmApiKey).isEmpty, stored(.ownLastfmSharedSecret).isEmpty
+        else { return }
+        store.set(earlierKey, forKey: prefix + Key.ownLastfmApiKey.rawValue)
+        store.set(earlierSecret, forKey: prefix + Key.ownLastfmSharedSecret.rawValue)
     }
 
     static func isPlaceholder(_ value: String) -> Bool {

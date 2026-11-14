@@ -28,8 +28,8 @@ jobs:
         run: |
           for name in LASTFM_API_KEY LASTFM_SHARED_SECRET; do
             value="${!name}"
-            if [ -z "$value" ] || [[ "$value" == YOUR_*_HERE ]]; then
-              echo "::error::Repository secret $name is missing or a placeholder; a release without it cannot talk to Last.fm."
+            if [ -z "$value" ] || [[ "$value" =~ [[:space:]] ]] || [[ "$value" == YOUR_*_HERE ]]; then
+              echo "::error::Repository secret $name is missing, a placeholder or contains whitespace; a release without it cannot talk to Last.fm."
               exit 1
             fi
           done
